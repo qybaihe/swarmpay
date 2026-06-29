@@ -1,0 +1,1287 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "appState": {
+    "viewBackgroundColor": "#050814"
+  },
+  "elements": [
+    {
+      "type": "rectangle",
+      "id": "bg",
+      "x": 0,
+      "y": 0,
+      "width": 1500,
+      "height": 760,
+      "strokeColor": "#050814",
+      "backgroundColor": "#050814",
+      "roughness": 0,
+      "strokeWidth": 0,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "rectangle",
+      "id": "panel",
+      "x": 46,
+      "y": 44,
+      "width": 1408,
+      "height": 672,
+      "strokeColor": "#10243E",
+      "backgroundColor": "#071225",
+      "roughness": 0.05,
+      "strokeWidth": 1,
+      "strokeStyle": "solid",
+      "fillStyle": "solid",
+      "opacity": 84
+    },
+    {
+      "type": "line",
+      "id": "grid-v-120",
+      "x": 120,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-246",
+      "x": 246,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-372",
+      "x": 372,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-498",
+      "x": 498,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-624",
+      "x": 624,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-750",
+      "x": 750,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-876",
+      "x": 876,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-1002",
+      "x": 1002,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-1128",
+      "x": 1128,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-1254",
+      "x": 1254,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-v-1380",
+      "x": 1380,
+      "y": 76,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          608
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-116",
+      "x": 84,
+      "y": 116,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-224",
+      "x": 84,
+      "y": 224,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-332",
+      "x": 84,
+      "y": 332,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-440",
+      "x": 84,
+      "y": 440,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-548",
+      "x": 84,
+      "y": 548,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "grid-h-656",
+      "x": 84,
+      "y": 656,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1332,
+          0
+        ]
+      ],
+      "strokeColor": "#17304F",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 14
+    },
+    {
+      "type": "line",
+      "id": "glow-line-top",
+      "x": 104,
+      "y": 118,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1292,
+          0
+        ]
+      ],
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 28
+    },
+    {
+      "type": "line",
+      "id": "glow-line-bottom",
+      "x": 104,
+      "y": 620,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1292,
+          0
+        ]
+      ],
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0,
+      "strokeWidth": 1,
+      "opacity": 28
+    },
+    {
+      "type": "rectangle",
+      "id": "input",
+      "x": 116,
+      "y": 98,
+      "width": 256,
+      "height": 70,
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "#071C31",
+      "roughness": 0.26,
+      "strokeWidth": 2.7,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "input-text",
+      "x": 116,
+      "y": 110,
+      "width": 256,
+      "height": 30,
+      "text": "复杂目标",
+      "fontSize": 24,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "input-sub",
+      "x": 116,
+      "y": 140,
+      "width": 256,
+      "height": 20,
+      "text": "进入进化协作模式",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "strokeColor": "#BFEFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "evomap",
+      "x": 500,
+      "y": 82,
+      "width": 500,
+      "height": 102,
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "#081F1A",
+      "roughness": 0.26,
+      "strokeWidth": 3.2,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "ellipse",
+      "id": "evomap-dot-a",
+      "x": 532,
+      "y": 116,
+      "width": 88,
+      "height": 40,
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "#08243A",
+      "roughness": 0.26,
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "fillStyle": "solid",
+      "opacity": 90
+    },
+    {
+      "type": "ellipse",
+      "id": "evomap-dot-b",
+      "x": 880,
+      "y": 116,
+      "width": 88,
+      "height": 40,
+      "strokeColor": "#8B5CFF",
+      "backgroundColor": "#17112D",
+      "roughness": 0.26,
+      "strokeWidth": 1.5,
+      "strokeStyle": "solid",
+      "fillStyle": "solid",
+      "opacity": 90
+    },
+    {
+      "type": "text",
+      "id": "evomap-title",
+      "x": 500,
+      "y": 96,
+      "width": 500,
+      "height": 38,
+      "text": "EvoMap 经验网络",
+      "fontSize": 30,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "evomap-sub",
+      "x": 500,
+      "y": 138,
+      "width": 500,
+      "height": 28,
+      "text": "经验基因 · 成功胶囊 · 进化事件",
+      "fontSize": 17,
+      "fontFamily": 2,
+      "strokeColor": "#A9FFE2",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "note",
+      "x": 1130,
+      "y": 98,
+      "width": 250,
+      "height": 70,
+      "strokeColor": "#8B5CFF",
+      "backgroundColor": "#17112D",
+      "roughness": 0.26,
+      "strokeWidth": 2.7,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "note-text",
+      "x": 1130,
+      "y": 110,
+      "width": 250,
+      "height": 30,
+      "text": "双向贯通",
+      "fontSize": 24,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "note-sub",
+      "x": 1130,
+      "y": 140,
+      "width": 250,
+      "height": 20,
+      "text": "越用越会协作",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "strokeColor": "#D8CAFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "orchestrator",
+      "x": 516,
+      "y": 244,
+      "width": 468,
+      "height": 96,
+      "strokeColor": "#FFB84D",
+      "backgroundColor": "#221807",
+      "roughness": 0.26,
+      "strokeWidth": 3.2,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "orch-title",
+      "x": 516,
+      "y": 258,
+      "width": 468,
+      "height": 34,
+      "text": "旗舰编排",
+      "fontSize": 30,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "orch-sub",
+      "x": 516,
+      "y": 296,
+      "width": 468,
+      "height": 26,
+      "text": "读取经验 · 拆解任务 · 分发航线",
+      "fontSize": 17,
+      "fontFamily": 2,
+      "strokeColor": "#FFE1A9",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "arrow",
+      "id": "input-to-orch",
+      "from": "input",
+      "to": "orchestrator",
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.6
+    },
+    {
+      "type": "arrow",
+      "id": "inherit",
+      "from": "evomap",
+      "to": "orchestrator",
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 3
+    },
+    {
+      "type": "text",
+      "id": "inherit-label",
+      "x": 860,
+      "y": 190,
+      "width": 110,
+      "height": 24,
+      "text": "继承",
+      "fontSize": 17,
+      "fontFamily": 2,
+      "strokeColor": "#A9FFE2",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "lane-shell",
+      "x": 138,
+      "y": 408,
+      "width": 930,
+      "height": 180,
+      "strokeColor": "#294466",
+      "backgroundColor": "#071126",
+      "roughness": 0.26,
+      "strokeWidth": 1.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid",
+      "opacity": 92
+    },
+    {
+      "type": "text",
+      "id": "lane-title",
+      "x": 138,
+      "y": 424,
+      "width": 930,
+      "height": 28,
+      "text": "多条任务航线并行推进",
+      "fontSize": 21,
+      "fontFamily": 2,
+      "strokeColor": "#C7D7FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "planner",
+      "x": 214,
+      "y": 490,
+      "width": 152,
+      "height": 64,
+      "strokeColor": "#5CA8FF",
+      "backgroundColor": "#0B2447",
+      "roughness": 0.26,
+      "strokeWidth": 2.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "planner-t",
+      "x": 214,
+      "y": 501,
+      "width": 152,
+      "height": 24,
+      "text": "规划蜂",
+      "fontSize": 21,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "planner-s",
+      "x": 214,
+      "y": 528,
+      "width": 152,
+      "height": 18,
+      "text": "形成执行计划",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "strokeColor": "#CFE1FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "coder",
+      "x": 432,
+      "y": 490,
+      "width": 152,
+      "height": 64,
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "#08293B",
+      "roughness": 0.26,
+      "strokeWidth": 2.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "coder-t",
+      "x": 432,
+      "y": 501,
+      "width": 152,
+      "height": 24,
+      "text": "工程蜂",
+      "fontSize": 21,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "coder-s",
+      "x": 432,
+      "y": 528,
+      "width": 152,
+      "height": 18,
+      "text": "实现与验证",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "strokeColor": "#BDF7FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "diamond",
+      "id": "reviewer",
+      "x": 656,
+      "y": 470,
+      "width": 138,
+      "height": 102,
+      "strokeColor": "#8B5CFF",
+      "backgroundColor": "#181132",
+      "roughness": 0.26,
+      "strokeWidth": 2.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "reviewer-t",
+      "x": 656,
+      "y": 502,
+      "width": 138,
+      "height": 22,
+      "text": "审查蜂",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "reviewer-s",
+      "x": 656,
+      "y": 528,
+      "width": 138,
+      "height": 18,
+      "text": "通过或退回",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "strokeColor": "#E0D7FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "accepted",
+      "x": 862,
+      "y": 490,
+      "width": 146,
+      "height": 64,
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "#09251F",
+      "roughness": 0.26,
+      "strokeWidth": 2.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "accepted-t",
+      "x": 862,
+      "y": 502,
+      "width": 146,
+      "height": 24,
+      "text": "通过产出",
+      "fontSize": 20,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "accepted-s",
+      "x": 862,
+      "y": 528,
+      "width": 146,
+      "height": 18,
+      "text": "进入聚合池",
+      "fontSize": 13,
+      "fontFamily": 2,
+      "strokeColor": "#C8FFE8",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "arrow",
+      "id": "p2c",
+      "from": "planner",
+      "to": "coder",
+      "strokeColor": "#2AEAFF",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.8
+    },
+    {
+      "type": "arrow",
+      "id": "c2r",
+      "from": "coder",
+      "to": "reviewer",
+      "strokeColor": "#8B5CFF",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.8
+    },
+    {
+      "type": "arrow",
+      "id": "r2ok",
+      "from": "reviewer",
+      "to": "accepted",
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.8
+    },
+    {
+      "type": "arrow",
+      "id": "reject-loop",
+      "from": "reviewer",
+      "to": "coder",
+      "absolutePoints": true,
+      "points": [
+        [
+          724,
+          574
+        ],
+        [
+          724,
+          614
+        ],
+        [
+          508,
+          614
+        ],
+        [
+          508,
+          562
+        ]
+      ],
+      "strokeColor": "#FFB84D",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.5,
+      "strokeStyle": "dashed"
+    },
+    {
+      "type": "text",
+      "id": "reject-label",
+      "x": 520,
+      "y": 594,
+      "width": 210,
+      "height": 24,
+      "text": "退回返工 · 最多两轮",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "strokeColor": "#FFD99A",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "more-lanes",
+      "x": 1100,
+      "y": 430,
+      "width": 260,
+      "height": 132,
+      "strokeColor": "#263F66",
+      "backgroundColor": "#081225",
+      "roughness": 0.26,
+      "strokeWidth": 1.8,
+      "strokeStyle": "solid",
+      "fillStyle": "solid",
+      "opacity": 82
+    },
+    {
+      "type": "text",
+      "id": "more-title",
+      "x": 1100,
+      "y": 450,
+      "width": 260,
+      "height": 28,
+      "text": "其他航线",
+      "fontSize": 21,
+      "fontFamily": 2,
+      "strokeColor": "#C7D7FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "more-sub",
+      "x": 1100,
+      "y": 492,
+      "width": 260,
+      "height": 46,
+      "text": "同步运行同样闭环\n互不阻塞,共同收敛",
+      "fontSize": 16,
+      "fontFamily": 2,
+      "strokeColor": "#96AECB",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "arrow",
+      "id": "orch-to-lane",
+      "from": "orchestrator",
+      "to": "planner",
+      "absolutePoints": true,
+      "points": [
+        [
+          610,
+          342
+        ],
+        [
+          290,
+          386
+        ],
+        [
+          290,
+          482
+        ]
+      ],
+      "strokeColor": "#5CA8FF",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.5
+    },
+    {
+      "type": "arrow",
+      "id": "orch-to-more",
+      "from": "orchestrator",
+      "to": "more-lanes",
+      "absolutePoints": true,
+      "points": [
+        [
+          890,
+          342
+        ],
+        [
+          1230,
+          390
+        ],
+        [
+          1230,
+          430
+        ]
+      ],
+      "strokeColor": "#5CA8FF",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.5
+    },
+    {
+      "type": "text",
+      "id": "route-label",
+      "x": 644,
+      "y": 356,
+      "width": 220,
+      "height": 24,
+      "text": "拆解后分发",
+      "fontSize": 16,
+      "fontFamily": 2,
+      "strokeColor": "#BDD2FF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "broadcast",
+      "x": 166,
+      "y": 632,
+      "width": 762,
+      "height": 66,
+      "strokeColor": "#FFB84D",
+      "backgroundColor": "#201608",
+      "roughness": 0.26,
+      "strokeWidth": 2.2,
+      "strokeStyle": "dashed",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "broadcast-title",
+      "x": 166,
+      "y": 642,
+      "width": 762,
+      "height": 26,
+      "text": "突破广播",
+      "fontSize": 23,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "broadcast-sub",
+      "x": 166,
+      "y": 670,
+      "width": 762,
+      "height": 20,
+      "text": "任一关键进展都会即时同步全队,让后续航线站在新经验上继续推进",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "strokeColor": "#FFE1A9",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "rectangle",
+      "id": "aggregator",
+      "x": 1040,
+      "y": 630,
+      "width": 326,
+      "height": 70,
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "#081F1A",
+      "roughness": 0.26,
+      "strokeWidth": 3,
+      "strokeStyle": "solid",
+      "fillStyle": "solid"
+    },
+    {
+      "type": "text",
+      "id": "agg-title",
+      "x": 1040,
+      "y": 638,
+      "width": 326,
+      "height": 28,
+      "text": "旗舰聚合",
+      "fontSize": 25,
+      "fontFamily": 2,
+      "strokeColor": "#FFFFFF",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "text",
+      "id": "agg-sub",
+      "x": 1040,
+      "y": 668,
+      "width": 326,
+      "height": 20,
+      "text": "合成最终答案与成功配方",
+      "fontSize": 15,
+      "fontFamily": 2,
+      "strokeColor": "#C8FFE8",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    },
+    {
+      "type": "arrow",
+      "id": "ok-to-broadcast",
+      "from": "accepted",
+      "to": "broadcast",
+      "absolutePoints": true,
+      "points": [
+        [
+          936,
+          556
+        ],
+        [
+          936,
+          612
+        ],
+        [
+          850,
+          632
+        ]
+      ],
+      "strokeColor": "#FFB84D",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.3,
+      "strokeStyle": "dashed"
+    },
+    {
+      "type": "arrow",
+      "id": "more-to-broadcast",
+      "from": "more-lanes",
+      "to": "broadcast",
+      "absolutePoints": true,
+      "points": [
+        [
+          1230,
+          562
+        ],
+        [
+          1230,
+          612
+        ],
+        [
+          928,
+          650
+        ]
+      ],
+      "strokeColor": "#FFB84D",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.3,
+      "strokeStyle": "dashed"
+    },
+    {
+      "type": "arrow",
+      "id": "broadcast-to-agg",
+      "from": "broadcast",
+      "to": "aggregator",
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.8
+    },
+    {
+      "type": "arrow",
+      "id": "ok-to-agg",
+      "from": "accepted",
+      "to": "aggregator",
+      "absolutePoints": true,
+      "points": [
+        [
+          1008,
+          522
+        ],
+        [
+          1203,
+          612
+        ],
+        [
+          1203,
+          630
+        ]
+      ],
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.4
+    },
+    {
+      "type": "arrow",
+      "id": "more-to-agg",
+      "from": "more-lanes",
+      "to": "aggregator",
+      "absolutePoints": true,
+      "points": [
+        [
+          1230,
+          562
+        ],
+        [
+          1230,
+          620
+        ],
+        [
+          1230,
+          630
+        ]
+      ],
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 2.4
+    },
+    {
+      "type": "arrow",
+      "id": "backflow",
+      "from": "aggregator",
+      "to": "evomap",
+      "absolutePoints": true,
+      "points": [
+        [
+          1366,
+          665
+        ],
+        [
+          1406,
+          665
+        ],
+        [
+          1406,
+          132
+        ],
+        [
+          1000,
+          132
+        ]
+      ],
+      "strokeColor": "#3DFFB0",
+      "backgroundColor": "transparent",
+      "roughness": 0.15,
+      "strokeWidth": 3
+    },
+    {
+      "type": "text",
+      "id": "backflow-label",
+      "x": 1270,
+      "y": 302,
+      "width": 128,
+      "height": 44,
+      "text": "回流\n沉淀配方",
+      "fontSize": 17,
+      "fontFamily": 2,
+      "strokeColor": "#A9FFE2",
+      "textAlign": "center",
+      "verticalAlign": "middle"
+    }
+  ]
+}

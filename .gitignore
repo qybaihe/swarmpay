@@ -1,0 +1,49 @@
+# 依赖
+node_modules/
+
+# 构建产物
+dist/
+build/
+
+# 密钥与本地配置(绝不可提交)
+.env
+.env.local
+.env.*.local
+
+# 日志
+*.log
+npm-debug.log*
+
+# 本地数据库
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# 系统/编辑器
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 调研抓取的原始数据(本地参考,不入库)
+research/
+/tmp/
+
+# Agent 运行时状态(本地绩效/记忆,不入库)
+.agent-state/
+
+# 前端构建产物(npm run build:web 输出的 hash 文件,不入库;public 下素材保留)
+public/assets/index-*.js
+public/assets/index-*.css
+
+# Playwright 测试产物
+.playwright-cli/
+output/
+
+# Benchmark 本地数据与运行产物
+benchmarks/datasets/
+benchmarks/evalsets/
+benchmarks/external-results/
+benchmarks/results/

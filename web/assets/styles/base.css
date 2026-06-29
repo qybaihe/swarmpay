@@ -1,0 +1,225 @@
+/* 全局 reset + body + 两页共享基础类 */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.2px;
+}
+code,
+pre,
+.mono {
+  font-family: "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+a {
+  color: inherit;
+}
+
+/* logo(导航 / 页脚共用) */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  color: var(--text);
+}
+.logo .mark {
+  width: 26px;
+  height: 26px;
+  color: var(--cyan);
+  filter: drop-shadow(0 0 6px rgba(58, 224, 255, 0.7));
+  display: inline-flex;
+}
+.logo .mark svg {
+  width: 100%;
+  height: 100%;
+}
+.logo b {
+  background: linear-gradient(90deg, #fff, var(--cyan));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 表单字段(转换器 / 登录页共用) */
+.field {
+  margin-bottom: 20px;
+}
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.field input,
+.field select {
+  width: 100%;
+  padding: 13px 15px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--panel-line);
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  transition: 0.2s;
+  border-radius: 0;
+}
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(58, 224, 255, 0.14);
+}
+.field input::placeholder {
+  color: var(--dim);
+}
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 按钮(SpaceX 式硬朗直角) */
+.btn {
+  padding: 15px 34px;
+  border-radius: 0;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: inherit;
+  letter-spacing: 0.8px;
+}
+.btn-primary {
+  background: #fff;
+  color: #04050d;
+}
+.btn-primary:hover {
+  background: var(--cyan);
+  transform: translateY(-2px);
+}
+.btn-ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #fff;
+}
+
+/* 消息条(错误 / 成功 / 信息) */
+.msg {
+  margin-top: 16px;
+  padding: 13px 15px;
+  font-size: 13px;
+  display: none;
+  border-radius: 0;
+}
+.msg.show {
+  display: block;
+  animation: fadeUp 0.4s ease;
+}
+.msg.ok {
+  background: rgba(61, 255, 176, 0.1);
+  border: 1px solid rgba(61, 255, 176, 0.35);
+  color: var(--green);
+}
+.msg.err {
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  color: var(--red);
+}
+.msg.info {
+  background: rgba(255, 184, 77, 0.1);
+  border: 1px solid rgba(255, 184, 77, 0.35);
+  color: var(--amber);
+}
+
+/* 复制按钮 */
+.copy-btn {
+  padding: 6px 13px;
+  border-radius: 0;
+  background: rgba(58, 224, 255, 0.12);
+  color: var(--cyan);
+  border: 1px solid rgba(58, 224, 255, 0.3);
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+}
+.copy-btn:hover {
+  background: rgba(58, 224, 255, 0.25);
+}
+
+/* 全局 toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  padding: 12px 24px;
+  background: rgba(61, 255, 176, 0.15);
+  border: 1px solid rgba(61, 255, 176, 0.4);
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  opacity: 0;
+  transition: 0.3s;
+  backdrop-filter: blur(10px);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 动画 */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (max-width: 760px) {
+  .row2 {
+    grid-template-columns: 1fr;
+  }
+}

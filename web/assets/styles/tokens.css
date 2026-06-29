@@ -1,0 +1,29 @@
+/* 全站设计 token —— 两页共享,从原 index.html/login.html 的 :root 提取 */
+:root {
+  --bg: #04050d;
+  --bg2: #080b1a;
+  --panel: rgba(10, 13, 26, 0.62);
+  --panel-2: rgba(10, 13, 26, 0.78);
+  --panel-line: rgba(120, 160, 255, 0.14);
+
+  --cyan: #3ae0ff;
+  --violet: #8b5cff;
+  --pink: #ff5cc8;
+  --green: #3dffb0;
+  --amber: #ffb84d;
+  --blue: #5ca8ff;
+  --red: #ff5c7a;
+
+  --text: #ffffff;
+  --muted: #a8b0d4;
+  --dim: #6a74a0;
+
+  /* 舰种色(对应后端 variant) */
+  --c-orchestrator: #ffb84d;
+  --c-planner: #5ca8ff;
+  --c-coder: #3ae0ff;
+  --c-reviewer: #8b5cff;
+  --c-explorer: #ff5cc8;
+
+  --glow: 0 0 24px rgba(58, 224, 255, 0.35);
+}

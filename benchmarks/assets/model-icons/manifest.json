@@ -1,0 +1,164 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    "file": "openai.svg",
+    "source": "Wikimedia Commons",
+    "path": "benchmarks/assets/model-icons/openai.svg",
+    "bytes": 972,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "anthropic",
+    "name": "Anthropic",
+    "url": "https://cdn.simpleicons.org/anthropic/191919",
+    "file": "anthropic.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/anthropic.svg",
+    "bytes": 296,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "url": "https://cdn.simpleicons.org/claude/D97757",
+    "file": "claude.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/claude.svg",
+    "bytes": 1936,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "gemini",
+    "name": "Google Gemini",
+    "url": "https://cdn.simpleicons.org/googlegemini/8E75B2",
+    "file": "gemini.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/gemini.svg",
+    "bytes": 416,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "qwen",
+    "name": "Qwen",
+    "url": "https://cdn.simpleicons.org/qwen/6950EF",
+    "file": "qwen.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/qwen.svg",
+    "bytes": 820,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "url": "https://cdn.simpleicons.org/deepseek/5786FE",
+    "file": "deepseek.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/deepseek.svg",
+    "bytes": 2101,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "minimax",
+    "name": "MiniMax",
+    "url": "https://cdn.simpleicons.org/minimax/E73562",
+    "file": "minimax.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/minimax.svg",
+    "bytes": 736,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "kimi",
+    "name": "Kimi",
+    "url": "https://kimi.moonshot.cn/favicon.ico",
+    "file": "kimi.ico",
+    "source": "Kimi favicon",
+    "path": "benchmarks/assets/model-icons/kimi.ico",
+    "bytes": 16958,
+    "content_type": "",
+    "png_path": "benchmarks/assets/model-icons/kimi.png"
+  },
+  {
+    "id": "moonshot",
+    "name": "Moonshot AI",
+    "url": "https://kimi.moonshot.cn/favicon.ico",
+    "file": "moonshot.ico",
+    "source": "Kimi favicon",
+    "path": "benchmarks/assets/model-icons/moonshot.ico",
+    "bytes": 16958,
+    "content_type": "",
+    "png_path": "benchmarks/assets/model-icons/moonshot.png"
+  },
+  {
+    "id": "zhipu",
+    "name": "Zhipu AI / GLM",
+    "url": "https://www.zhipuai.cn/logo.svg",
+    "file": "zhipu.svg",
+    "source": "Zhipu AI website",
+    "path": "benchmarks/assets/model-icons/zhipu.svg",
+    "bytes": 2632,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "stepfun",
+    "name": "StepFun",
+    "url": "https://www.stepfun.com/step_favicon.svg",
+    "file": "stepfun.svg",
+    "source": "StepFun website",
+    "path": "benchmarks/assets/model-icons/stepfun.svg",
+    "bytes": 773,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "mistral",
+    "name": "Mistral AI",
+    "url": "https://cdn.simpleicons.org/mistralai/FA520F",
+    "file": "mistral.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/mistral.svg",
+    "bytes": 305,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity",
+    "url": "https://cdn.simpleicons.org/perplexity/1FB8CD",
+    "file": "perplexity.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/perplexity.svg",
+    "bytes": 633,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "meta",
+    "name": "Meta / Llama",
+    "url": "https://cdn.simpleicons.org/meta/0467DF",
+    "file": "meta.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/meta.svg",
+    "bytes": 1339,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "ollama",
+    "name": "Ollama",
+    "url": "https://cdn.simpleicons.org/ollama/000000",
+    "file": "ollama.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/ollama.svg",
+    "bytes": 4784,
+    "content_type": "image/svg+xml"
+  },
+  {
+    "id": "google",
+    "name": "Google",
+    "url": "https://cdn.simpleicons.org/google/4285F4",
+    "file": "google.svg",
+    "source": "Simple Icons CDN",
+    "path": "benchmarks/assets/model-icons/google.svg",
+    "bytes": 472,
+    "content_type": "image/svg+xml"
+  }
+]
