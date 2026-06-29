@@ -1,138 +1,143 @@
-# 🐝 EvoShip — 进化星际舰队协作引擎
+# ⛓️ SwarmPay — Injective 上的自进蜂群 × 链上分润 Agent 协议
 
-> 把任意 OpenAI 兼容端点**升级**成一支会自进化的蜂群舰队:每个请求背后不是单次模型调用,
-> 而是一群角色化 agent **分工协作 + 突破广播 + 经验继承回流**。用得越久,经验宝箱越满,舰队越聪明。
+> **一支在 Injective 链上自主协作、按贡献链上分润的 AI 蜂群舰队。**
+>
+> 用户下目标 → 蜂群 agent 分工协作(planner→coder→reviewer,handoff + 突破广播 + 经验继承)→
+> 协作完成时,由 **payer agent 按各角色贡献权重,通过 Injective 链上真实交易把预算分润给参与 agent 的钱包**。
+>
+> "越用越聪明"的经验继承 + "越用越值钱"的链上分润。
 
-核心论点:**弱模型蜂群 + 经验继承,能超越单次强模型调用。** 这是面向 A2A(智能体间协作)赛道的实践。
+**Injective 新星计划** 参赛项目 · 方向:**AI 智能支付**(主) + **智能体基础设施**(辅)
 
 ---
 
-## 这套系统在干什么(一张图看懂)
+## 🎯 这是什么 / 解决什么问题
 
-![请求分流](docs/evoship-flow-1.png)
+AI agent 协作目前是个**价值黑箱**:多个 agent 一起完成任务,但谁贡献多少?怎么结算?无链上凭证、不可审计、无法激励长尾 agent。
 
-用户发一个问题时带一个「模型名」(选哪支舰队),系统按模型名分流到 5 条路:
+SwarmPay 的回答:**把蜂群协作的"贡献权重"直接落到 Injective 链上分润**。
 
-| 模型名 | 舰队 | 怎么干活 |
+- 一次任务 = 一支角色化蜂群协作(orchestrator 规划、planner 拆解、coder 实现、reviewer 审查、explorer 发散)
+- 任务完成 → `payer` agent 读取协作 trace 里的 `reward_split` 权重
+- → 通过 **Injective 链上真实交易**(或 CosmWasm 分润合约)把预算按权重原子分发给各 agent 钱包
+- → 每笔分润上链存证,Injective 浏览器可审计
+
+---
+
+## ✅ 已验证的真实能力(非 mock)
+
+| 能力 | 状态 | 证据 |
 |---|---|---|
-| `swarm-baseline` | 直通舰队 | 单次模型调用,不走蜂群(当对照基线) |
-| `swarm-lite` | 轻型舰队 | 几只蜂并行同题多解 + 投票 |
-| `swarm-heavy` | 重型舰队 | 拆解子任务 + 规划→实现→审查流水线 + 突破广播 |
-| `swarm-evo` | 进化舰队 ★ | 重型 + **从经验宝箱取经验 + 完成后回流沉淀** |
-| `user:你的舰队名` | 我的自定义舰队 | **完全按你在 Playground 拖的拓扑跑** |
+| 多 Agent 蜂群协作(自研框架) | ✅ | 5 角色六阶段、handoff、突破广播、经验继承回流;真实 LLM(evomap-gpt-5.5) |
+| Injective 测试网(injective-888)连通 | ✅ | SDK 查询真实地址余额 |
+| 链上真实转账 `MsgSend` | ✅ | [tx 9477EC31](https://testnet.explorer.injective.network/transaction/9477EC31F870FFD079D65B0D863174DBBF281445F74CACB16AB21C6215416077) 0.1 INJ 上链 |
+| 全真链分润 `/api/injective/run` | ✅ | 一次调用:蜂群答案 + 5 笔链上分润交易,4 个 agent + treasurer 按权重真实收到 INJ |
+| CosmWasm 分润合约 | ✅ | 16 单测过、wasm 编译成功(302K),可部署 |
+| 前端钱包 + 链上可视化 | ✅ | Keplr 连接 / 分润流向图 / 交易回执 timeline,`build:web` 通过 |
 
-前 4 个是内置舰队,第 5 个是你自己搭的。
-
----
-
-## 进化舰队怎么干活(最完整的一条路)
-
-![进化舰队流程](docs/evoship-flow-2.png)
-
-只有「进化舰队 + 复杂问题」才走完整 5 步并沉淀经验。整个过程:
-
-1. **判断难度** — 规则 + 轻量模型把问题分成简单/中等/复杂三档
-2. **取经验** — 从经验宝箱翻历史成功配方,发给每只蜂当参考
-3. **蜂群分工** — 复杂问题拆成 2-6 个子任务,每条线 `规划蜂 → 实现蜂 → 审查蜂` 接力;审查不过带反馈返工(最多 2 轮);谁先出突破就广播给全队
-4. **聚合答案** — 旗舰把各蜂最佳部分合成一个超越单蜂的最终答案
-5. **存经验** — 这轮的成功配方沉淀进经验宝箱,下轮同类问题自动复用
-
-**关键**:简单问题(打招呼/算术)直通单次回复,中等问题(事实问答)多解交叉验证,只有复杂工程才拆解分工。不浪费算力。
+**最近一次全真链运行**(Injective testnet):
+- 蜂群答案:真实生成
+- 分润:planner 0.2 / coder 0.3 / reviewer 0.2 / orchestrator 0.15,5% 服务费给 treasurer
+- 各 agent 钱包余额真实增加,对账平衡
 
 ---
 
-## 我的自定义舰队:你拖的节点怎么变成舰队
+## 🏗️ 架构(加法式,不破坏原 EvoShip 服务)
 
-![自定义舰队](docs/evoship-flow-3.png)
+```
+用户(连 Keplr / 粘贴测试网地址)
+   │  自然语言目标 + 链上预算
+   ▼
+POST /api/injective/run                  ← src/injective/routes.ts
+   1. 链上余额校验(代签钱包)              ← chain.getBalance
+   2. runSwarm() ← 原蜂群内核,零改动       ← src/swarm.ts
+   3. payer agent 决策权重                 ← payer-agent.ts
+   4. split-executor 链上分润              ← split-executor.ts
+      · direct 模式:多笔 MsgSend
+      · contract 模式:CosmWasm Distribute
+   5. 返回 答案 + trace + 链上交易回执
+```
 
-和内置舰队最大的不同:**内置舰队是系统自动决定怎么拆解分工,自定义舰队是完全按你画的节点和连线来跑。**
-
-1. **拖节点搭拓扑** — 从左侧角色池拖几只蜂到画布,拉线连成交接顺序
-2. **点节点定制** — 点节点卡片触发登场动画,内联展开定制面板:
-   - 选**角色类型**(旗舰/导航舰/工程舰/监察舰/斥候舰)
-   - 选**场景任务**(需求分析/方案设计/编码实现/代码审查/创意发散/测试验证/文档撰写/调研总结)
-   - 写**擅长描述**(自由文本,如"专门把后端 API 设计成 RESTful")
-3. **保存为舰队** — 起个名,后端调 AI 给每只蜂美化人设(融合你的定制),得到一个 `user:你的舰队名` 的模型名
-4. **用它发请求** — 注册端点后,用这个模型名发请求,后端按你拖的拓扑顺序真实执行,每只蜂用 AI 美化过的人设干活
-
-自定义舰队和进化舰队一样会触发经验宝箱(跑复杂任务时取经验、存经验)。
-
----
-
-## 经验宝箱:金币怎么流进流出
-
-![经验宝箱循环](docs/evoship-flow-4.png)
-
-经验宝箱是整个系统"越用越聪明"的核心,画布左上角有个可视化宝箱:
-
-- **金币飞入(回流)** — 跑完一轮成功的复杂任务,这轮的经验配方沉淀成金币飞进宝箱,配金币音效,宝箱抖一下 + 库存 +1
-- **金币飞出(继承)** — 下一轮开始,蜂群从宝箱取出相关经验,金币从宝箱飞向蜂群,配开箱音效
-- **永久累积** — 宝箱存在 SQLite 数据库,跨进程跨重启不丢,金币数 = 经验条数
-- **循环** — 一轮接一轮,同类问题越解决越好(经验质量分逐代上涨)
-
-注意:只有进化舰队或自定义舰队跑复杂任务时金币才会动。简单问题或其它舰队,宝箱安安静静不动。
+**双通道**:原 EvoShip 的积分通道(`/v1/chat/completions` + credits)**完全保留**;新增 Injective 链上通道(`/api/injective/*`)与之并行,由 `INJECTIVE_NETWORK=mock|testnet` 切换,默认 mock 永不黑屏。
 
 ---
 
-## 几个页面分别干什么
+## 📁 关键目录
 
-| 页面 | 干什么 |
+```
+src/injective/              链上通道(新增,全部隔离于此)
+  types.ts                  IInjectiveChain / ISplitExecutor 接口契约
+  chain.ts                  真链实现(@injectivelabs/sdk-ts,signHashed 签名)
+  mock-chain.ts             mock 兜底(无测试网时)
+  split-executor.ts         消费 trace.reward_split → 链上分润
+  payer-agent.ts            payer agent 动态调权
+  routes.ts                 /api/injective/run|balance|status
+  index.ts                  链层工厂
+contracts/split-rewards/    CosmWasm 分润合约(16 单测 + wasm)
+  src/lib.rs                Distribute 按基点原子分润 + 服务费
+agents/payer|treasurer/     资金角色定义
+web/views/injective/        WalletView + OnchainRunView
+web/components/injective/   SplitFlowGraph + TxTimelineCard
+docs/injective-plan/        11 份完整改造方案文档
+```
+
+---
+
+## 🚀 快速运行
+
+```bash
+npm install
+
+# mock 模式(无需测试网,demo 兜底)
+INJECTIVE_NETWORK=mock npm run dev          # 后端 :4000
+npm run dev:web                              # 前端
+
+# testnet 真链模式(需 .env 配 INJECTIVE_DEMO_KEY + ARCHETYPE_ADDRS)
+INJECTIVE_NETWORK=testnet npm run start
+
+# 冒烟测试
+npx tsx scripts/smoke-injective.ts
+
+# 真链转账验证
+INJECTIVE_NETWORK=testnet npx tsx scripts/test-real-transfer.ts
+```
+
+环境变量见 [`docs/injective-plan/07-DEPLOYMENT.md`](docs/injective-plan/07-DEPLOYMENT.md)。
+测试网钱包生成:`npx tsx scripts/gen-injective-wallets.ts`(领币:https://testnet.faucet.injective.network)。
+
+---
+
+## 🧩 蜂群协作内核(继承自 EvoShip)
+
+SwarmPay 的 AI 协作底座是 EvoShip 蜂群引擎(零改动复用):
+
+- **5 角色异构分工**:orchestrator(蜂后,拆解聚合)→ planner(规划)→ coder(实现)→ reviewer(审查,可返工)→ explorer(创意发散)
+- **六阶段协作流**:inherit(继承)→ diverge(分工)→ breakthrough-detect(突破检测)→ broadcast(广播)→ converge(收敛)→ backflow(回流)
+- **经验宝箱**:成功路径沉淀为可复用经验,跨轮累积,越用越聪明
+- **OpenAI 兼容**:对外是 `/v1/chat/completions`,任何 OpenAI 客户端可直接接入
+
+SwarmPay 在此基础上新增 **payer / treasurer** 两个资金角色,把"协作产出"转化为"链上可分配价值"。
+
+---
+
+## 📊 评分维度对齐
+
+| Injective 评分维度 | SwarmPay 如何满足 |
 |---|---|
-| **首页**(`/`) | 项目介绍 + **端点转换**(把你的 OpenAI 兼容端点升级成舰队端点,拿一个 `sk-evoship-` key) |
-| **Playground**(`/playground`) | **核心玩法**:拖节点搭舰队、定制节点、保存舰队、派出舰队看协作过程(节点激活/边流动/粒子飞/经验宝箱金币动) |
-| **对话**(`/chat`) | 像普通 AI 聊天一样发消息看舰队回答,答案下可展开「蜂群协作过程」逐条日志,**支持直通 vs 舰队对比**。从 Playground 顶栏「对话测试」一键丝滑跳转(自动带上当前舰队和问题) |
-| **我的舰队**(`/my-fleets`) | 管理所有保存的自定义舰队(加载到画布/删除) |
+| 创新性 | 蜂群协作 + 链上分润,"越用越聪明 × 越用越值钱",Injective 生态首个 agent 分润协议 |
+| 技术实现 | 集成 Injective testnet + CosmWasm 分润合约 + sdk-ts;AI(蜂群)与链上(分润)深度结合,全真链验证 |
+| 应用价值 | 解决 agent 协作的价值分配黑箱,可延伸到 agent 市场/众包/外包结算 |
+| 产品体验 | Vue Flow 协作可视化 + 分润流向图 + 交易 timeline,agent 协作与资金流向都可视 |
+| 生态契合 | 复用 Injective sdk-ts / CosmWasm / INJ,对齐 iAgent SDK 与 MCP Server 叙事 |
 
 ---
 
-## 关键概念
+## 📚 文档
 
-- **蜂群(Swarm)** — 一群角色化 agent 协作解决一个目标,不是调 N 次取最好,而是分工 + 交接 + 交叉验证
-- **角色(Archetype)** — 5 种:orchestrator(旗舰/蜂后)、planner(规划)、coder(实现)、reviewer(审查)、explorer(探索)
-- **六阶段协作流** — inherit(继承) → diverge(分工) → breakthrough(突破检测) → broadcast(广播) → converge(收敛) → backflow(回流)
-- **经验宝箱(Treasury)** — 持久化的成功经验库,跨轮累积,质量分逐代进化
-- **自定义舰队(Fleet)** — 用户在 Playground 拖出的拓扑,存成 `user:` 模型名,可复用可分享
-- **handoff** — agent 间交接,上游产出作为下游上下文注入(蜂群协作的核心机制)
+完整设计与改造方案见 [`docs/injective-plan/`](docs/injective-plan/README.md)(11 份):总纲、架构、链层、合约、payer agent、API 契约、前端、部署、Demo 脚本、Pitch Deck 大纲、报名表单文案。
 
 ---
 
-## 技术栈
+## License
 
-- **后端**:Node.js + Express + TypeScript,OpenAI 兼容 API(`/v1/chat/completions`、`/v1/models`)
-- **前端**:Vue 3 + Vue Flow(画布)+ Pinia + Vite
-- **存储**:SQLite(`node:sqlite`)— 用户/会话/端点/舰队/经验记忆全持久化
-- **协议**:GEP-A2A 信封(智能体间通信),可接 EvoMap 平台真实 A2A 或本地降级
-- **音效**:Web Audio API 程序化合成(金币声/开箱声,无需音频文件)
-
----
-
-## 项目结构
-
-```
-src/                    后端
-  server.ts             入口 + 路由(/v1, /api, /oauth)
-  swarm.ts              蜂群编排主流程 + trace 组装
-  orchestration/
-    orchestrator.ts     难度分流 + 拆解 + 自定义拓扑执行
-    pipeline.ts         HARD 子任务流水线(planner→coder→reviewer)
-  agents/               角色定义 + 注册表 + 绩效
-  fleets.ts             用户自定义舰队存储 + AI 美化
-  evolution-memory.ts   经验宝箱(SQLite 持久化)
-  endpoints.ts          端点转换(OpenAI 兼容上游接入)
-web/                    前端
-  views/PlaygroundView.vue   画布编排 + 舰队 + 宝箱
-  views/ChatView.vue         对话页
-  components/playground/     PetNode(节点+定制) / ExperienceTreasure(宝箱)
-  composables/               useFlowRunner(回放) / useChatRunner / useCoinSound
-docs/
-  evoship-flow-*.png    本文档的 4 张流程图
-```
-
----
-
-## 设计哲学
-
-1. **蜂群不是投票** — 不是调 N 次取最好,而是异构分工(规划/实现/审查) + 真实交接 + 交叉验证纠错
-2. **经验是复利** — 每轮成功的配方都沉淀,下轮复用,质量分逐代上涨(同目标越解决越好)
-3. **用户是舰队设计师** — 不止用内置舰队,还能自己拖拓扑、定制每只蜂,完全掌控协作结构
-4. **可视化即理解** — 每次协作都能在 Playground 看到节点激活、交接流动、经验金币飞舞,黑盒变白盒
+MIT

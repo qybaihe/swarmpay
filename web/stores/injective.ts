@@ -5,7 +5,7 @@
 // 后端接口可能尚未完全实现，故 balance / status 用宽松但带形状的类型对接，避免被卡住。
 
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 /** 链上余额（最小单位字符串，避免精度丢失）。 */
 export interface InjectiveBalance {
@@ -46,6 +46,31 @@ export const useInjectiveStore = defineStore("injective", () => {
 
   const loading = ref(false);
   const error = ref<string | null>(null);
+
+  // localStorage 持久化(跨页面/刷新保持钱包连接,demo 友好)
+  const LS_KEY = "swarmpay:wallet";
+  function persist() {
+    try {
+      if (address.value) {
+        localStorage.setItem(LS_KEY, JSON.stringify({ address: address.value, connectMode: connectMode.value, chainId: chainId.value }));
+      } else {
+        localStorage.removeItem(LS_KEY);
+      }
+    } catch { /* ignore */ }
+  }
+  function restore() {
+    try {
+      const s = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (s?.address) {
+        address.value = s.address;
+        connectMode.value = s.connectMode || "manual";
+        connected.value = true;
+        chainId.value = s.chainId || DEFAULT_CHAIN_ID;
+      }
+    } catch { /* ignore */ }
+  }
+  if (typeof localStorage !== "undefined") restore();
+  watch([address, connectMode, chainId], persist);
 
   /** 是否已检测到 Keplr 扩展。 */
   const hasKeplr = computed(() => typeof (window as KeplrWindow).keplr !== "undefined");

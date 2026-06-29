@@ -17,6 +17,18 @@ const goal = ref("用一句话解释 Injective 链上分润如何激励 AI agent
 const tier = ref<"swarm-evo" | "swarm-heavy" | "swarm-lite" | "swarm-baseline">("swarm-evo");
 const budgetInj = ref("5"); // INJ 数值字符串(人类可读)
 const denom = ref("inj");
+const localAddr = ref(""); // 未连接钱包时的内联地址输入
+
+/** 内联使用粘贴的地址。 */
+async function useLocalAddr() {
+  const a = localAddr.value.trim();
+  if (!/^inj1[a-z0-9]+$/i.test(a)) {
+    errorMsg.value = "地址格式不对,应以 inj1 开头";
+    return;
+  }
+  await wallet.connectManual(a);
+  errorMsg.value = null;
+}
 
 // ── 运行结果 ──
 type SplitShareLike = { archetype: string; addr: string; amount: string; weight: number };
@@ -144,6 +156,14 @@ const timeline = computed(() =>
 
     <!-- 表单 -->
     <section class="form-card">
+      <!-- 未连接钱包时,内联输入地址(不依赖跨页状态) -->
+      <label v-if="!wallet.address" class="field addr-inline">
+        <span>Injective 测试网地址(付款方)</span>
+        <div class="addr-row">
+          <input v-model="localAddr" type="text" placeholder="inj1..." />
+          <button class="addr-btn" @click="useLocalAddr">使用该地址</button>
+        </div>
+      </label>
       <label class="field">
         <span>目标 goal</span>
         <textarea v-model="goal" rows="3" placeholder="让蜂群协作完成什么?" />
@@ -235,6 +255,10 @@ const timeline = computed(() =>
 .net.real { background: rgba(34,197,94,.2); color: #4ade80; }
 
 .form-card { background: rgba(20,20,35,.6); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 20px; margin: 16px 0; }
+.addr-inline { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dashed rgba(255,255,255,.08); }
+.addr-row { display: flex; gap: 8px; }
+.addr-row input { flex: 1; }
+.addr-btn { padding: 8px 14px; border: 1px solid #818cf8; background: rgba(99,102,241,.15); color: #a5b4fc; border-radius: 8px; cursor: pointer; font-size: 13px; white-space: nowrap; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
 .field span { color: var(--muted, #8a8aa0); }
 .field textarea, .field input, .field select { background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.1); border-radius: 8px; color: inherit; padding: 8px 10px; font-size: 14px; }
