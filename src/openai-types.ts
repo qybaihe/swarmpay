@@ -198,6 +198,8 @@ export interface SwarmTrace {
     snippet: string;
   }[];
   reward_split?: { archetype: string; weight: number; contribution: string }[];
+  /** 深度3:本次协作产生的悬赏(reviewer→coder,LLM 决策) */
+  bounties?: { fromArch: string; toArch: string; amountSmallest: string; reason: string; status?: string; txHash?: string }[];
   events?: {
     id: string;
     kind: SwarmGraphEvent["kind"] | "agent_run";

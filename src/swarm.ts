@@ -692,6 +692,7 @@ export async function runSwarm(input: SwarmInput): Promise<SwarmOutput> {
       snippet: traceSnippet(h.feedback || h.blob),
     })),
     reward_split: orch.trace.rewardSplit,
+    bounties: orch.trace.bounties,
     events: legacyEvents,
     bees: visibleStages
       .map((s, index) => ({

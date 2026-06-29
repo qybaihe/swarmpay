@@ -29,6 +29,7 @@ import type { SelectedFleet } from "../types/fleet-picker";
 const store = usePlaygroundStore();
 const auth = useAuthStore();
 const transformStore = useTransformStore();
+const inj = useInjectiveStore();
 const fleetsStore = useFleetsStore();
 const toast = useToast();
 const router = useRouter();
@@ -608,6 +609,9 @@ function presetDifficultyForTier(tier: string): PresetDifficulty {
 
 function makePetNode(id: string, petId: string, role: string, x: number, y: number, extra: Partial<PetNodeData> = {}) {
   nodeSeq++;
+  // 按 role(archetype) 写入链上地址到 nodeChainState(节点一创建就带链上身份)
+  const addr = inj.archetypeAddrs[role];
+  if (addr) store.setNodeChainState(id, { addr });
   return {
     id,
     type: "pet",
@@ -615,7 +619,6 @@ function makePetNode(id: string, petId: string, role: string, x: number, y: numb
     data: markRaw({ petId, role, ...extra } satisfies PetNodeData),
   };
 }
-
 function makePresetEdge(edge: PresetEdgeSpec) {
   const color = EDGE_COLOR[edge.kind] || "#3ae0ff";
   return {
@@ -1101,11 +1104,33 @@ function loadDefaultFleet() {
   loadPresetFleetForTier(store.tier);
 }
 
+/** 运行前并发刷新各 agent 节点的链上 INJ 余额(写 nodeChainState,PetNode 实时显示)。 */
+async function refreshNodeBalances() {
+  const addrs = inj.archetypeAddrs;
+  if (!addrs || Object.keys(addrs).length === 0) return;
+  // 找画布上每个 archetype 对应的节点(default 模式 data.role=archetype)
+  const tasks: Promise<void>[] = [];
+  for (const [archetype, addr] of Object.entries(addrs)) {
+    const node = nodes.value.find((n: any) => (n.data as any)?.role === archetype);
+    if (!node || !addr) continue;
+    tasks.push(
+      fetch(`/api/injective/balance?addr=${encodeURIComponent(addr)}&denom=inj`)
+        .then((r) => (r.ok ? r.json() : null))
+        .then((b: { amount?: string } | null) => {
+          if (b?.amount) store.setNodeChainState(node.id, { balance: b.amount });
+        })
+        .catch(() => { /* 余额查询失败不阻塞 */ }),
+    );
+  }
+  await Promise.allSettled(tasks);
+}
+
 function dispatch(options: { demo?: boolean } = {}) {
   if (nodes.value.length === 0) loadDefaultFleet();
   if (!goal.value.trim()) return;
+  // 运行前刷新各 agent 节点的链上余额(并发,不阻塞)
+  refreshNodeBalances();
   // 选中「官方舰队」时,用该舰队 topology(画布已铺),tier 由后端 resolveModel 自动固定为 swarm-evo
-  // 选中「我的端点」时,沿用当前 tier + 用户填的 key
   const isOfficial = selectedFleet.value?.source === "official";
   run(nodes.value, edges.value, {
     goal: goal.value.trim(),
@@ -1117,7 +1142,32 @@ function dispatch(options: { demo?: boolean } = {}) {
     onExperience: handleExperienceFlow,
     onCreditsDeducted: playCreditDeductAnimation,
     onRewardDistributed: handleRewardDistributed,
+    onBounty: handleBounty,
   });
+}
+
+/** 深度3:悬赏动效 —— reviewer→coder 画金色金币流 + 节点飘字 +金额 */
+function handleBounty(bounties: { fromArch: string; toArch: string; amountSmallest: string; reason: string }[]) {
+  for (const b of bounties) {
+    const fromNode = nodes.value.find((n: any) => (n.data as any)?.role === b.fromArch);
+    const toNode = nodes.value.find((n: any) => (n.data as any)?.role === b.toArch);
+    if (!fromNode || !toNode) continue;
+    const fromEl = document.querySelector(`.vue-flow__node[data-id="${fromNode.id}"]`) as HTMLElement | null;
+    const toEl = document.querySelector(`.vue-flow__node[data-id="${toNode.id}"]`) as HTMLElement | null;
+    const fr = fromEl?.getBoundingClientRect();
+    const tr = toEl?.getBoundingClientRect();
+    if (!fr || !tr) continue;
+    const fx = fr.left + fr.width / 2, fy = fr.top + fr.height / 2;
+    const tx = tr.left + tr.width / 2, ty = tr.top + tr.height / 2;
+    // reviewer→coder 金币流(6 枚)
+    store.spawnCoins("out", Array.from({ length: 6 }, (_, i) => {
+      const j = (i - 3) * 12;
+      return { fromX: fx, fromY: fy, toX: tx + j, toY: ty + j };
+    }));
+    // coder 节点飘 +悬赏金额
+    store.showRewardFloat(toNode.id, b.amountSmallest);
+    store.addLog("SwarmPay", `💰 ${b.fromArch} 悬赏 ${b.toArch} ${(Number(b.amountSmallest) / 1e18).toFixed(4)} INJ: ${b.reason}`);
+  }
 }
 
 /** Demo 模式:一键配好最优演示场景,不要求 API Key,由后端走本地 mock 蜂群生成完整 trace */
@@ -1132,18 +1182,40 @@ async function runDemo() {
   nextTick(() => dispatch({ demo: true }));
 }
 
-/** 链上分润流向:回放结束后,持有 payment 供 RewardFlowOverlay 渲染金色箭头 */
+/** 链上分润流向:回放结束后,持有 payment 供 RewardFlowOverlay + 画布飞金币(从付款方→各 agent 节点) */
 const rewardPayment = ref<{ splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null>(null);
 const senderAddr = ref<string>("");
 function handleRewardDistributed(payment: { splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null) {
   rewardPayment.value = payment;
-  // senderAddr 从 injective store 取(用户钱包),无则用 splits 里地址兜底
-  try {
-    const injStore = useInjectiveStore();
-    senderAddr.value = injStore.address || payment?.splits?.[0]?.addr || "";
-  } catch {
-    senderAddr.value = payment?.splits?.[0]?.addr || "";
+  senderAddr.value = inj.address || payment?.splits?.[0]?.addr || "";
+
+  // 画布金色分润流向:从付款方锚点(运行按钮)向各 agent 节点飞金币,数量按权重
+  if (!payment?.splits?.length) return;
+  const runBtn = document.querySelector(".run-btn, .stop-btn") as HTMLElement | null;
+  const rRect = runBtn?.getBoundingClientRect();
+  const sx = rRect ? rRect.left + rRect.width / 2 : window.innerWidth / 2;
+  const sy = rRect ? rRect.top + rRect.height / 2 : window.innerHeight - 60;
+
+  const routes: Array<{ fromX: number; fromY: number; toX: number; toY: number }> = [];
+  for (const s of payment.splits) {
+    // 按 archetype 找画布节点(default 模式 data.role=archetype)
+    const node = nodes.value.find((n: any) => (n.data as any)?.role === s.archetype);
+    if (!node) continue;
+    const vfNode = document.querySelector(`.vue-flow__node[data-id="${node.id}"]`) as HTMLElement | null;
+    const nRect = vfNode?.getBoundingClientRect();
+    if (!nRect) continue;
+    const nx = nRect.left + nRect.width / 2;
+    const ny = nRect.top + nRect.height / 2;
+    // 按权重决定金币数(1-8 枚)
+    const coinCount = Math.max(1, Math.min(8, Math.round(s.weight * 16)));
+    for (let i = 0; i < coinCount; i++) {
+      const jitter = (i - coinCount / 2) * 10;
+      routes.push({ fromX: sx, fromY: sy, toX: nx + jitter, toY: ny + jitter });
+    }
+    // 飘字 +金额(最小单位→INJ)在节点上方
+    store.showRewardFloat?.(node.id, s.amount);
   }
+  if (routes.length) store.spawnCoins("out", routes);
 }
 
 /** 积分扣减动画:调用成功后,金币从画布飞向 NavBar 余额 + 显示 -50 飘字 */
@@ -1254,6 +1326,8 @@ function nodeIdLabel(id: string): string {
 onMounted(async () => {
   // 拉取经验宝箱库存
   store.loadTreasury();
+  // 拉取 Injective 链上配置(含各角色地址,供节点显示链上身份)
+  inj.fetchStatus().catch(() => { /* 降级:无地址也能跑 */ });
   // 从"我的舰队"页跳转来时,自动加载指定舰队到画布
   const pendingFleetId = sessionStorage.getItem("evoship:load-fleet");
   if (pendingFleetId) {
@@ -1312,6 +1386,16 @@ function creditFloatStyle(c: { fromX: number; fromY: number; toX: number; toY: n
     top: `${c.fromY}px`,
     "--tx": `${c.toX - c.fromX}px`,
     "--ty": `${c.toY - c.fromY}px`,
+  };
+}
+
+/** 链上分润飘字定位:取画布节点屏幕坐标,显示在节点上方居中 */
+function rewardFloatStyle(nodeId: string) {
+  const vfNode = document.querySelector(`.vue-flow__node[data-id="${nodeId}"]`) as HTMLElement | null;
+  const r = vfNode?.getBoundingClientRect();
+  return {
+    left: r ? `${r.left + r.width / 2}px` : "50%",
+    top: r ? `${r.top - 8}px` : "40%",
   };
 }
 
@@ -1457,6 +1541,14 @@ function miniColor(n: { data?: PetNodeData }) {
           :class="{ negative: c.delta < 0 }"
           :style="creditFloatStyle(c)"
         >{{ c.delta > 0 ? '+' : '' }}{{ c.delta }} 积分</div>
+
+        <!-- 链上分润飘字(各 agent 节点上方 +X INJ) -->
+        <div
+          v-for="r in store.rewardFloat"
+          :key="r.id"
+          class="reward-float"
+          :style="rewardFloatStyle(r.nodeId)"
+        >+{{ r.amountInj }} INJ</div>
 
         <!-- 空状态 -->
         <div v-if="nodes.length === 0" class="empty-hint">
@@ -2093,6 +2185,28 @@ function miniColor(n: { data?: PetNodeData }) {
   pointer-events: none;
   text-shadow: 0 0 8px rgba(255, 184, 77, 0.6);
   animation: creditFloat 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.reward-float {
+  position: fixed;
+  z-index: 9999;
+  transform: translate(-50%, -100%);
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  color: #ffd23f;
+  background: rgba(255, 210, 63, 0.15);
+  border: 1px solid #ffd23f;
+  border-radius: 999px;
+  pointer-events: none;
+  text-shadow: 0 0 10px rgba(255, 210, 63, 0.8);
+  animation: rewardFloatUp 2.4s ease-out forwards;
+}
+@keyframes rewardFloatUp {
+  0% { opacity: 0; transform: translate(-50%, -80%) scale(0.6); }
+  15% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); }
+  80% { opacity: 1; transform: translate(-50%, -180%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.9); }
 }
 @keyframes creditFloat {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }

@@ -100,6 +100,16 @@ export const usePlaygroundStore = defineStore("playground", () => {
   }
   const creditFloat = ref<CreditFloat[]>([]);
 
+  /** 链上分润飘字:在节点上方显示 +X INJ(深度3 视觉) */
+  interface RewardFloat { id: string; nodeId: string; amountInj: string; }
+  const rewardFloat = ref<RewardFloat[]>([]);
+  function showRewardFloat(nodeId: string, amountSmallest: string) {
+    const id = `reward-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`;
+    const inj = (Number(amountSmallest) / 1e18).toFixed(4);
+    rewardFloat.value = [...rewardFloat.value, { id, nodeId, amountInj: inj }];
+    setTimeout(() => { rewardFloat.value = rewardFloat.value.filter((r) => r.id !== id); }, 2400);
+  }
+
   /** 显示积分扣减飘字(坐标由调用方算好) */
   function showCreditFloat(delta: number, fromX: number, fromY: number, toX: number, toY: number) {
     const id = `credit-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`;
@@ -206,6 +216,7 @@ export const usePlaygroundStore = defineStore("playground", () => {
     lastTrace.value = null;
     playbackStatus.value = "idle";
     clearNodeChain();
+    rewardFloat.value = [];
   }
 
   function setFinalAnswer(text: string) {
@@ -320,6 +331,7 @@ export const usePlaygroundStore = defineStore("playground", () => {
     mode, tier, playbackStatus, finalAnswer, errorMsg, lastTrace, evolutionHistory, backflowMsg, log,
     treasury, treasurePulse, coins, loadTreasury, addTreasury, pulseTreasure, spawnCoins,
     creditFloat, showCreditFloat,
+    rewardFloat, showRewardFloat,
     ensure, activate, setBubble, entrance, clearBubble, resetAll, resetRunState,
     setFinalAnswer, setError, setTrace, clearEvolutionHistory, setNodeRole, toggleBreakthroughSource, addLog,
     setNodeChainState, clearNodeChain,

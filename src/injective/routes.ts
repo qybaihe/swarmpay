@@ -24,6 +24,7 @@ export function createInjectiveRouter(): Router {
       denom: config.injective.denom,
       protocolFeeBps: config.injective.protocolFeeBps,
       archetypeAddrsConfigured: Object.keys(config.injective.archetypeAddrs).length,
+      archetypeAddrs: config.injective.archetypeAddrs,  // 暴露各角色地址(前端 Playground 显示链上身份用)
     });
   });
 

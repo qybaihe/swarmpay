@@ -19,6 +19,7 @@ export interface InjectiveStatus {
   network: "testnet" | "mainnet" | "mock";
   contractAddr: string | null;
   chainId: string;
+  archetypeAddrs?: Record<string, string>;  // 各角色链上地址(Playground 节点显示用)
 }
 
 /** Keplr 注入的全局对象（可能不存在 → 降级到手动粘贴地址）。 */
@@ -43,6 +44,8 @@ export const useInjectiveStore = defineStore("injective", () => {
   const balance = ref<InjectiveBalance | null>(null);
   const chainId = ref<string | null>(null);
   const status = ref<InjectiveStatus | null>(null);
+  /** 各角色 archetype → 链上地址(从 /api/injective/status 拉取,Playground 节点显示用) */
+  const archetypeAddrs = ref<Record<string, string>>({});
 
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -183,7 +186,9 @@ export const useInjectiveStore = defineStore("injective", () => {
         network: (data.network as InjectiveStatus["network"]) || "mock",
         contractAddr: data.contractAddr ?? null,
         chainId: data.chainId || DEFAULT_CHAIN_ID,
+        archetypeAddrs: data.archetypeAddrs || {},
       };
+      archetypeAddrs.value = data.archetypeAddrs || {};
       return status.value;
     } catch {
       // 后端可能还没挂路由，降级为 mock 占位
@@ -200,6 +205,7 @@ export const useInjectiveStore = defineStore("injective", () => {
     balance,
     chainId,
     status,
+    archetypeAddrs,
     loading,
     error,
     // getters

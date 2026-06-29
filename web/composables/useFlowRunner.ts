@@ -58,6 +58,8 @@ interface RunParams {
   onCreditsDeducted?: () => void;
   /** 链上分润动效钩子:回放结束后,若有 payment.splits,触发金色分润流向箭头 overlay */
   onRewardDistributed?: (payment: { splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null) => void;
+  /** 深度3:悬赏动效钩子(若有 bounties,reviewer→coder 画金色流向 + 飘字) */
+  onBounty?: (bounties: { fromArch: string; toArch: string; amountSmallest: string; reason: string; status?: string }[]) => void;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -561,15 +563,46 @@ export function useFlowRunner() {
       store.playbackStatus = "done";
 
       // 链上分润:回放结束后,若有 payment.splits,写 nodeChainState + 触发金色流向 overlay
-      if (result.payment?.splits?.length) {
-        for (const s of result.payment.splits) {
-          // 按 archetype 找对应画布节点写链上态(节点 id 含 archetype 名)
-          const node = nodes.find((n: any) => n?.data?.role === s.archetype || n?.id?.includes(s.archetype));
-          if (node) {
-            store.setNodeChainState?.(node.id, { addr: s.addr, earnedInj: s.amount });
+      // 用 trace.graph.nodes 的 archetype 建立可靠映射(节点 id=pet-N 不含 archetype,data.role 是 petId)
+      const graph = result.trace?.graph;
+      if (graph?.nodes?.length) {
+        // archetype → canvasNodeId(取该 archetype 在画布上的第一个节点)
+        const archToCanvas = new Map<string, string>();
+        for (const gn of graph.nodes) {
+          if (gn.archetype && !archToCanvas.has(gn.archetype)) {
+            // graphNode.id/instanceId → canvasId(复用 mapGraphNodesToCanvas 的 direct 逻辑)
+            const direct = canvasNodes.find((n: any) => (n.data as any)?.graphNodeId === gn.id || (n.data as any)?.graphNodeId === gn.instanceId);
+            if (direct) archToCanvas.set(gn.archetype, direct.id);
           }
         }
+        // 兜底:按 role 池分配(graphNode.archetype 对应 canvas node 的 data.role)
+        if (archToCanvas.size === 0) {
+          for (const gn of graph.nodes) {
+            const c = canvasNodes.find((n: any) => (n.data as any)?.role === gn.archetype);
+            if (c && gn.archetype) { archToCanvas.set(gn.archetype, c.id); break; }
+          }
+        }
+
+        // 写链上态:地址 + 本次赚的(从 payment.splits)
+        const splitByArch = new Map<string, { addr: string; amount: string; weight: number }>();
+        for (const s of result.payment?.splits || []) splitByArch.set(s.archetype, s);
+
+        for (const gn of graph.nodes) {
+          const canvasId = archToCanvas.get(gn.archetype);
+          if (!canvasId) continue;
+          const split = splitByArch.get(gn.archetype);
+          if (split) {
+            store.setNodeChainState?.(canvasId, { addr: split.addr, earnedInj: split.amount });
+          }
+        }
+      }
+      if (result.payment?.splits?.length) {
         params.onRewardDistributed?.(result.payment);
+      }
+      // 深度3:若有悬赏,触发 bounty 动效
+      const traceBounties = (result.trace as { bounties?: { fromArch: string; toArch: string; amountSmallest: string; reason: string; status?: string }[] }).bounties;
+      if (traceBounties?.length) {
+        params.onBounty?.(traceBounties);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
