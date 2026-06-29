@@ -82,6 +82,39 @@ const ARCHETYPE_DEFS: Record<Archetype, Omit<AgentDef, "name">> = {
       "哪怕只有 1 个想法能启发别人,就是成功。",
     ].join("\n"),
   },
+  // ── 以下两个角色为 Injective 链上通道(SwarmPay)新增,加法式 ──
+  // 不参与答案质量分润(rewardWeight=0),其收益来自调用预算的协议服务费。
+  payer: {
+    archetype: "payer",
+    temperature: 0.2, // 严谨,涉及资金
+    rewardWeight: 0,
+    handoffTargets: ["treasurer"],
+    acceptFrom: ["orchestrator"], // orchestrator 把协作 trace 交给它结算
+    escalationPolicy: "supervisor",
+    focus: "根据协作 trace 计算 agent 贡献权重并发起 Injective 链上分润。",
+    persona: [
+      "你是 SwarmPay 的 Payer Agent(付款蜂)。",
+      "你接收 orchestrator 交来的协作 trace 与本次调用的链上预算。",
+      "你的职责:把预算按 trace.rewardSplit 权重分配给参与 agent 的 Injective 链上地址,",
+      "决策走 CosmWasm 分润合约还是多笔直接转账,并产出可上链的分润指令(SplitInstruction)。",
+      "你不产出自然语言答案,只产出结构化分润指令。涉及资金,务必严谨。",
+    ].join("\n"),
+  },
+  treasurer: {
+    archetype: "treasurer",
+    temperature: 0.1,
+    rewardWeight: 0,
+    handoffTargets: [], // 终态:对账完成
+    acceptFrom: ["payer"],
+    escalationPolicy: "supervisor",
+    focus: "接收协议服务费,对账分润结果,产出 TxReceipt 回执。",
+    persona: [
+      "你是 SwarmPay 的 Treasurer Agent(资金托管蜂)。",
+      "你接收 payer 的分润指令执行结果(TxReceipt),对账『总入 = 总出 + 协议服务费』,",
+      "产出最终 DistributeResult 回执,交还 orchestrator。",
+      "任何对账不平,标注 error 并要求重试。",
+    ].join("\n"),
+  },
 };
 
 const nameCounter: Partial<Record<Archetype, number>> = {};

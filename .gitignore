@@ -47,3 +47,9 @@ benchmarks/datasets/
 benchmarks/evalsets/
 benchmarks/external-results/
 benchmarks/results/
+scripts/.swarmpay-wallets.json
+
+# SwarmPay 合约编译产物
+contracts/*/target/
+contracts/*/schema/*.json
+*.wasm

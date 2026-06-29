@@ -88,7 +88,33 @@ export const config = {
 
   // 流水线:reviewer→coder 返工最大轮数
   maxRevisionRounds: num(process.env.MAX_REVISION_ROUNDS, 2),
+
+  // ── Injective 链上通道(新增,加法式,默认关 → 原服务零变化)──
+  injective: {
+    enabled: bool(process.env.INJECTIVE_ENABLED, false),
+    network: (process.env.INJECTIVE_NETWORK || "mock") as "mock" | "testnet" | "mainnet",
+    chainId: (process.env.INJECTIVE_CHAIN_ID || "dorado-1").trim(),
+    rpc: (process.env.INJECTIVE_RPC || "https://sentry.lcd.injective.network").trim(),
+    rest: (process.env.INJECTIVE_REST || "https://sentry.lcd.injective.network").trim(),
+    denom: (process.env.INJECTIVE_DENOM || "inj").trim(),
+    splitContractAddr: (process.env.INJECTIVE_SPLIT_CONTRACT_ADDR || "").trim(),
+    // 测试网代签私钥(仅 testnet;主网绝不使用)
+    demoKey: (process.env.INJECTIVE_DEMO_KEY || "").trim(),
+    protocolFeeBps: num(process.env.INJECTIVE_PROTOCOL_FEE_BPS, 500), // 5%
+    archetypeAddrs: parseArchetypeAddrs(process.env.INJECTIVE_ARCHETYPE_ADDRS),
+  },
 };
+
+/** 解析 INJECTIVE_ARCHETYPE_ADDRS(JSON 字符串)→ Record<archetype, addr> */
+function parseArchetypeAddrs(raw: string | undefined): Record<string, string> {
+  if (!raw || !raw.trim()) return {};
+  try {
+    const obj = JSON.parse(raw);
+    return typeof obj === "object" && obj ? obj : {};
+  } catch {
+    return {};
+  }
+}
 
 /** 三档模型名:客户端选哪个就走哪条路径 */
 export const MODEL_TIERS = {

@@ -81,6 +81,7 @@ async function goSection(hash: string) {
         </span>
       </div>
       <div class="nav-cta-group">
+        <RouterLink to="/onchain" class="nav-cta onchain-link">⛓️ 链上蜂群</RouterLink>
         <RouterLink to="/playground" class="nav-cta playground-link">🎮 Playground</RouterLink>
         <template v-if="auth.isAuthed">
           <div class="user-menu" @click="userMenuOpen = !userMenuOpen">
@@ -218,6 +219,14 @@ async function goSection(hash: string) {
 .nav-cta.playground-link:hover {
   background: rgba(58, 224, 255, 0.12);
   border-color: var(--cyan);
+}
+.nav-cta.onchain-link {
+  border-color: rgba(129, 140, 248, 0.6);
+  color: #a5b4fc;
+}
+.nav-cta.onchain-link:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #818cf8;
 }
 .nav-cta:hover {
   background: rgba(255, 255, 255, 0.1);

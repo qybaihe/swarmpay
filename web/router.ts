@@ -12,6 +12,8 @@ import CreditsView from "./views/CreditsView.vue";
 import PricingView from "./views/PricingView.vue";
 import ApiKeyView from "./views/ApiKeyView.vue";
 import DocsView from "./views/DocsView.vue";
+import WalletView from "./views/injective/WalletView.vue";
+import OnchainRunView from "./views/injective/OnchainRunView.vue";
 import { useAuthStore } from "./stores/auth";
 
 export const router = createRouter({
@@ -27,6 +29,9 @@ export const router = createRouter({
     { path: "/pricing", name: "pricing", component: PricingView },
     { path: "/api-keys", name: "api-keys", component: ApiKeyView, meta: { requiresAuth: true } },
     { path: "/docs", name: "docs", component: DocsView },
+    // ── Injective 链上通道(新增,无需 auth 方便评委直接查看)──
+    { path: "/wallet", name: "wallet", component: WalletView },
+    { path: "/onchain", name: "onchain", component: OnchainRunView },
     { path: "/community", name: "community", component: CommunityView },
     { path: "/community/fleet/:id", name: "community-fleet", component: CommunityFleetView },
     { path: "/community/user/:userId", name: "community-profile", component: CommunityProfileView },

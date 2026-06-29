@@ -2,7 +2,15 @@
 // 多 Agent 系统的核心类型:身份、消息、子任务、handoff 上下文、绩效
 
 // ── Agent 身份(对应 AGENTS.md)──
-export type Archetype = "orchestrator" | "planner" | "coder" | "reviewer" | "explorer";
+// payer/treasurer 为 Injective 链上通道新增的资金角色(加法,不参与答案分润)。
+export type Archetype =
+  | "orchestrator"
+  | "planner"
+  | "coder"
+  | "reviewer"
+  | "explorer"
+  | "payer" // 新增:发起链上支付/分润
+  | "treasurer"; // 新增:资金托管、对账、协议服务费接收
 
 export interface CustomSwarmTopology {
   mode: "custom";

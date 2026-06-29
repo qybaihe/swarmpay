@@ -72,6 +72,8 @@ export type SwarmGraphArchetype =
   | "coder"
   | "reviewer"
   | "explorer"
+  | "payer"
+  | "treasurer"
   | "evomap"
   | "system";
 

@@ -20,6 +20,7 @@ import type { ChatCompletionRequest, ChatCompletionResponse } from "./openai-typ
 import { securityHeaders, rateLimit, originGuard } from "./middleware/security.js";
 import { publicBaseUrl } from "./url.js";
 import { verifyWebhook, handleWebhookEvent, webhookEventStore, type WebhookEvent } from "./evomap-webhook.js";
+import { createInjectiveRouter } from "./injective/routes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -234,6 +235,9 @@ app.get("/", (_req, res) => {
 
 // 静态资源(背景图等)— 放在路由之后、404 兜底之前
 app.use(express.static(path.join(__dirname, "..", "public")));
+
+// ── Injective 链上通道(新增,加法式)── 挂 /api/injective/* 路由
+app.use("/api/injective", createInjectiveRouter());
 
 // ── GET /api/status ── 健康检查 + 说明(API 用)
 app.get("/api/status", (_req, res) => {
