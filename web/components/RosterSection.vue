@@ -3,38 +3,38 @@ import SectionHeader from "./SectionHeader.vue";
 import ShipIcon from "./ShipIcon.vue";
 
 const roles = [
-  { key: "orchestrator", ship: "flagship", name: "旗舰",
-    focus: "拆解目标、调度子任务、合成最终答案。舰队的中枢指挥舰。",
-    archetype: "orchestrator", temp: "0.3", reward: "0.15", handoff: "navigator" },
-  { key: "planner", ship: "navigator", name: "导航舰",
+  { key: "orchestrator", ship: "flagship", name: "旗舰 Orchestrator",
+    focus: "拆解目标、调度子任务、合成最终答案。蜂群的中枢,按子任务权重分配预算。",
+    archetype: "orchestrator", temp: "0.3", reward: "0.15", handoff: "自有钱包 · 接收分润" },
+  { key: "planner", ship: "navigator", name: "导航舰 Planner",
     focus: "理解子任务,输出结构化航线计划:分步、约束、风险。",
-    archetype: "planner", temp: "0.4", reward: "0.20", handoff: "engineer" },
-  { key: "coder", ship: "engineer", name: "工程舰",
-    focus: "消费航线计划或返工反馈,直奔可落地的具体方案/代码。",
-    archetype: "coder", temp: "0.6", reward: "0.30", handoff: "auditor" },
-  { key: "reviewer", ship: "auditor", name: "监察舰",
-    focus: "批判工程舰产出,给出返工意见,做组织级纠错。",
-    archetype: "reviewer", temp: "0.7", reward: "0.20", handoff: "engineer / flagship" },
-  { key: "explorer", ship: "scout", name: "斥候舰",
+    archetype: "planner", temp: "0.4", reward: "0.20", handoff: "自有钱包 · 接收分润" },
+  { key: "coder", ship: "engineer", name: "工程舰 Coder",
+    focus: "消费航线计划或返工反馈,直奔可落地方案。贡献权重最高,也是<b>被悬赏</b>的对象。",
+    archetype: "coder", temp: "0.6", reward: "0.30", handoff: "自有钱包 · 可被悬赏" },
+  { key: "reviewer", ship: "auditor", name: "监察舰 Reviewer",
+    focus: "批判工程舰产出,给返工意见。<b style='color:var(--violet)'>可自主向 coder 发起链上悬赏</b>,用自己的钱包自签转账。",
+    archetype: "reviewer", temp: "0.7", reward: "0.20", handoff: "自有钱包 · 可发悬赏" },
+  { key: "explorer", ship: "scout", name: "斥候舰 Explorer",
     focus: "跳出常规航线,给非显然但有创造性的方案,打破局部最优。",
-    archetype: "explorer", temp: "0.9", reward: "0.15", handoff: "navigator / engineer" },
+    archetype: "explorer", temp: "0.9", reward: "0.15", handoff: "自有钱包 · 接收分润" },
 ];
 </script>
 
 <template>
   <section class="flat-section" id="roster">
     <div class="flat-inner">
-      <SectionHeader eyebrow="THE FLEET" title="五艘异构星舰,各司其职"
-        sub="每艘舰有专长、温度、handoff 目标。通过 handoff 编队串联:导航舰→工程舰→监察舰→返工回路。" />
+      <SectionHeader eyebrow="ON-CHAIN ROLES" title="五个 agent,各持链上钱包,各司其职"
+        sub="每个 agent 不只是一个推理角色,更是一个链上经济主体 —— 拥有独立 INJ 钱包,按贡献获得 LLM 裁定的分润,部分角色还能自主发起悬赏。" />
       <div class="roster">
         <div class="role" :class="'r-' + r.key" v-for="r in roles" :key="r.key">
           <div class="ric"><ShipIcon :ship="r.ship" /></div>
           <h4>{{ r.name }}</h4>
-          <div class="focus">{{ r.focus }}</div>
+          <div class="focus" v-html="r.focus"></div>
           <div class="attrs">
             <span>archetype: <b>{{ r.archetype }}</b></span>
-            <span>温度 <b>{{ r.temp }}</b> · reward <b>{{ r.reward }}</b></span>
-            <span>handoff → <b>{{ r.handoff }}</b></span>
+            <span>温度 <b>{{ r.temp }}</b> · 分润权重 <b>{{ r.reward }}</b></span>
+            <span><b>{{ r.handoff }}</b></span>
           </div>
         </div>
       </div>

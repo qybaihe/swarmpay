@@ -6,9 +6,9 @@ import SectionHeader from "./SectionHeader.vue";
   <section class="flat-section" id="pipeline">
     <div class="flat-inner">
       <SectionHeader
-        eyebrow="进化协作"
-        title="进化模式协作拓扑"
-        sub="复杂目标进入进化协作模式后,旗舰会先从 EvoMap 继承同类经验,再拆解成多条任务航线并行推进。每条航线由规划蜂、工程蜂、审查蜂形成闭环,审查不通过就带反馈返工;任一关键突破会即时广播全队,最终由旗舰聚合最优结果,并把成功配方回流 EvoMap。"
+        eyebrow="链上协作流"
+        title="一条请求,从推理到链上结算"
+        sub="蜂群不只是协作,更是一条链上价值流:拆解目标 → 并行攻关 → LLM 审查纠错 → <b style='color:var(--green)'>LLM 按贡献实时分润</b> → <b style='color:var(--green)'>INJ 链上结算</b> → 各 agent 钱包入账 → (深度3) agent 拿赚来的钱<b style='color:var(--green)'>悬赏</b>协作伙伴,形成自循环经济。每一步都可验证、可追溯。"
       />
 
       <figure class="topology-figure" aria-label="进化模式协作拓扑图">

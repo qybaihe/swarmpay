@@ -2,14 +2,14 @@
 import SectionHeader from "./SectionHeader.vue";
 
 const tiers = [
-  { tag: "BASELINE", title: "信标基线", code: "swarm-baseline",
-    desc: "单舰直通基线,作为编队的对照组。", featured: false },
-  { tag: "LITE", title: "巡逻编队", code: "swarm-lite",
-    desc: "少量舰并行解题 + 轻量聚合。速度快,适合中等任务。", featured: false },
-  { tag: "★ HEAVY · 推荐", title: "突击编队", code: "swarm-heavy",
-    desc: "异构编队分工 + 旗舰聚合 + 突破广播 + 返工纠错。", featured: true },
-  { tag: "★ EVO · 独家", title: "进化旗舰", code: "swarm-evo",
-    desc: "联合 EvoMap 自进化网络:继承同类经验、成功航线回流沉淀,越用越进化。独家能力。", featured: true },
+  { tag: "BASELINE", title: "基线模式", code: "swarm-baseline",
+    desc: "单 agent 直通,基础链上转账结算。对照组。", featured: false },
+  { tag: "LITE", title: "轻量并行", code: "swarm-lite",
+    desc: "少量 agent 并行解题 + 轻量聚合,完成后一次链上分润。", featured: false },
+  { tag: "★ HEAVY · 推荐", title: "异构分工", code: "swarm-heavy",
+    desc: "异构 agent 分工 + 旗舰聚合 + 突破广播 + 返工纠错 + <b style='color:var(--green)'>LLM 动态分润</b>。", featured: true },
+  { tag: "★ EVO · 独家", title: "Agent 经济", code: "swarm-evo",
+    desc: "全链路 + 经验继承 + <b style='color:var(--green)'>LLM 悬赏经济</b>:agent 用赚来的钱悬赏协作伙伴,价值自循环。独家能力。", featured: true },
 ];
 
 const clients = ["Cursor", "Cline", "Aider", "LangChain", "Continue", "OpenAI SDK"];
@@ -18,14 +18,14 @@ const clients = ["Cursor", "Cline", "Aider", "LangChain", "Continue", "OpenAI SD
 <template>
   <section class="flat-section" id="tiers">
     <div class="flat-inner">
-      <SectionHeader eyebrow="FLEET CLASSES" title="四级舰队型号"
-        sub="客户端选哪个 model,就走哪条编队路径。推荐 swarm-evo 接入 EvoMap 经验网络。" />
+      <SectionHeader eyebrow="SETTLEMENT MODES" title="四级链上结算模式"
+        sub="客户端选哪个 model,就走哪条蜂群路径 + 链上结算方式。推荐 swarm-evo 体验完整 agent 经济(分润 + 悬赏 + 经验继承)。" />
       <div class="tier-grid">
         <div class="tier" :class="{ featured: t.featured }" v-for="t in tiers" :key="t.code">
           <div class="tag">{{ t.tag }}</div>
           <h3>{{ t.title }}</h3>
           <code>{{ t.code }}</code>
-          <p>{{ t.desc }}</p>
+          <p v-html="t.desc"></p>
         </div>
       </div>
       <div class="clients">

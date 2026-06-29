@@ -1166,6 +1166,14 @@ function handleBounty(bounties: { fromArch: string; toArch: string; amountSmalle
     }));
     // coder 节点飘 +悬赏金额
     store.showRewardFloat(toNode.id, b.amountSmallest);
+    // 悬赏到达迸发星火(8 点放射)
+    const bSparks: Array<{ fromX: number; fromY: number; toX: number; toY: number }> = [];
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2;
+      const r = 32 + (k % 2) * 16;
+      bSparks.push({ fromX: tx, fromY: ty, toX: tx + Math.cos(a) * r, toY: ty + Math.sin(a) * r });
+    }
+    setTimeout(() => store.spawnCoins("out", bSparks), 850);
     store.addLog("SwarmPay", `💰 ${b.fromArch} 悬赏 ${b.toArch} ${(Number(b.amountSmallest) / 1e18).toFixed(4)} INJ: ${b.reason}`);
   }
 }
@@ -1185,12 +1193,20 @@ async function runDemo() {
 /** 链上分润流向:回放结束后,持有 payment 供 RewardFlowOverlay + 画布飞金币(从付款方→各 agent 节点) */
 const rewardPayment = ref<{ splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null>(null);
 const senderAddr = ref<string>("");
+// 链上分润全屏金光闪(成功时点亮一次)
+const rewardFlash = ref<boolean>(false);
+function triggerRewardFlash() {
+  if (rewardFlash.value) return;
+  rewardFlash.value = true;
+  setTimeout(() => { rewardFlash.value = false; }, 700);
+}
 function handleRewardDistributed(payment: { splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null) {
   rewardPayment.value = payment;
   senderAddr.value = inj.address || payment?.splits?.[0]?.addr || "";
 
   // 画布金色分润流向:从付款方锚点(运行按钮)向各 agent 节点飞金币,数量按权重
   if (!payment?.splits?.length) return;
+  if (payment.success !== false) triggerRewardFlash();
   const runBtn = document.querySelector(".run-btn, .stop-btn") as HTMLElement | null;
   const rRect = runBtn?.getBoundingClientRect();
   const sx = rRect ? rRect.left + rRect.width / 2 : window.innerWidth / 2;
@@ -1214,6 +1230,14 @@ function handleRewardDistributed(payment: { splits?: { archetype: string; addr: 
     }
     // 飘字 +金额(最小单位→INJ)在节点上方
     store.showRewardFloat?.(node.id, s.amount);
+    // 到达点星火迸发:6 个小金点从节点中心向四周四散后淡出
+    const sparks: Array<{ fromX: number; fromY: number; toX: number; toY: number }> = [];
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2;
+      const r = 28 + (k % 2) * 14;
+      sparks.push({ fromX: nx, fromY: ny, toX: nx + Math.cos(a) * r, toY: ny + Math.sin(a) * r });
+    }
+    setTimeout(() => store.spawnCoins("out", sparks), 900);
   }
   if (routes.length) store.spawnCoins("out", routes);
 }
@@ -1370,13 +1394,19 @@ watch(() => transformStore.lastResult?.api_key, (apiKey) => {
 
 // 粒子覆盖层
 function particleStyle(p: Particle) {
+  const dx = p.toX - p.fromX;
+  const dy = p.toY - p.fromY;
+  // 拖尾朝向:沿运动方向旋转,atan2 → deg
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
   return {
     left: `${p.fromX}px`,
     top: `${p.fromY}px`,
-    "--tx": `${p.toX - p.fromX}px`,
-    "--ty": `${p.toY - p.fromY}px`,
-    background: p.color,
-    boxShadow: `0 0 12px ${p.color}`,
+    "--tx": `${dx}px`,
+    "--ty": `${dy}px`,
+    "--angle": `${angle}deg`,
+    "--pc": p.color,
+    background: `radial-gradient(circle at 35% 30%, #fff 0%, ${p.color} 45%, rgba(0,0,0,0.25) 100%)`,
+    boxShadow: `0 0 6px ${p.color}, 0 0 14px ${p.color}, 0 0 26px ${p.color}99`,
   };
 }
 
@@ -1522,11 +1552,19 @@ function miniColor(n: { data?: PetNodeData }) {
           <div
             v-for="p in particles"
             :key="p.id"
-            class="particle"
+            class="particle coin"
             :class="{ broadcast: p.kind === 'broadcast' }"
             :style="particleStyle(p)"
-          ></div>
+          >
+            <span class="coin-trail"></span>
+            <span class="coin-burst"></span>
+          </div>
         </div>
+
+        <!-- 链上分润全屏金光闪 -->
+        <Transition name="flash">
+          <div v-if="rewardFlash" class="reward-flash"></div>
+        </Transition>
 
         <!-- 经验回流提示 -->
         <Transition name="fade">
@@ -1546,9 +1584,12 @@ function miniColor(n: { data?: PetNodeData }) {
         <div
           v-for="r in store.rewardFloat"
           :key="r.id"
-          class="reward-float"
+          class="reward-float-wrap"
           :style="rewardFloatStyle(r.nodeId)"
-        >+{{ r.amountInj }} INJ</div>
+        >
+          <span class="reward-ring"></span>
+          <span class="reward-float">+{{ r.amountInj }} INJ</span>
+        </div>
 
         <!-- 空状态 -->
         <div v-if="nodes.length === 0" class="empty-hint">
@@ -1951,22 +1992,91 @@ function miniColor(n: { data?: PetNodeData }) {
   pointer-events: none;
   z-index: 10;
 }
-.particle {
+/* 金币本体:径向高光 + 多层发光,带运动方向旋转(供拖尾用) */
+.particle.coin {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  animation: fly 1.2s ease-in forwards;
-}
-.particle.broadcast {
   width: 12px;
   height: 12px;
+  border-radius: 50%;
+  transform-origin: center;
+  animation: fly 1.2s ease-in forwards;
+  filter: drop-shadow(0 0 4px var(--pc, #ffd23f));
+}
+.particle.coin.broadcast {
+  width: 14px;
+  height: 14px;
+}
+/* 拖尾尾迹:沿运动方向(--angle)拉一条渐变光带 */
+.particle.coin .coin-trail {
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  width: 26px;
+  height: 3px;
+  transform: translateY(-50%) rotate(var(--angle, 0deg));
+  transform-origin: right center;
+  background: linear-gradient(90deg, transparent, var(--pc, #ffd23f));
+  border-radius: 3px;
+  opacity: 0.7;
+  filter: blur(1px);
+}
+/* 到达迸发星火:伪元素多点点 + 二级动画 */
+.particle.coin .coin-burst {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sparkBurst 1.2s ease-out forwards;
 }
 @keyframes fly {
-  0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
-  15% { opacity: 1; transform: translate(calc(var(--tx) * 0.15), calc(var(--ty) * 0.15)) scale(1); }
-  100% { transform: translate(var(--tx), var(--ty)) scale(0.8); opacity: 0; }
+  0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 0; }
+  12% { opacity: 1; transform: translate(calc(var(--tx) * 0.12), calc(var(--ty) * 0.12)) scale(1.15) rotate(20deg); }
+  70% { transform: translate(calc(var(--tx) * 0.7), calc(var(--ty) * 0.7)) scale(1) rotate(40deg); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.7) rotate(60deg); opacity: 0; }
 }
+@keyframes sparkBurst {
+  0%, 70% { opacity: 0; box-shadow: none; }
+  78% {
+    opacity: 1;
+    box-shadow:
+      0 -10px 0 var(--pc, #ffd23f),
+      0 10px 0 var(--pc, #ffd23f),
+      -10px 0 0 var(--pc, #ffd23f),
+      10px 0 0 var(--pc, #ffd23f),
+      7px 7px 0 var(--pc, #ffd23f),
+      -7px -7px 0 var(--pc, #ffd23f),
+      7px -7px 0 var(--pc, #ffd23f),
+      -7px 7px 0 var(--pc, #ffd23f);
+  }
+  100% {
+    opacity: 0;
+    box-shadow:
+      0 -20px 0 transparent,
+      0 20px 0 transparent,
+      -20px 0 0 transparent,
+      20px 0 0 transparent,
+      14px 14px 0 transparent,
+      -14px -14px 0 transparent,
+      14px -14px 0 transparent,
+      -14px 14px 0 transparent;
+  }
+}
+
+/* 链上分润全屏金光闪 */
+.reward-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(255, 210, 63, 0.22), transparent 70%);
+  animation: rewardFlash 0.7s ease-out forwards;
+}
+@keyframes rewardFlash {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.flash-enter-active, .flash-leave-active { transition: opacity 0.2s; }
 
 .backflow-toast {
   position: absolute;
@@ -2186,10 +2296,14 @@ function miniColor(n: { data?: PetNodeData }) {
   text-shadow: 0 0 8px rgba(255, 184, 77, 0.6);
   animation: creditFloat 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-.reward-float {
+.reward-float-wrap {
   position: fixed;
   z-index: 9999;
   transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+.reward-float {
+  display: inline-block;
   padding: 4px 12px;
   font-size: 14px;
   font-weight: 800;
@@ -2198,15 +2312,32 @@ function miniColor(n: { data?: PetNodeData }) {
   background: rgba(255, 210, 63, 0.15);
   border: 1px solid #ffd23f;
   border-radius: 999px;
-  pointer-events: none;
   text-shadow: 0 0 10px rgba(255, 210, 63, 0.8);
+  box-shadow: 0 0 16px rgba(255, 210, 63, 0.45);
   animation: rewardFloatUp 2.4s ease-out forwards;
 }
+/* 链上分润脉冲光圈:从节点向外扩散一圈金光 */
+.reward-ring {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  border: 2px solid #ffd23f;
+  animation: ringPulse 1.6s ease-out forwards;
+}
+@keyframes ringPulse {
+  0% { opacity: 0; transform: scale(0.4); box-shadow: 0 0 0 0 rgba(255, 210, 63, 0.6); }
+  20% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(4.5); box-shadow: 0 0 0 16px rgba(255, 210, 63, 0); }
+}
 @keyframes rewardFloatUp {
-  0% { opacity: 0; transform: translate(-50%, -80%) scale(0.6); }
-  15% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); }
-  80% { opacity: 1; transform: translate(-50%, -180%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, -240%) scale(0.9); }
+  0% { opacity: 0; transform: translateY(20%) scale(0.6); }
+  15% { opacity: 1; transform: translateY(-20%) scale(1.1); }
+  80% { opacity: 1; transform: translateY(-80%) scale(1); }
+  100% { opacity: 0; transform: translateY(-140%) scale(0.9); }
 }
 @keyframes creditFloat {
   0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }

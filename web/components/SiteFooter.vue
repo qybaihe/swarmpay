@@ -36,10 +36,10 @@ async function goSection(hash: string) {
       <!-- 导航区 -->
       <div class="col">
         <h4>导航</h4>
-        <a href="#pipeline" @click.prevent="goSection('#pipeline')">协作原理</a>
+        <a href="#pipeline" @click.prevent="goSection('#pipeline')">链上协作流</a>
         <RouterLink to="/endpoints">端点</RouterLink>
-        <a href="#roster" @click.prevent="goSection('#roster')">舰队阵容</a>
-        <a href="#tiers" @click.prevent="goSection('#tiers')">舰队型号</a>
+        <a href="#roster" @click.prevent="goSection('#roster')">Agent 角色</a>
+        <a href="#tiers" @click.prevent="goSection('#tiers')">结算模式</a>
       </div>
 
       <!-- 玩法区 -->
@@ -47,7 +47,7 @@ async function goSection(hash: string) {
         <h4>玩法</h4>
         <router-link to="/playground">Playground</router-link>
         <router-link to="/chat">对话测试</router-link>
-        <router-link to="/community">舰队社区</router-link>
+        <router-link to="/community">Agent 社区</router-link>
         <router-link to="/docs">使用文档</router-link>
       </div>
 

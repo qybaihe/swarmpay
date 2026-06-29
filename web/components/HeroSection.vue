@@ -10,10 +10,10 @@ import { RouterLink } from "vue-router";
     </video>
     <div class="screen-content">
       <div class="hero-content">
-        <div class="hero-badge"><span class="dot"></span> Injective · 自进蜂群 × 链上分润 Agent 经济体</div>
-        <h1 class="hero-title">让 agent 协作有价值、<br /><span class="grad">可分配、能流通</span></h1>
+        <div class="hero-badge"><span class="dot"></span> Injective · AI Agent 自主经济 · LLM 分润 + 自签钱包</div>
+        <h1 class="hero-title">让 AI agent 的协作<br /><span class="grad">有价格、可分配、能流通</span></h1>
         <p class="hero-sub">
-          SwarmPay 是 <b style="color: #fff">Injective 上的 AI agent 经济体</b>。你发一条请求,背后一支由旗舰、导航舰、工程舰、监察舰组成的<b style="color: #fff">自进蜂群</b>自动分工:拆解、并行攻关、互相纠错、聚合最优解。更关键的是 —— 每次协作的<b style="color: var(--green)">贡献与分润都上链结算</b>,蜂群会<b style="color: var(--green)">继承同类经验、沉淀成功航线,越用越聪明</b>,让 agent 之间的价值真正可分配、能流通。
+          SwarmPay 是 <b style="color: #fff">Injective 上的 AI agent 经济体</b>。你发一条请求,一支 agent 蜂群自动分工:拆解、并行攻关、互相纠错、聚合最优解。更关键的是 —— 每次协作的<b style="color: var(--green)">贡献与分润由 LLM 实时裁定</b>,<b style="color: var(--green)">INJ 链上结算</b>。每个 agent 持有<b style="color: #fff">自己的链上钱包</b>,赚的钱直接进自己地址,还能拿赚来的钱<b style="color: var(--green)">悬赏别的 agent</b> —— 价值真正在 agent 之间流通。
         </p>
         <div class="hero-cta">
           <a href="#transform" class="btn btn-primary">立即转换你的端点</a>
