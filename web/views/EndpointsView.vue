@@ -168,7 +168,7 @@ onMounted(() => {
     <div class="hero-head">
       <div class="eyebrow">ENDPOINT CONVERTER</div>
       <h1>更换上游模型</h1>
-      <p class="lede">填入现有的 OpenAI 兼容端点,EvoShip 会把它保存为你的上游模型。保存后继续使用「我的 API Key」里的同一个 key 调用。</p>
+      <p class="lede">填入现有的 OpenAI 兼容端点,SwarmPay 会把它保存为你的上游模型。保存后继续使用「我的 API Key」里的同一个 key 调用。</p>
     </div>
 
     <div class="transform-wrap">
@@ -207,7 +207,7 @@ onMounted(() => {
         <!-- 结果卡 -->
         <div class="result" :class="{ show: showResult, 'demo-mode': demoMode }">
           <div class="ok">
-            上游模型已保存,健康检查已通过。继续使用你的 EvoShip API Key 调用,底层会转发到这个上游模型。
+            上游模型已保存,健康检查已通过。继续使用你的 SwarmPay API Key 调用,底层会转发到这个上游模型。
           </div>
           <template v-if="result">
             <div v-if="result.endpoint" class="endpoint-health">

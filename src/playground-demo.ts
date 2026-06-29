@@ -828,7 +828,7 @@ export function createPlaygroundDemoOutput(): SwarmOutput {
         inheritedRemote: 2,
         deposited: {
           id: 404,
-          title: "EvoShip 进化记忆 G4: 登录表单校验与失败复位",
+          title: "SwarmPay 进化记忆 G4: 登录表单校验与失败复位",
           qualityScore: 0.948,
           generation: 4,
           successStreak: 6,

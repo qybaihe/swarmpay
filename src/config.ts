@@ -48,7 +48,7 @@ export const config = {
   baselineModel: process.env.BASELINE_MODEL || "gpt-4o",
 
   // 内置默认模型 provider:用户没注册自己的端点时,自动用这个作为上游。
-  // 新用户注册会自动发一个绑定此 provider 的 sk-evoship key。
+  // 新用户注册会自动发一个绑定此 provider 的 sk-swarmpay key。
   // ⚠️ 必须用独立环境变量配置,不再复用 EVOMAP_BASE_URL(那是平台域名)。
   //    留空 → 注册的 key 无可用上游,需用户自行注册端点。
   defaultProvider: {

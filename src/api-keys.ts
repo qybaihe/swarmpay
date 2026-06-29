@@ -6,7 +6,7 @@ import type { Request, Router } from "express";
 import { DB_PATH, getSessionToken, type AuthStore } from "./auth.js";
 import { publicV1BaseUrl } from "./url.js";
 
-export const EVOSHIP_KEY_PREFIX = "sk-evoship-";
+export const EVOSHIP_KEY_PREFIX = "sk-swarmpay-";
 
 export interface UserApiKey {
   id: number;

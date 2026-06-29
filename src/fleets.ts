@@ -3,7 +3,7 @@
 // 仿 endpoints.ts 结构:SQLite (node:sqlite) + 按 user_id 隔离 + session 鉴权。
 //
 // 一个舰队 = 一套 CustomSwarmTopology(节点+边) + AI 美化人设 + 一个自定义模型名("user:<name>")。
-// 用户注册端点后,用 sk-evoship-xxx key + model="user:<name>" 调 /v1/chat/completions,
+// 用户注册端点后,用 sk-swarmpay-xxx key + model="user:<name>" 调 /v1/chat/completions,
 // 后端按该舰队拓扑真实执行(runCustomTopology)。
 
 import fs from "node:fs";

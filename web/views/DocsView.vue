@@ -12,13 +12,13 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
   <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="/bg-starship.png"><source src="/bg-launch.mp4" type="video/mp4" /></video>
   <div class="bg-overlay"></div>
   <div class="top">
-    <RouterLink to="/" class="logo"><b>EvoShip</b></RouterLink>
+    <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
     <RouterLink to="/playground" class="back-home">← 返回</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
-      <h1>📖 EvoShip 使用文档</h1>
+      <h1>📖 SwarmPay 使用文档</h1>
       <p class="sub">从注册到第一次调用蜂群,5 分钟完成上手。</p>
 
       <!-- 目录 -->
@@ -35,10 +35,10 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
       <!-- Step 1 -->
       <section id="step1" class="doc-section">
         <h2><span class="step-badge">1</span> 注册账号,领取积分和 API Key</h2>
-        <p>注册 EvoShip 账号后,系统会自动:</p>
+        <p>注册 SwarmPay 账号后,系统会自动:</p>
         <ul>
           <li>赠送 <b class="hi">1000 积分</b>(每次完整蜂群调用消耗 50 积分,共可调用 20 次)</li>
-          <li>生成一个 <b class="hi">API Key</b>(格式 <code>sk-evoship-xxxx</code>),绑定内置默认模型(<code>evomap-gpt-5.5</code>)</li>
+          <li>生成一个 <b class="hi">API Key</b>(格式 <code>sk-swarmpay-xxxx</code>),绑定内置默认模型(<code>evomap-gpt-5.5</code>)</li>
         </ul>
         <div class="callout">
           <span class="callout-icon">🔑</span>

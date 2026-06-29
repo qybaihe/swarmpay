@@ -58,7 +58,7 @@ export function rateLimit(opts: { windowMs: number; max: number }) {
 
 /** CSRF 同源校验:对依赖 cookie 的写操作(POST/PUT/DELETE/PATCH),
  *  要求 Origin/Referer 与本机 host 同源。API key 调用(Bearer)不受此限制。
- *  放行条件:① 带 Authorization Bearer(sk-evoship-) 或 ② Origin 同源 或 ③ 无 Origin(部分客户端)时放行 GET。
+ *  放行条件:① 带 Authorization Bearer(sk-swarmpay-) 或 ② Origin 同源 或 ③ 无 Origin(部分客户端)时放行 GET。
  *  开发环境豁免:Origin 是 localhost/127.0.0.1(vite dev server 等本地工具)时放行,
  *                避免 changeOrigin 代理下 Host(4000)与 Origin(5173)端口不一致导致的误拦。 */
 function isDevOrigin(host: string): boolean {
@@ -73,7 +73,7 @@ export function originGuard(allowedHosts: string[]): (req: Request, res: Respons
     if (req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS") return next();
     // Bearer token API 调用不走 CSRF 校验(它们不依赖 cookie)
     const auth = req.headers.authorization || "";
-    if (/^Bearer\s+sk-evoship-/i.test(auth)) return next();
+    if (/^Bearer\s+sk-swarmpay-/i.test(auth)) return next();
     const origin = (req.headers.origin || req.headers.referer || "").toLowerCase();
     if (!origin) return next(); // 无 Origin 头的请求放过(非浏览器客户端)
     try {

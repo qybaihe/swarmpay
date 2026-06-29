@@ -8,7 +8,7 @@ import { DB_PATH, getSessionToken, type AuthStore } from "./auth.js";
 import type { ModelProvider } from "./model.js";
 import { publicV1BaseUrl } from "./url.js";
 
-const KEY_PREFIX = "sk-evoship-";
+const KEY_PREFIX = "sk-swarmpay-";
 
 export interface RegisteredEndpoint {
   id: number;

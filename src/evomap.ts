@@ -137,7 +137,7 @@ const realClient: EvoMapClient = {
       id: geneSlug,
       category: "optimize" as const,
       signals_match: signals,
-      summary: input.description.slice(0, 200) || `EvoShip 蜂群策略: ${input.title}`,
+      summary: input.description.slice(0, 200) || `SwarmPay 蜂群策略: ${input.title}`,
       preconditions: ["EvoShip swarm endpoint available"],
       strategy: input.steps.map((s) => {
         const step = `[${s.role}] ${s.action}`;
@@ -155,7 +155,7 @@ const realClient: EvoMapClient = {
       schema_version: "1.5.0",
       trigger: signals,
       gene: geneAssetId,
-      summary: input.description.slice(0, 200) || `EvoShip 蜂群产物: ${input.title}`,
+      summary: input.description.slice(0, 200) || `SwarmPay 蜂群产物: ${input.title}`,
       content: (input.finalContent || input.description).slice(0, 2000),
       code_snippet: input.steps.map((s) => `${s.role}: ${s.action}`).join("\n").slice(0, 500),
       confidence: 0.8,

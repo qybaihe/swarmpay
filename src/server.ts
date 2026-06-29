@@ -124,7 +124,7 @@ const fleetStore = new FleetStore();
 app.use("/api/auth/login", rateLimit({ windowMs: 60_000, max: 10 }));
 app.use("/api/auth/register", rateLimit({ windowMs: 60_000, max: 10 }));
 
-// 注册路由:注册新用户时自动发一个开箱可用的 sk-evoship key
+// 注册路由:注册新用户时自动发一个开箱可用的 sk-swarmpay key
 registerAuthRoutes(app, authStore, {
   onUserCreated: async (userId: number, req) => {
     const key = apiKeyStore.createKey({ userId, name: "默认 API Key" });
@@ -198,7 +198,7 @@ function resolveModel(
   // 用户自定义模型
   if (requested.startsWith(USER_MODEL_PREFIX)) {
     if (!caller) {
-      return { tier: "swarm-evo", error: { status: 401, message: `自定义模型 ${requested} 需要有效的 EvoShip API Key。` } };
+      return { tier: "swarm-evo", error: { status: 401, message: `自定义模型 ${requested} 需要有效的 SwarmPay API Key。` } };
     }
     const fleetRow = fleetStore.findByModelId(caller.userId, requested);
     if (!fleetRow) {
@@ -231,7 +231,7 @@ app.get("/v1/models", (_req, res) => {
   });
 });
 
-// ── GET / ── EvoShip 官网(蜂群端点介绍 + 端点转换)
+// ── GET / ── SwarmPay 官网(蜂群端点介绍 + 端点转换)
 app.get("/", (_req, res) => {
   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
@@ -245,7 +245,7 @@ app.use("/api/injective", createInjectiveRouter());
 // ── GET /api/status ── 健康检查 + 说明(API 用)
 app.get("/api/status", (_req, res) => {
   res.type("json").send({
-    service: "evoship",
+    service: "swarmpay",
     status: "ok",
     backend: isMock() ? "MOCK (set OPENAI_BASE_URL for real models)" : "real",
     evomap: config.evomapToken ? "connected" : "disabled (set EVOMAP_TOKEN)",
@@ -288,7 +288,7 @@ app.get("/oauth/callback", async (req, res) => {
     `<p>swarm-evo 档现在会真实检索 EvoMap 价值网络。</p>` +
     `<p style="color:#666;font-size:13px">token 已注入服务端内存(不会暴露)。` +
     `<br>开发用 token(复制设置 EVOMAP_TOKEN):<code>${result.accessToken.slice(0, 12)}…${result.accessToken.slice(-6)}</code></p>` +
-    `<p><a href="/">← 返回 EvoShip 首页</a> · <a href="/api/status">查看状态</a></p></div>`,
+    `<p><a href="/">← 返回 SwarmPay 首页</a> · <a href="/api/status">查看状态</a></p></div>`,
   );
 });
 
@@ -308,7 +308,7 @@ app.post("/v1/chat/completions", async (req, res) => {
   const token = bearerToken(req);
   const caller = resolveApiCaller(req);
   if (!caller && isEvoShipApiKey(token)) {
-    return res.status(401).json({ error: { message: "invalid EvoShip API key", type: "invalid_api_key" } });
+    return res.status(401).json({ error: { message: "invalid SwarmPay API key", type: "invalid_api_key" } });
   }
 
   const resolved = resolveModel(requested, caller);
@@ -414,7 +414,7 @@ app.post("/api/playground/swarm/run", async (req, res) => {
   const token = bearerToken(req);
   const caller = resolveApiCaller(req);
   if (!caller && isEvoShipApiKey(token)) {
-    return res.status(401).json({ error: { message: "invalid EvoShip API key", type: "invalid_api_key" } });
+    return res.status(401).json({ error: { message: "invalid SwarmPay API key", type: "invalid_api_key" } });
   }
 
   const resolved = resolveModel(requested, caller);
@@ -497,7 +497,7 @@ app.use((req, res) => {
 
 app.listen(config.port, async () => {
   const bar = "═".repeat(60);
-  console.log(`\n${bar}\n  🐝 EvoShip — 异构分工蜂群(多 Agent 协作架构)\n${bar}`);
+  console.log(`\n${bar}\n  🐝 SwarmPay — 异构分工蜂群(多 Agent 协作架构)\n${bar}`);
   console.log(`  官网      : http://localhost:${config.port}/`);
   console.log(`  端点      : http://localhost:${config.port}/v1`);
   console.log(`  Backend   : ${isMock() ? "MOCK" : "REAL"} (${config.swarmModel})`);

@@ -203,7 +203,7 @@ export class EvolutionMemoryStore {
     const generation = (previous?.generation || 0) + 1;
     const successStreak = (previous?.success_streak || 0) + 1;
     const quality = evolveQuality(baseQuality, previous);
-    const title = `EvoShip 进化记忆 G${generation}: ${input.goal.slice(0, 42)}`;
+    const title = `SwarmPay 进化记忆 G${generation}: ${input.goal.slice(0, 42)}`;
     const description = [
       `质量分 ${quality}`,
       `${input.trace.subtasks.length} 个子任务`,

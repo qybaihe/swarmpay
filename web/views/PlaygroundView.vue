@@ -457,7 +457,7 @@ const auditSteps = computed<AuditStep[]>(() => {
     const node = event.nodeId || event.instanceId ? nodeById.get(event.nodeId || event.instanceId || "") : undefined;
     const source = edge ? nodeById.get(edge.source) : event.fromNodeId ? nodeById.get(event.fromNodeId) : undefined;
     const target = edge ? nodeById.get(edge.target) : event.toNodeId ? nodeById.get(event.toNodeId) : undefined;
-    const actor = nodeAuditName(source || node) || event.agent || "EvoShip";
+    const actor = nodeAuditName(source || node) || event.agent || "SwarmPay";
     const receiver = nodeAuditName(target) || (
       event.kind === "agent_start" ? "模型运行时" :
         event.kind === "agent_result" ? "trace 输出" :
@@ -1491,7 +1491,7 @@ function miniColor(n: { data?: PetNodeData }) {
         </div>
         <div class="endpoint-key">
           <span>{{ endpointLabel }}</span>
-          <input v-model="playgroundApiKey" type="password" placeholder="sk-evoship-..." :disabled="running" autocomplete="off" />
+          <input v-model="playgroundApiKey" type="password" placeholder="sk-swarmpay-..." :disabled="running" autocomplete="off" />
         </div>
         <input v-model="goal" class="goal-input" placeholder="输入你的问题..." :disabled="running" />
         <button v-if="!running" class="demo-btn" @click="runDemo" title="一键演示完整蜂群协作链路,无需 API Key">

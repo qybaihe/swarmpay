@@ -614,7 +614,7 @@ export async function runSwarm(input: SwarmInput): Promise<SwarmOutput> {
     };
     if (config.evomapPublishBackflow) {
       void evomap.publishRecipeDraft({
-        title: `EvoShip: ${goal.slice(0, 48)}`,
+        title: `SwarmPay: ${goal.slice(0, 48)}`,
         description: `蜂群协作沉淀(${tier})。含 ${orch.trace.handoffs.length} 次 handoff、${orch.trace.breakthroughsBroadcast} 次突破广播、${orch.trace.revisionRounds} 轮返工纠错。`,
         steps: orch.trace.stages.map((s) => ({ role: s.agent, action: s.message || s.phase })),
         metadata: {

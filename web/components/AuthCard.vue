@@ -16,7 +16,7 @@ const msg = ref<{ type: "ok" | "err" | "info"; text: string } | null>(null);
 
 const title = computed(() => (mode.value === "login" ? "欢迎回到舰队" : "加入舰队"));
 const sub = computed(() =>
-  mode.value === "login" ? "登录以管理你的蜂群端点" : "注册一个 EvoShip 账号,开始组建你的蜂群",
+  mode.value === "login" ? "登录以管理你的链上蜂群" : "注册一个 SwarmPay 账号,开始组建你的蜂群",
 );
 const submitLabel = computed(() => (mode.value === "login" ? "登录" : "创建账号"));
 const switchText = computed(() => (mode.value === "login" ? "还没有账号?" : "已有账号?"));

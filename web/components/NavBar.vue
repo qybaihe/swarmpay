@@ -3,10 +3,12 @@ import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { fetchStatus, type StatusInfo } from "../api/status";
 import { useAuthStore } from "../stores/auth";
+import { useInjectiveStore, baseUnitsToInj } from "../stores/injective";
 
 const scrolled = ref(false);
 const status = ref<StatusInfo | null>(null);
 const auth = useAuthStore();
+const inj = useInjectiveStore();
 const router = useRouter();
 const userMenuOpen = ref(false);
 let statusTimer = 0;
@@ -64,7 +66,7 @@ async function goSection(hash: string) {
     <div class="nav-in">
       <RouterLink to="/" class="logo">
         <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
-        <b>EvoShip</b>
+        <b>SwarmPay</b>
       </RouterLink>
       <div class="nav-mid">
         <nav class="nav-links">
@@ -88,7 +90,9 @@ async function goSection(hash: string) {
             <div class="user-avatar">{{ (auth.user?.name || auth.user?.email || "?").charAt(0).toUpperCase() }}</div>
             <div class="user-info">
               <div class="user-name">{{ auth.user?.name || auth.user?.email }}</div>
-              <div class="user-credits" :class="{ low: (auth.user?.credits ?? 0) < 100 }">🪙 {{ auth.user?.credits ?? 0 }}</div>
+              <div class="user-credits" :class="{ low: inj.balance ? Number(inj.balance.amount) < 100000000000000000n : true }">
+                {{ inj.balance ? `🪙 ${baseUnitsToInj(inj.balance.amount)} INJ` : "🪙 未绑钱包" }}
+              </div>
             </div>
             <Transition name="dropdown">
               <div v-if="userMenuOpen" class="user-dropdown" @click.stop>
@@ -99,8 +103,8 @@ async function goSection(hash: string) {
                     <div class="dd-email">{{ auth.user?.email }}</div>
                   </div>
                 </div>
-                <RouterLink to="/credits" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">🪙</span><span class="dd-text">积分管理</span><span class="dd-val">{{ auth.user?.credits ?? 0 }}</span>
+                <RouterLink to="/wallet" class="dd-item" @click="userMenuOpen = false">
+                  <span class="dd-icon">🪙</span><span class="dd-text">链上钱包</span><span class="dd-val">{{ inj.balance ? `${baseUnitsToInj(inj.balance.amount)} INJ` : "未绑" }}</span>
                 </RouterLink>
                 <RouterLink to="/pricing" class="dd-item" @click="userMenuOpen = false">
                   <span class="dd-icon">↑</span><span class="dd-text">升级我的套餐</span>

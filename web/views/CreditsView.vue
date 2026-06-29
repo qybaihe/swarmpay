@@ -44,7 +44,7 @@ onMounted(async () => {
   <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="/bg-starship.png"><source src="/bg-launch.mp4" type="video/mp4" /></video>
   <div class="bg-overlay"></div>
   <div class="top">
-    <RouterLink to="/" class="logo"><b>EvoShip</b></RouterLink>
+    <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
     <RouterLink to="/playground" class="back-home">← 返回 Playground</RouterLink>
   </div>
 

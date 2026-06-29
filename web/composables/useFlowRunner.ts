@@ -549,7 +549,7 @@ export function useFlowRunner() {
       const graphSize = result.trace?.graph
         ? `${result.trace.graph.nodes.length} nodes/${result.trace.graph.edges.length} edges`
         : `${result.trace?.bees?.length || 0} bees`;
-      store.addLog("EvoShip", `${params.demo ? "预制演示" : "真实蜂群"}返回 ${graphSize},实际策略:${actual}。`);
+      store.addLog("SwarmPay", `${params.demo ? "预制演示" : "真实蜂群"}返回 ${graphSize},实际策略:${actual}。`);
       await replayTraceOnCanvas(result.trace, canvasNodes, canvasEdges, result.content, token, { onExperience: params.onExperience });
 
       if (token !== runToken || !store.running) return;

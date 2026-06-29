@@ -143,14 +143,14 @@ onMounted(async () => {
   <video class="bg-video" autoplay muted loop playsinline preload="auto" poster="/bg-starship.png"><source src="/bg-launch.mp4" type="video/mp4" /></video>
   <div class="bg-overlay"></div>
   <div class="top">
-    <RouterLink to="/" class="logo"><b>EvoShip</b></RouterLink>
+    <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
     <RouterLink to="/playground" class="back-home">返回</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
       <h1>我的 API Key</h1>
-      <p class="sub">API Key 属于账号本身。创建后立刻可以调用 EvoShip;上传自己的模型端点后,继续使用同一个 key。</p>
+      <p class="sub">API Key 属于账号本身。创建后立刻可以调用 SwarmPay;上传自己的模型端点后,继续使用同一个 key。</p>
 
       <div v-if="currentKey" class="current-key-card">
         <div class="ck-label">当前可复制 Key</div>

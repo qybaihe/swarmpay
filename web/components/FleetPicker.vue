@@ -13,6 +13,7 @@ import type { PlaygroundTopology } from "../api/swarm";
 import type { SelectedFleet } from "../types/fleet-picker";
 import { useAuthStore } from "../stores/auth";
 
+// 运行时键:后端 community 蜂群 author.name 用此过滤官方蜂群(灌库数据用,勿改品牌字样否则匹配失效)
 const OFFICIAL_NAME = "EvoShip 官方";
 
 const props = defineProps<{ modelValue: string }>();
