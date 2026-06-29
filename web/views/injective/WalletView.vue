@@ -17,6 +17,11 @@ const connecting = ref(false);
 
 const balanceInj = computed(() => baseUnitsToInj(wallet.balance?.amount || "0"));
 
+// 各角色(agent)链上钱包地址,fetchStatus() 已在 onMounted 调用并填充
+const archetypeEntries = computed(() =>
+  Object.entries(wallet.archetypeAddrs || {}).map(([role, addr]) => ({ role, addr }))
+);
+
 const networkLabel = computed(() => {
   const s = wallet.status;
   if (!s) return "检测中…";
@@ -110,7 +115,7 @@ onMounted(async () => {
       <div class="head">
         <div>
           <h1>⛓️ 链上钱包</h1>
-          <p class="sub">连接 Keplr 或粘贴 Injective 测试网地址，蜂群分润将按此地址作为发送方上链。</p>
+          <p class="sub">连接 Keplr 或粘贴测试网地址。蜂群分润以此地址为付款方上链,赚到的 INJ 进各 agent 自己的钱包。</p>
         </div>
       </div>
 
@@ -196,6 +201,15 @@ onMounted(async () => {
               <button class="wp-refresh" type="button" @click="onRefreshBalance" title="刷新余额">↻</button>
             </div>
             <div class="wp-base">最小单位：{{ wallet.balance?.amount || "0" }}</div>
+          </div>
+        </div>
+        <div v-if="archetypeEntries.length" class="wp-agents">
+          <div class="wp-agents-head">Agent 蜂群钱包</div>
+          <div class="wp-agents-list">
+            <div v-for="a in archetypeEntries" :key="a.role" class="wp-agent">
+              <span class="wp-agent-role">{{ a.role }}</span>
+              <code class="wp-agent-addr">{{ shortAddr(a.addr, 8, 6) }}</code>
+            </div>
           </div>
         </div>
         <button class="go-onchain-btn" @click="goOnchain">进入链上蜂群运行 →</button>
@@ -326,6 +340,13 @@ onMounted(async () => {
 .wp-refresh { font-size: 16px; padding: 2px 10px; border-radius: 6px; background: rgba(58,224,255,0.1); border: 1px solid rgba(58,224,255,0.3); color: var(--cyan); cursor: pointer; font-family: inherit; }
 .wp-refresh:hover { background: rgba(58,224,255,0.2); }
 .wp-base { font-size: 10px; color: var(--dim); font-family: ui-monospace, monospace; margin-top: 6px; }
+
+.wp-agents { margin-bottom: 14px; padding: 12px 14px; border-radius: 8px; background: rgba(0,0,0,0.28); border: 1px solid var(--panel-line); }
+.wp-agents-head { font-size: 11px; color: var(--dim); font-weight: 700; letter-spacing: 0.4px; margin-bottom: 8px; }
+.wp-agents-list { display: flex; flex-direction: column; gap: 6px; }
+.wp-agent { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; }
+.wp-agent-role { color: #b89aff; font-weight: 600; }
+.wp-agent-addr { font-family: ui-monospace, monospace; font-size: 11px; color: var(--cyan); background: rgba(58,224,255,0.08); padding: 1px 6px; border-radius: 4px; }
 
 .go-onchain-btn {
   width: 100%;

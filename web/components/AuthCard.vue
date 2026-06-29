@@ -14,9 +14,9 @@ const agree = ref(false);
 const submitting = ref(false);
 const msg = ref<{ type: "ok" | "err" | "info"; text: string } | null>(null);
 
-const title = computed(() => (mode.value === "login" ? "欢迎回到舰队" : "加入舰队"));
+const title = computed(() => (mode.value === "login" ? "欢迎回到 SwarmPay" : "加入 SwarmPay"));
 const sub = computed(() =>
-  mode.value === "login" ? "登录以管理你的链上蜂群" : "注册一个 SwarmPay 账号,开始组建你的蜂群",
+  mode.value === "login" ? "登录以管理你的链上蜂群与 INJ 钱包" : "注册 SwarmPay 账号,绑定 Injective 地址,开始组建你的 agent 蜂群",
 );
 const submitLabel = computed(() => (mode.value === "login" ? "登录" : "创建账号"));
 const switchText = computed(() => (mode.value === "login" ? "还没有账号?" : "已有账号?"));

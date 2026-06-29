@@ -20,6 +20,8 @@ export interface InjectiveStatus {
   contractAddr: string | null;
   chainId: string;
   archetypeAddrs?: Record<string, string>;  // 各角色链上地址(Playground 节点显示用)
+  /** 协议费基点(500 = 5%),从 /api/injective/status 拉取,前端计费预览用。 */
+  protocolFeeBps?: number;
 }
 
 /** Keplr 注入的全局对象（可能不存在 → 降级到手动粘贴地址）。 */
@@ -187,6 +189,7 @@ export const useInjectiveStore = defineStore("injective", () => {
         contractAddr: data.contractAddr ?? null,
         chainId: data.chainId || DEFAULT_CHAIN_ID,
         archetypeAddrs: data.archetypeAddrs || {},
+        protocolFeeBps: typeof data.protocolFeeBps === "number" ? data.protocolFeeBps : 500,
       };
       archetypeAddrs.value = data.archetypeAddrs || {};
       return status.value;

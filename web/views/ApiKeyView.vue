@@ -16,7 +16,7 @@ const toast = useToast();
 const keys = ref<UserApiKey[]>([]);
 const endpoints = ref<RegisteredEndpoint[]>([]);
 const revealedKeys = ref<Record<number, string>>({});
-const baseUrl = ref(typeof window !== "undefined" ? window.location.origin + "/v1" : "https://evoship.me/v1");
+const baseUrl = ref(typeof window !== "undefined" ? window.location.origin + "/v1" : "https://swarmpay.me/v1");
 const defaultModel = ref("swarm-evo");
 const loading = ref(true);
 const creating = ref(false);
@@ -159,7 +159,7 @@ onMounted(async () => {
           <button class="ck-copy" @click="copyKey(currentKey)">复制</button>
         </div>
         <div class="ck-endpoint">Base URL: <code>{{ baseUrl }}</code></div>
-        <div class="ck-hint">默认 model: <code>{{ defaultModel }}</code>。每次完整蜂群调用消耗 50 积分。</div>
+        <div class="ck-hint">默认 model: <code>{{ defaultModel }}</code>。每次调用按链上计费从你绑定的 Injective 地址扣 INJ(见 /pricing)。</div>
       </div>
       <div v-else class="notice-card">
         后端不会保存完整明文 key。若你换设备或清空缓存,请在下方重新生成一个 API Key。

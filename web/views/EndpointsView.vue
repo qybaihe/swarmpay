@@ -47,7 +47,7 @@ res = client.chat.completions.create(
     messages=[{"role": "user", "content": "你的提示词"}],
 )
 print(res.choices[0].message.content)
-# 舰队过程(可选):print(res.model_dump().get("x_swarm_trace"))`;
+# 蜂群协作过程(可选):print(res.model_dump().get("x_swarm_trace"))`;
 });
 
 const curlCode = computed(() => {
@@ -119,7 +119,7 @@ async function onSubmit() {
   errMsg.value = "";
   await auth.ensureLoaded();
   if (!auth.isAuthed) {
-    errMsg.value = "请先登录后再生成你的舰队端点。";
+    errMsg.value = "请先登录后再生成你的端点。";
     router.push({ path: "/login", query: { redirect: "/endpoints" } });
     return;
   }
@@ -230,7 +230,7 @@ onMounted(() => {
             <div v-if="result.models && result.models.length" class="out-models">
               <div class="out-models-head">
                 <span class="k">可用模型</span>
-                <span class="out-models-hint">用你的 API Key 调用时,model 填下面任意一个都能用。带 <code>user:</code> 前缀的是你在 Playground 保存的自定义舰队。</span>
+                <span class="out-models-hint">用你的 API Key 调用时,model 填下面任意一个都能用。带 <code>user:</code> 前缀的是你在 Playground 保存的自定义编队(agent 拓扑)。</span>
               </div>
               <div class="out-models-chips">
                 <span v-for="m in result.models" :key="m" class="model-chip" :class="{ custom: m.startsWith('user:') }" @click="copyModel(m)">

@@ -31,7 +31,7 @@ const showResult = ref(false);
 
 const noteText = () =>
   demoStore.demoMode
-    ? "演示模式:直接载入预置舰队过程,无需后端、无需等待。"
+    ? "演示模式:直接载入预置编队过程,无需后端、无需等待。"
     : "真调后端:POST /v1/chat/completions,真实模型约 30-90 秒。后端未启动会自动提示。";
 
 // 转换区点「立即试一下」时,把 key 同步过来
@@ -96,13 +96,13 @@ async function dispatch() {
   <section class="screen" id="demo">
     <div class="bg-dim"></div>
     <div class="screen-content">
-      <SectionHeader eyebrow="LIVE DEMO" title="透视舰队端点背后"
-        sub="派出舰队编队,实时看它们如何分工、突破、交叉验证、聚合出最终答案。真实模型约需 30-90 秒。" />
+      <SectionHeader eyebrow="LIVE DEMO" title="透视编队端点背后"
+        sub="派出 agent 编队,实时看它们如何分工、突破、交叉验证、聚合出最终答案。真实模型约需 30-90 秒。" />
 
       <div class="demo-card">
         <div class="demo-input-row">
           <div class="field">
-            <label>目标(派舰队去解)</label>
+            <label>目标(派编队去解)</label>
             <input v-model="goal" autocomplete="off" />
           </div>
           <div class="field">
@@ -111,7 +111,7 @@ async function dispatch() {
               <option v-for="o in TIER_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
             </select>
           </div>
-          <button class="demo-go" @click="dispatch" :disabled="loading">派出舰队</button>
+          <button class="demo-go" @click="dispatch" :disabled="loading">派出蜂群</button>
         </div>
         <div class="demo-options">
           <span>API Key(留空走全局 demo):</span>
@@ -131,11 +131,11 @@ async function dispatch() {
           <template v-if="trace">
             <MetricsGrid :trace="trace" />
             <EvoMapPills :trace="trace" />
-            <div class="fleet-chain-label">🛰️ 舰队协作节点链(点击展开)</div>
+            <div class="fleet-chain-label">🛰️ 编队协作节点链(点击展开)</div>
             <FleetChain v-if="trace.bees?.length" :bees="trace.bees" />
             <div v-else class="empty">本型号未组队协作。</div>
           </template>
-          <div v-else class="empty">此型号未返回舰队过程数据。</div>
+          <div v-else class="empty">此型号未返回编队过程数据。</div>
         </div>
       </div>
     </div>

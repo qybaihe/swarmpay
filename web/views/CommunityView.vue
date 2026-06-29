@@ -39,7 +39,7 @@ function descText(f: { name: string; label?: string }): string {
 
 async function doFork(fleetId: number, name: string, target: "playground" | "chat") {
   if (!auth.isAuthed) {
-    toast.show("请先登录后再复制舰队");
+    toast.show("请先登录后再复制编队");
     router.push({ path: "/login", query: { redirect: "/community" } });
     return;
   }
@@ -93,13 +93,13 @@ onMounted(async () => {
     <div class="container">
       <div class="head">
         <div>
-          <h1>🌐 舰队社区</h1>
-          <p class="sub">看看大家搭了什么舰队,复制一份到自己 Playground 改,或直接拿去试用。</p>
+          <h1>🌐 Agent 社区</h1>
+          <p class="sub">发现、复用社区分享的 agent 编队拓扑。每个编队是一套 agent 协作结构,调用时按链上计费给各 agent 分润。</p>
         </div>
       </div>
 
       <div class="toolbar">
-        <input class="search-box" :value="searchInput" @input="onSearch" placeholder="搜索舰队名 / 描述 / 作者…" />
+        <input class="search-box" :value="searchInput" @input="onSearch" placeholder="搜索编队名 / 描述 / 作者…" />
         <div class="sort-group">
           <button class="sort-btn" :class="{ on: community.sort === 'new' }" @click="community.setSort('new')">最新</button>
           <button class="sort-btn" :class="{ on: community.sort === 'hot' }" @click="community.setSort('hot')">最热</button>
@@ -110,8 +110,8 @@ onMounted(async () => {
       <div v-else-if="community.error" class="state err">⚠️ {{ community.error }}</div>
       <div v-else-if="!community.fleets.length" class="empty">
         <div class="empty-icon">🛸</div>
-        <p>社区还没有公开舰队。</p>
-        <p class="empty-sub">去 Playground 搭一套拓扑,在「我的舰队」里点「发布到社区」就能出现在这里。</p>
+        <p>社区还没有公开编队。</p>
+        <p class="empty-sub">去 Playground 搭一套拓扑,在「我的编队」里点「发布到社区」就能出现在这里。</p>
         <RouterLink to="/playground" class="cta">前往 Playground</RouterLink>
       </div>
 
@@ -136,7 +136,7 @@ onMounted(async () => {
           </div>
         </div>
       </div>
-      <div v-if="!community.loading && community.fleets.length" class="count">共 {{ community.total }} 个公开舰队</div>
+      <div v-if="!community.loading && community.fleets.length" class="count">共 {{ community.total }} 个公开编队</div>
     </div>
   </div>
 

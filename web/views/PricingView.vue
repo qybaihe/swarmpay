@@ -1,140 +1,87 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+// PricingView —— 「链上计费模式」专页。
+// 不卖 SaaS 套餐,讲清 SwarmPay 的链上计费创新:LLM 动态分润 + 5% 协议费 + agent 自签悬赏 + INJ 结算。
+// 真实数据从 GET /api/injective/status 拉(network/chainId/contractAddr/protocolFeeBps/6 archetype 地址)。
+import { onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 import NavBar from "../components/NavBar.vue";
 import SiteFooter from "../components/SiteFooter.vue";
-import { useAuthStore } from "../stores/auth";
+import { useInjectiveStore, baseUnitsToInj, shortAddr, type InjectiveStatus } from "../stores/injective";
 
-type Plan = {
-  key: "free" | "standard" | "pro" | "max";
-  name: string;
-  nameCn: string;
-  price: number;
-  credits: number;
-  tagline: string;
-  featured?: boolean;
-  features: string[];
-};
+const inj = useInjectiveStore();
+const status = ref<InjectiveStatus | null>(null);
 
-const auth = useAuthStore();
-const router = useRouter();
-const CALL_COST = 50;
-const selectedPlanKey = ref<Plan["key"]>("pro");
+const feeBps = ref(500); // 5% 默认,会被 status 覆盖
+const feePct = () => (feeBps.value / 100).toFixed(0);
 
-const plans: Plan[] = [
+// 四张特性卡
+const features = [
   {
-    key: "free",
-    name: "Free",
-    nameCn: "免费套餐",
-    price: 0,
-    credits: 1000,
-    tagline: "注册即开通,适合初次体验与小规模验证。",
-    features: [
-      "注册后赠送 1,000 INJ 额度",
-      "约可完成 20 次完整调用",
-      "支持 Playground 与 API 端点体验",
-      "可浏览社区蜂群并进行基础试用",
-    ],
+    icon: "⚖️",
+    title: "LLM 动态分润",
+    sub: "不再固定计价",
+    desc: "每次蜂群协作后,LLM 依据各 agent 实际贡献(trace.reward_split)实时裁定分润权重。同样的任务,贡献不同 → 分润不同,真正按价值分配。",
+    color: "var(--cyan)",
   },
   {
-    key: "standard",
-    name: "Standard",
-    nameCn: "标准套餐",
-    price: 20,
-    credits: 20000,
-    tagline: "适合个人开发、日常调试与稳定的小规模项目。",
-    features: [
-      "包含 20,000 INJ 额度",
-      "约可完成 400 次完整调用",
-      "适用于 Playground、API 端点与蜂群运行",
-      "账户内统一查看余额与 INJ 流水",
-    ],
+    icon: "🏦",
+    title: `${feePct()}% 协议费`,
+    sub: "95% 直达 agent 钱包",
+    desc: "每次结算仅扣 5% 协议服务费转 treasurer,其余 95% 按权重直达各 agent 自有链上钱包。没有平台账本截留。",
+    color: "var(--green)",
   },
   {
-    key: "pro",
-    name: "Pro",
-    nameCn: "专业套餐",
-    price: 80,
-    credits: 80000,
-    tagline: "适合高频使用、团队协作与持续迭代场景。",
-    featured: true,
-    features: [
-      "包含 80,000 INJ 额度",
-      "约可完成 1,600 次完整调用",
-      "适用于批量测试、原型迭代与集成验证",
-      "与现有账户、API Key 和调用记录统一管理",
-    ],
+    icon: "💰",
+    title: "Agent 自签悬赏",
+    sub: "自主花钱",
+    desc: "reviewer 对 coder 的工作满意,可主动发起链上悬赏 —— 用 reviewer 自己的私钥签名 MsgSend,从自己钱包出钱。agent 真正掌握自己的资金。",
+    color: "var(--violet)",
   },
   {
-    key: "max",
-    name: "Max",
-    nameCn: "旗舰套餐",
-    price: 200,
-    credits: 250000,
-    tagline: "适合密集评测、连续任务与生产前验证负载。",
-    features: [
-      "包含 250,000 INJ 额度",
-      "约可完成 5,000 次完整调用",
-      "适用于更高频的 API 调用与蜂群编排任务",
-      "适合将额度集中给团队或核心项目使用",
-    ],
+    icon: "⛓️",
+    title: "INJ 链上结算",
+    sub: "tx 可查",
+    desc: "CosmWasm split-rewards 合约或多笔 MsgSend,在 Injective 链上结算。每笔分润、每个悬赏都有 tx hash,可在浏览器公开验证。",
+    color: "var(--amber)",
   },
 ];
 
-function formatNumber(value: number): string {
-  return value.toLocaleString("zh-CN");
-}
+// 对比表
+const compareRows = [
+  { dim: "计价方式", saas: "固定套餐 / 按 token", swarm: "按贡献 LLM 动态分润" },
+  { dim: "资金归属", saas: "平台账本记账", swarm: "各 agent 自有链上钱包" },
+  { dim: "透明度", saas: "平台内部,不透明", swarm: "链上公开,tx 可查" },
+  { dim: "agent 能否花钱", saas: "不能,单向收费", swarm: "能,可自签悬赏同伴" },
+  { dim: "价值流向", saas: "用户 → 平台(截留)", swarm: "用户 → agent → agent(闭环)" },
+];
 
-function callCount(credits: number): string {
-  return formatNumber(Math.floor(credits / CALL_COST));
-}
+// 编号时间线
+const timeline = [
+  { n: 1, t: "下目标 + 预算", d: "用户提交 goal 与 INJ 预算,以自己绑定的地址为付款方。" },
+  { n: 2, t: "蜂群协作", d: "orchestrator 拆解,planner/coder/reviewer 闭环攻关,聚合最优解。" },
+  { n: 3, t: "LLM 裁定 reward_split", d: "LLM 依据 trace 中各 agent 贡献,实时生成分润权重。" },
+  { n: 4, t: `扣 ${feePct()}% 给 treasurer`, d: "协议服务费转入金库地址,剩余 95% 进入分润池。" },
+  { n: 5, t: "按权重分到 5 钱包", d: "SplitExecutor 在链上把 95% 按权重切分到各 archetype 钱包。" },
+  { n: 6, t: "reviewer 自签悬赏 coder", d: "若 reviewer 认可 coder,用自己的钱包私钥签名,悬赏 INJ。" },
+  { n: 7, t: "tx hash 入回执", d: "分润 + 悬赏的 tx hash 全部返回,可在 Mintscan 公开验证。" },
+];
 
-const selectedPlanIndex = computed(() => {
-  const index = plans.findIndex((plan) => plan.key === selectedPlanKey.value);
-  return index >= 0 ? index : 0;
-});
-
-const selectionStyle = computed(() => ({
-  "--active-index": String(selectedPlanIndex.value),
-}));
-
-function selectPlan(plan: Plan) {
-  selectedPlanKey.value = plan.key;
-}
-
-function ctaLabel(plan: Plan): string {
-  if (plan.key === "free") return auth.isAuthed ? "当前套餐" : "免费注册";
-  return `升级到 ${plan.name}`;
-}
-
-function upgradePlan(plan: Plan) {
-  selectPlan(plan);
-
-  if (plan.key === "free") {
-    if (!auth.isAuthed) router.push({ path: "/login", query: { redirect: "/pricing" } });
-    return;
-  }
-
-  if (!auth.isAuthed) {
-    router.push({ path: "/login", query: { redirect: "/pricing" } });
-    return;
-  }
-
-  const subject = encodeURIComponent(`申请升级 ${plan.name} 套餐`);
-  const body = encodeURIComponent(
-    [
-      `你好,我想开通 ${plan.name} 套餐。`,
-      `套餐价格: ${plan.price} INJ`,
-      `套餐额度: ${formatNumber(plan.credits)} INJ`,
-      `账号邮箱: ${auth.user?.email ?? ""}`,
-    ].join("\n"),
-  );
-  window.location.href = `mailto:support@swarmpay.me?subject=${subject}&body=${body}`;
-}
+// archetype 展示
+const ARCH_LABEL: Record<string, string> = {
+  orchestrator: "旗舰", planner: "导航", coder: "工程", reviewer: "监察", explorer: "斥候", payer: "支付", treasurer: "金库",
+};
+const ARCH_COLOR: Record<string, string> = {
+  orchestrator: "#ffb84d", planner: "#5ca8ff", coder: "#3ae0ff", reviewer: "#8b5cff", explorer: "#ff5cc8", payer: "#ffd23f", treasurer: "#3dffb0",
+};
 
 onMounted(async () => {
-  await auth.ensureLoaded();
+  await inj.fetchStatus();
+  status.value = inj.status;
+  if (inj.status?.protocolFeeBps) feeBps.value = inj.status.protocolFeeBps;
 });
+
+const archEntries = () => Object.entries(inj.archetypeAddrs || {});
+const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet/tx/${h}`;
 </script>
 
 <template>
@@ -144,588 +91,196 @@ onMounted(async () => {
   </video>
   <div class="bg-overlay"></div>
 
-  <main class="pricing-page" aria-labelledby="pricing-title">
+  <main class="pricing-page">
+    <!-- Hero -->
     <section class="hero">
-      <div class="eyebrow">升级套餐</div>
-      <h1 id="pricing-title">为你的 SwarmPay 调用选择合适额度</h1>
+      <div class="eyebrow">链上计费模式</div>
+      <h1>不卖订阅,按贡献在链上分钱</h1>
+      <p class="hero-sub">
+        SwarmPay 没有固定套餐。每次蜂群协作后,<b style="color:var(--green)">LLM 依据各 agent 实际贡献实时裁定分润权重</b>,在 Injective 链上按权重切分 INJ。<b style="color:var(--green)">{{ feePct() }}% 协议服务费</b>,<b style="color:var(--green)">95% 直达 agent 自有钱包</b>。agent 还能拿赚到的钱<b style="color:var(--violet)">悬赏同伴</b> —— 价值在 agent 之间流通,而非停在平台账本。
+      </p>
+      <div class="hero-cta">
+        <RouterLink to="/onchain" class="cta primary">打开链上蜂群 Demo →</RouterLink>
+        <RouterLink to="/credits" class="cta ghost">查看 INJ 流水 →</RouterLink>
+      </div>
     </section>
 
-    <div class="plans-wrap" :style="selectionStyle">
-      <div class="selection-beam" aria-hidden="true"></div>
-      <section class="plans" aria-label="套餐列表">
-        <article
-          v-for="plan in plans"
-          :key="plan.key"
-          class="plan-card"
-          :class="{ featured: plan.featured, active: selectedPlanKey === plan.key }"
-          role="button"
-          tabindex="0"
-          :aria-pressed="selectedPlanKey === plan.key"
-          @click="selectPlan(plan)"
-          @focusin="selectPlan(plan)"
-          @keydown.enter.prevent="selectPlan(plan)"
-          @keydown.space.prevent="selectPlan(plan)"
-        >
-          <div v-if="plan.featured" class="ribbon">推荐选择</div>
-          <div v-if="selectedPlanKey === plan.key" class="active-chip">已选中</div>
-          <header class="plan-head">
-            <div>
-              <h2>{{ plan.name }}</h2>
-              <p>{{ plan.nameCn }}</p>
+    <!-- Section A: 四张特性卡 -->
+    <section class="features">
+      <article v-for="f in features" :key="f.title" class="feat-card" :style="{ '--fc': f.color }">
+        <div class="feat-icon">{{ f.icon }}</div>
+        <h3>{{ f.title }}</h3>
+        <div class="feat-sub">{{ f.sub }}</div>
+        <p class="feat-desc">{{ f.desc }}</p>
+      </article>
+    </section>
+
+    <!-- Section B: 对比表 -->
+    <section class="compare">
+      <div class="cmp-head">
+        <div class="cmp-eyebrow">为什么这样更好</div>
+        <h2>传统 SaaS 计费 vs SwarmPay 链上计费</h2>
+      </div>
+      <div class="cmp-table">
+        <div class="cmp-row cmp-head-row">
+          <div class="cmp-cell dim">维度</div>
+          <div class="cmp-cell saas">传统 SaaS</div>
+          <div class="cmp-cell swarm">SwarmPay</div>
+        </div>
+        <div v-for="r in compareRows" :key="r.dim" class="cmp-row">
+          <div class="cmp-cell dim">{{ r.dim }}</div>
+          <div class="cmp-cell saas">✕ {{ r.saas }}</div>
+          <div class="cmp-cell swarm">✓ {{ r.swarm }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section C: 编号时间线 -->
+    <section class="timeline-sec">
+      <div class="cmp-head">
+        <div class="cmp-eyebrow">一次结算的全过程</div>
+        <h2>从下目标到 tx 入回执</h2>
+      </div>
+      <ol class="tl">
+        <li v-for="s in timeline" :key="s.n" class="tl-item">
+          <div class="tl-num">{{ s.n }}</div>
+          <div class="tl-body">
+            <div class="tl-title">{{ s.t }}</div>
+            <div class="tl-desc">{{ s.d }}</div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- Section D: 真实数据条 -->
+    <section class="realdata">
+      <div class="cmp-head">
+        <div class="cmp-eyebrow">链上真实配置</div>
+        <h2>当前 Injective 配置</h2>
+      </div>
+      <div class="rd-grid">
+        <div class="rd-card"><div class="rd-label">网络</div><div class="rd-val" :class="status?.network">{{ status?.network || "…" }}</div></div>
+        <div class="rd-card"><div class="rd-label">chainId</div><div class="rd-val mono">{{ status?.chainId || "…" }}</div></div>
+        <div class="rd-card"><div class="rd-label">协议费</div><div class="rd-val">{{ feePct() }}% ({{ feeBps }} bps)</div></div>
+        <div class="rd-card"><div class="rd-label">分润合约</div><div class="rd-val mono">{{ status?.contractAddr ? shortAddr(status.contractAddr, 8, 6) : "直连转账" }}</div></div>
+      </div>
+
+      <div class="arch-list">
+        <div class="arch-list-title">Agent 蜂群钱包(每个角色独立链上地址)</div>
+        <div class="arch-grid">
+          <div v-for="[arch, addr] in archEntries()" :key="arch" class="arch-card" :style="{ '--ac': ARCH_COLOR[arch] || '#3ae0ff' }">
+            <div class="arch-dot"></div>
+            <div class="arch-meta">
+              <div class="arch-name">{{ ARCH_LABEL[arch] || arch }} <span class="arch-key">{{ arch }}</span></div>
+              <div class="arch-addr mono">{{ shortAddr(addr, 8, 6) }}</div>
             </div>
-          </header>
-
-          <div class="price-row">
-            <span class="currency">INJ</span>
-            <span class="amount">{{ plan.price }}</span>
-            <span class="price-note">{{ plan.price === 0 ? "注册即享" : "套餐价" }}</span>
           </div>
-          <p class="tagline">{{ plan.tagline }}</p>
-
-          <div class="credits-block">
-            <span class="credits">{{ formatNumber(plan.credits) }}</span>
-            <span class="credits-label">INJ 额度</span>
-            <span class="credits-calls">约 {{ callCount(plan.credits) }} 次完整调用</span>
-          </div>
-
-          <ul class="feature-list">
-            <li v-for="feature in plan.features" :key="feature">
-              <span class="check" aria-hidden="true">✓</span>
-              <span>{{ feature }}</span>
-            </li>
-          </ul>
-
-          <button
-            class="plan-action"
-            :class="{ primary: selectedPlanKey === plan.key }"
-            :disabled="plan.key === 'free' && auth.isAuthed"
-            type="button"
-            :aria-label="ctaLabel(plan)"
-            @click.stop="upgradePlan(plan)"
-          >
-            {{ ctaLabel(plan) }}
-          </button>
-        </article>
-      </section>
-    </div>
-
-    <section class="notes" aria-label="套餐说明">
-      <div class="note-item">
-        <h3>统一计费口径</h3>
-        <p>完整蜂群调用按 50 INJ 单位/次结算,余额不足时调用会返回额度不足提示。</p>
-      </div>
-      <div class="note-item">
-        <h3>账户内统一使用</h3>
-        <p>套餐 INJ 额度进入当前账户余额,可同时覆盖 Playground、API 端点和已创建蜂群的运行消耗。</p>
-      </div>
-      <div class="note-item">
-        <h3>开通协助</h3>
-        <p>点击付费套餐后将生成开通邮件,我们会根据套餐与账号信息协助完成升级。</p>
+        </div>
+        <p v-if="!archEntries().length" class="rd-empty">正在加载角色钱包…</p>
       </div>
     </section>
 
-    <p class="contact">
-      团队或企业用量方案可联系
-      <a href="mailto:support@swarmpay.me">support@swarmpay.me</a>
-      获取正式报价。
-    </p>
+    <!-- Section E: CTA -->
+    <section class="cta-final">
+      <h2>看一次真实的链上分润</h2>
+      <p>打开链上蜂群 Demo,输入目标与预算,看 LLM 如何在 Injective 上把钱分给 agent。</p>
+      <RouterLink to="/onchain" class="cta primary">🚀 运行链上蜂群</RouterLink>
+    </section>
   </main>
 
   <SiteFooter />
 </template>
 
 <style scoped>
-.bg-video {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 0;
-  background: #04050d url("/bg-starship.png") center/cover no-repeat;
-}
+.bg-video { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; background: #04050d url("/bg-starship.png") center/cover no-repeat; }
+.bg-overlay { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(4,5,13,0.86) 0%, rgba(4,5,13,0.78) 40%, rgba(4,5,13,0.92) 100%); }
 
-.bg-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(4, 5, 13, 0.7), rgba(4, 5, 13, 0.5) 50%, rgba(4, 5, 13, 0.72)),
-    linear-gradient(180deg, rgba(4, 5, 13, 0.54), rgba(4, 5, 13, 0.45) 42%, rgba(4, 5, 13, 0.86));
-}
+.pricing-page { position: relative; z-index: 2; max-width: 1180px; min-height: 100vh; margin: 0 auto; padding: 120px 6vw 96px; }
 
-.pricing-page {
-  position: relative;
-  z-index: 2;
-  max-width: 1280px;
-  min-height: 100vh;
-  margin: 0 auto;
-  padding: 132px 6vw 96px;
-}
+/* Hero */
+.hero { max-width: 860px; margin: 0 auto 64px; text-align: center; }
+.eyebrow { margin-bottom: 14px; color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: 2px; }
+.hero h1 { margin: 0 0 20px; color: #fff; font-size: clamp(34px, 5vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; }
+.hero-sub { font-size: clamp(15px, 1.8vw, 18px); color: var(--muted); line-height: 1.7; max-width: 720px; margin: 0 auto 28px; }
+.hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.cta { padding: 12px 26px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none; transition: 0.2s; letter-spacing: 0.3px; }
+.cta.primary { background: linear-gradient(90deg, var(--violet), var(--pink)); color: #fff; box-shadow: 0 8px 22px rgba(139,92,255,0.28); }
+.cta.primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(139,92,255,0.4); }
+.cta.ghost { border: 1px solid var(--cyan); color: var(--cyan); }
+.cta.ghost:hover { background: rgba(58,224,255,0.1); }
 
-.hero {
-  max-width: 860px;
-  margin: 0 auto 48px;
-  text-align: center;
-}
+/* Section A 四卡 */
+.features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 80px; }
+.feat-card { padding: 26px 22px; background: rgba(8,11,26,0.6); border: 1px solid var(--panel-line); border-radius: 12px; backdrop-filter: blur(12px); transition: 0.25s; position: relative; overflow: hidden; }
+.feat-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--fc) 18%, transparent), transparent 60%); opacity: 0; transition: 0.25s; }
+.feat-card:hover { transform: translateY(-4px); border-color: var(--fc); }
+.feat-card:hover::before { opacity: 1; }
+.feat-icon { font-size: 32px; margin-bottom: 12px; }
+.feat-card h3 { margin: 0; color: #fff; font-size: 18px; font-weight: 800; }
+.feat-sub { color: var(--fc); font-size: 12px; font-weight: 700; margin: 4px 0 12px; letter-spacing: 0.3px; }
+.feat-desc { color: var(--muted); font-size: 13px; line-height: 1.6; margin: 0; }
 
-.eyebrow {
-  margin-bottom: 14px;
-  color: var(--cyan);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 2px;
-}
+/* 通用 section 头 */
+.cmp-head { text-align: center; margin-bottom: 36px; }
+.cmp-eyebrow { color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: 2px; margin-bottom: 10px; }
+.cmp-head h2 { margin: 0; color: #fff; font-size: clamp(26px, 3.5vw, 36px); font-weight: 800; letter-spacing: -0.5px; }
 
-.hero h1 {
-  margin: 0;
-  color: #fff;
-  font-size: 52px;
-  font-weight: 800;
-  line-height: 1.08;
-}
+/* Section B 对比表 */
+.compare { margin-bottom: 80px; }
+.cmp-table { max-width: 820px; margin: 0 auto; border: 1px solid var(--panel-line); border-radius: 12px; overflow: hidden; background: rgba(8,11,26,0.5); }
+.cmp-row { display: grid; grid-template-columns: 1.1fr 1.3fr 1.3fr; }
+.cmp-row:not(:last-child) { border-bottom: 1px solid var(--panel-line); }
+.cmp-cell { padding: 14px 16px; font-size: 13px; line-height: 1.5; }
+.cmp-head-row .cmp-cell { font-size: 12px; font-weight: 800; letter-spacing: 0.5px; background: rgba(58,224,255,0.05); }
+.cmp-cell.dim { color: var(--dim); font-weight: 600; }
+.cmp-cell.saas { color: var(--muted); }
+.cmp-cell.swarm { color: var(--green); font-weight: 600; }
+.cmp-head-row .saas { color: var(--dim); }
+.cmp-head-row .swarm { color: var(--cyan); }
 
-.plans-wrap {
-  --active-index: 2;
-  position: relative;
-  isolation: isolate;
-}
+/* Section C 时间线 */
+.timeline-sec { margin-bottom: 80px; }
+.tl { list-style: none; padding: 0; margin: 0; max-width: 760px; margin-inline: auto; counter-reset: none; }
+.tl-item { display: flex; gap: 18px; padding: 14px 0; border-left: 2px solid var(--panel-line); padding-left: 24px; margin-left: 16px; position: relative; }
+.tl-item::before { content: ""; position: absolute; left: -7px; top: 18px; width: 12px; height: 12px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.tl-num { position: absolute; left: -16px; top: 12px; width: 26px; height: 26px; display: none; }
+.tl-title { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.tl-desc { color: var(--muted); font-size: 13px; line-height: 1.55; }
 
-.selection-beam {
-  position: absolute;
-  top: -24px;
-  left: calc((100% - 60px) / 4 * var(--active-index) + 10px);
-  z-index: 0;
-  width: calc((100% - 60px) / 4);
-  height: calc(100% + 42px);
-  border-radius: 16px;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 92, 200, 0.28), transparent 44%),
-    radial-gradient(ellipse at 50% 48%, rgba(139, 92, 255, 0.2), transparent 64%),
-    linear-gradient(180deg, rgba(58, 224, 255, 0.08), rgba(139, 92, 255, 0.04));
-  filter: blur(4px);
-  opacity: 0.95;
-  transform: translateY(0);
-  transition: left 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s, transform 0.25s;
-}
+/* Section D 真实数据 */
+.realdata { margin-bottom: 80px; }
+.rd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 28px; }
+.rd-card { padding: 18px; background: rgba(8,11,26,0.6); border: 1px solid var(--panel-line); border-radius: 10px; }
+.rd-label { color: var(--dim); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px; text-transform: uppercase; }
+.rd-val { color: #fff; font-size: 16px; font-weight: 700; }
+.rd-val.mono { font-family: ui-monospace, monospace; font-size: 14px; color: var(--cyan); }
+.rd-val.testnet { color: var(--green); }
+.rd-val.mock { color: var(--amber); }
 
-.selection-beam::before {
-  content: "";
-  position: absolute;
-  inset: 8px 22px;
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow:
-    0 0 34px rgba(139, 92, 255, 0.34),
-    inset 0 0 26px rgba(58, 224, 255, 0.09);
-}
+.arch-list { background: rgba(8,11,26,0.5); border: 1px solid var(--panel-line); border-radius: 12px; padding: 22px; }
+.arch-list-title { color: #fff; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+.arch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.arch-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid color-mix(in srgb, var(--ac) 30%, transparent); border-radius: 8px; }
+.arch-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ac); box-shadow: 0 0 8px var(--ac); flex-shrink: 0; }
+.arch-name { color: #fff; font-size: 13px; font-weight: 600; }
+.arch-key { color: var(--dim); font-size: 11px; font-family: ui-monospace, monospace; }
+.arch-addr { color: var(--ac); font-size: 12px; }
+.rd-empty { color: var(--dim); font-size: 13px; text-align: center; padding: 20px; }
 
-.selection-beam::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  top: 12px;
-  height: 3px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, #3ae0ff, #ff5cc8, transparent);
-  box-shadow: 0 0 22px rgba(255, 92, 200, 0.72);
-  animation: beam-pulse 2.2s ease-in-out infinite;
-}
+/* Section E CTA */
+.cta-final { text-align: center; padding: 48px 20px; background: linear-gradient(160deg, rgba(139,92,255,0.12), rgba(8,11,26,0.5)); border: 1px solid rgba(139,92,255,0.3); border-radius: 16px; }
+.cta-final h2 { margin: 0 0 10px; color: #fff; font-size: 26px; font-weight: 800; }
+.cta-final p { color: var(--muted); font-size: 14px; margin: 0 0 22px; }
+.cta-final .cta { display: inline-block; }
 
-.plans {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-  align-items: stretch;
-}
-
-.plan-card {
-  position: relative;
-  display: flex;
-  min-height: 540px;
-  flex-direction: column;
-  padding: 28px 24px 24px;
-  border: 1px solid var(--panel-line);
-  border-radius: 12px;
-  background: rgba(8, 11, 26, 0.74);
-  backdrop-filter: blur(16px);
-  cursor: pointer;
-  overflow: hidden;
-  transition: border-color 0.24s, background 0.24s, box-shadow 0.24s, transform 0.24s;
-}
-
-.plan-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(58, 224, 255, 0.14), transparent 34%),
-    radial-gradient(circle at 72% 18%, rgba(255, 92, 200, 0.1), transparent 38%);
-  opacity: 0;
-  transition: opacity 0.24s;
-}
-
-.plan-card::after {
-  content: "";
-  position: absolute;
-  inset: -40% -55%;
-  z-index: -1;
-  background: linear-gradient(115deg, transparent 36%, rgba(255, 255, 255, 0.14) 48%, transparent 62%);
-  opacity: 0;
-  transform: translateX(-30%);
-  transition: opacity 0.24s;
-  animation: sheen-slide 3.2s linear infinite;
-}
-
-.plan-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(58, 224, 255, 0.38);
-  background: rgba(10, 14, 34, 0.82);
-}
-
-.plan-card:focus-visible {
-  outline: 2px solid var(--cyan);
-  outline-offset: 4px;
-}
-
-.plan-card.featured {
-  border-color: rgba(139, 92, 255, 0.68);
-  background:
-    linear-gradient(180deg, rgba(139, 92, 255, 0.18), rgba(8, 11, 26, 0.76) 48%),
-    rgba(8, 11, 26, 0.78);
-  box-shadow: 0 0 34px rgba(139, 92, 255, 0.16);
-}
-
-.plan-card.active {
-  transform: translateY(-8px);
-  border-color: rgba(255, 255, 255, 0.38);
-  background:
-    linear-gradient(180deg, rgba(139, 92, 255, 0.2), rgba(8, 11, 26, 0.82) 42%),
-    rgba(8, 11, 26, 0.86);
-  box-shadow:
-    0 0 0 1px rgba(58, 224, 255, 0.18),
-    0 0 38px rgba(139, 92, 255, 0.28),
-    0 24px 54px rgba(0, 0, 0, 0.36);
-}
-
-.plan-card.active::before,
-.plan-card.active::after {
-  opacity: 1;
-}
-
-.ribbon {
-  position: absolute;
-  top: 16px;
-  left: 20px;
-  padding: 5px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--violet), var(--pink));
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.plan-card.featured .plan-head {
-  padding-top: 24px;
-}
-
-.active-chip {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  padding: 5px 10px;
-  border: 1px solid rgba(58, 224, 255, 0.32);
-  border-radius: 999px;
-  background: rgba(58, 224, 255, 0.1);
-  color: var(--cyan);
-  font-size: 11px;
-  font-weight: 800;
-  box-shadow: 0 0 18px rgba(58, 224, 255, 0.18);
-}
-
-.plan-head {
-  min-height: 62px;
-}
-
-.plan-head h2 {
-  margin: 0;
-  color: #fff;
-  font-size: 25px;
-  font-weight: 800;
-}
-
-.plan-head p {
-  margin: 6px 0 0;
-  color: var(--dim);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.price-row {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-top: 18px;
-}
-
-.currency {
-  color: var(--muted);
-  font-size: 20px;
-  font-weight: 800;
-}
-
-.amount {
-  color: #fff;
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.price-note {
-  margin-left: 6px;
-  color: var(--dim);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.tagline {
-  min-height: 52px;
-  margin: 14px 0 20px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.credits-block {
-  display: grid;
-  gap: 5px;
-  min-height: 112px;
-  place-items: center;
-  margin-bottom: 22px;
-  padding: 18px 12px;
-  border-top: 1px solid rgba(120, 160, 255, 0.13);
-  border-bottom: 1px solid rgba(120, 160, 255, 0.13);
-  text-align: center;
-}
-
-.credits {
-  color: var(--cyan);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.plan-card.featured .credits {
-  color: #bda7ff;
-}
-
-.plan-card.active .credits {
-  color: #fff;
-  text-shadow: 0 0 20px rgba(58, 224, 255, 0.5);
-}
-
-.credits-label {
-  color: var(--dim);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.credits-calls {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.feature-list {
-  flex: 1;
-  margin: 0 0 24px;
-  padding: 0;
-  list-style: none;
-}
-
-.feature-list li {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  min-height: 24px;
-  margin-bottom: 12px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.check {
-  display: inline-flex;
-  flex: 0 0 17px;
-  align-items: center;
-  justify-content: center;
-  width: 17px;
-  height: 17px;
-  margin-top: 2px;
-  border-radius: 50%;
-  background: rgba(61, 255, 176, 0.13);
-  color: var(--green);
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.plan-action {
-  width: 100%;
-  min-height: 44px;
-  padding: 12px 14px;
-  border: 1px solid rgba(120, 160, 255, 0.18);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 800;
-  transition: border-color 0.18s, background 0.18s, transform 0.18s;
-}
-
-.plan-action:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: var(--cyan);
-  background: rgba(58, 224, 255, 0.12);
-}
-
-.plan-action.primary {
-  border-color: transparent;
-  background: linear-gradient(90deg, var(--violet), var(--pink));
-  box-shadow: 0 8px 22px rgba(139, 92, 255, 0.28);
-}
-
-.plan-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
-.notes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 56px;
-}
-
-.note-item {
-  min-height: 142px;
-  padding: 22px;
-  border: 1px solid var(--panel-line);
-  border-radius: 10px;
-  background: rgba(8, 11, 26, 0.62);
-  backdrop-filter: blur(12px);
-}
-
-.note-item h3 {
-  margin: 0 0 10px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.note-item p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.7;
-}
-
-.contact {
-  margin: 36px 0 0;
-  color: var(--dim);
-  font-size: 13px;
-  line-height: 1.7;
-  text-align: center;
-}
-
-.contact a {
-  color: var(--cyan);
-  text-decoration: none;
-}
-
-.contact a:hover {
-  text-decoration: underline;
-}
-
-@keyframes sheen-slide {
-  0% {
-    transform: translateX(-36%) rotate(0.001deg);
-  }
-  55%,
-  100% {
-    transform: translateX(42%) rotate(0.001deg);
-  }
-}
-
-@keyframes beam-pulse {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scaleX(0.72);
-  }
-  50% {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
-@media (max-width: 1180px) {
-  .plans {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .selection-beam {
-    display: none;
-  }
-}
-
-@media (max-width: 820px) {
-  .pricing-page {
-    padding-top: 112px;
-  }
-
-  .hero h1 {
-    font-size: 38px;
-  }
-
-  .notes {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 640px) {
-  .pricing-page {
-    padding: 104px 5vw 72px;
-  }
-
-  .hero {
-    margin-bottom: 38px;
-    text-align: left;
-  }
-
-  .hero h1 {
-    font-size: 32px;
-  }
-
-  .plans {
-    grid-template-columns: 1fr;
-  }
-
-  .selection-beam {
-    display: none;
-  }
-
-  .plan-card {
-    min-height: auto;
-  }
+@media (max-width: 760px) {
+  .pricing-page { padding: 100px 5vw 72px; }
+  .cmp-row { grid-template-columns: 1fr; }
+  .cmp-cell { padding: 8px 14px; }
+  .cmp-head-row { display: none; }
+  .cmp-cell.dim::before { content: "维度: "; color: var(--dim); }
+  .cmp-cell.saas::before { content: "SaaS: "; color: var(--dim); }
+  .cmp-cell.swarm::before { content: "SwarmPay: "; color: var(--dim); }
 }
 </style>

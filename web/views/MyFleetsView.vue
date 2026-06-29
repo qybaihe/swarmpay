@@ -28,14 +28,14 @@ async function loadToPlayground(id: number) {
     const detail = await fleetsStore.detail(id);
     sessionStorage.setItem("evoship:load-fleet", String(id));
     router.push("/playground");
-    toast.show(`将加载舰队:${detail.name}`);
+    toast.show(`将加载编队:${detail.name}`);
   } catch (e) {
     toast.show(e instanceof Error ? `❌ ${e.message}` : "加载失败");
   }
 }
 
 async function remove(id: number, name: string) {
-  if (!confirm(`删除舰队「${name}」?此操作不可恢复。`)) return;
+  if (!confirm(`删除编队「${name}」?此操作不可恢复。`)) return;
   try {
     await fleetsStore.remove(id);
     toast.show("已删除");
@@ -94,8 +94,8 @@ onMounted(async () => {
     <div class="container">
       <div class="head">
         <div>
-          <h1>📂 我的舰队</h1>
-          <p class="sub">你在 Playground 搭建并保存的自定义蜂群编队。每个舰队对应一个模型名 <code>user:&lt;名字&gt;</code>,注册端点后用它测试。</p>
+          <h1>📂 我的编队</h1>
+          <p class="sub">你在 Playground 搭建并保存的自定义蜂群编队。每个编队对应一个模型名 <code>user:&lt;名字&gt;</code>,注册端点后用它测试。每个编队 = 一套 agent 拓扑,调用时各 agent 按链上计费获得分润。</p>
         </div>
         <RouterLink to="/playground" class="new-btn">+ 去 Playground 新建</RouterLink>
       </div>
@@ -104,14 +104,14 @@ onMounted(async () => {
       <div v-else-if="fleetsStore.error" class="state err">⚠️ {{ fleetsStore.error }}</div>
       <div v-else-if="!fleetsStore.fleets.length" class="empty">
         <div class="empty-icon">🛸</div>
-        <p>还没有保存任何舰队。</p>
-        <p class="empty-hint">去 Playground 拖节点搭一套拓扑,点「💾 保存为舰队」即可出现在这里。</p>
+        <p>还没有保存任何编队。</p>
+        <p class="empty-hint">去 Playground 拖节点搭一套拓扑,点「💾 保存为编队」即可出现在这里。</p>
         <RouterLink to="/playground" class="new-btn">前往 Playground</RouterLink>
       </div>
 
       <div v-else class="table">
         <div class="thead">
-          <div class="th th-name">舰队名 / 模型名</div>
+          <div class="th th-name">编队名 / 模型名</div>
           <div class="th th-scale">规模</div>
           <div class="th th-label">描述</div>
           <div class="th th-time">创建时间</div>

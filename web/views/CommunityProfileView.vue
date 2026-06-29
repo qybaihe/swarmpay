@@ -68,7 +68,7 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
           <div class="pinfo">
             <h1>{{ profile.name }}</h1>
             <div class="pstats">
-              <span>{{ profile.fleet_count }} 舰队</span>
+              <span>{{ profile.fleet_count }} 编队</span>
               <span>{{ profile.follower_count }} 粉丝</span>
               <span>关注 {{ profile.following_count }}</span>
             </div>
@@ -76,8 +76,8 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
           <button class="follow-btn" :class="{ on: following }" @click="onFollow">{{ following ? "已关注" : "+ 关注" }}</button>
         </div>
 
-        <h2 class="sec-title">公开舰队</h2>
-        <div v-if="!profile.fleets.length" class="empty">还没有公开舰队。</div>
+        <h2 class="sec-title">公开编队</h2>
+        <div v-if="!profile.fleets.length" class="empty">还没有公开编队。</div>
         <div v-else class="grid">
           <div v-for="f in profile.fleets" :key="f.id" class="card">
             <RouterLink :to="`/community/fleet/${f.id}`" class="card-name">{{ f.name }}</RouterLink>

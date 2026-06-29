@@ -5,7 +5,7 @@ import { useTransformStore } from "../stores/transform";
 
 const transformStore = useTransformStore();
 const apiKey = transformStore.lastApiKey || transformStore.lastResult?.api_key || "YOUR_API_KEY";
-const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "https://evoship.me/v1";
+const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "https://swarmpay.me/v1";
 </script>
 
 <template>
@@ -23,21 +23,21 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
 
       <!-- 目录 -->
       <div class="toc">
-        <a href="#step1" class="toc-item"><span class="toc-num">1</span> 注册账号,领取积分和 API Key</a>
+        <a href="#step1" class="toc-item"><span class="toc-num">1</span> 绑定 Injective 地址,领取 API Key</a>
         <a href="#step2" class="toc-item"><span class="toc-num">2</span> 第一次调用(验证 Key 可用)</a>
-        <a href="#step3" class="toc-item"><span class="toc-num">3</span> 选择舰队模型</a>
-        <a href="#step4" class="toc-item"><span class="toc-num">4</span> 找到你的舰队</a>
-        <a href="#step5" class="toc-item"><span class="toc-num">5</span> 在 Playground 搭自己的舰队</a>
-        <a href="#step6" class="toc-item"><span class="toc-num">6</span> 积分说明</a>
+        <a href="#step3" class="toc-item"><span class="toc-num">3</span> 选择结算模式</a>
+        <a href="#step4" class="toc-item"><span class="toc-num">4</span> 找到你的编队</a>
+        <a href="#step5" class="toc-item"><span class="toc-num">5</span> 在 Playground 搭自己的编队</a>
+        <a href="#step6" class="toc-item"><span class="toc-num">6</span> 链上计费说明</a>
         <a href="#step7" class="toc-item"><span class="toc-num">7</span> 各语言调用示例</a>
       </div>
 
       <!-- Step 1 -->
       <section id="step1" class="doc-section">
-        <h2><span class="step-badge">1</span> 注册账号,领取积分和 API Key</h2>
+        <h2><span class="step-badge">1</span> 绑定 Injective 地址,领取 API Key</h2>
         <p>注册 SwarmPay 账号后,系统会自动:</p>
         <ul>
-          <li>赠送 <b class="hi">1000 积分</b>(每次完整蜂群调用消耗 50 积分,共可调用 20 次)</li>
+          <li>注册后绑定 Injective 测试网地址,蜂群调用按链上计费从该地址扣 INJ(见 <RouterLink to="/pricing" class="inline-link">/pricing</RouterLink>)</li>
           <li>生成一个 <b class="hi">API Key</b>(格式 <code>sk-swarmpay-xxxx</code>),绑定内置默认模型(<code>evomap-gpt-5.5</code>)</li>
         </ul>
         <div class="callout">
@@ -65,23 +65,23 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
         <p>返回标准 OpenAI 格式响应。蜂群会在后台协作(规划→实现→审查→聚合),然后返回最终答案。</p>
         <div class="callout warn">
           <span class="callout-icon">⚠️</span>
-          <span>每次完整调用扣 <b>50 积分</b>。余额不足会返回 HTTP 402。到 <RouterLink to="/credits" class="inline-link">积分管理</RouterLink> 查看余额。</span>
+          <span>每次完整调用按链上计费扣 INJ。余额不足会返回 HTTP 402。到 <RouterLink to="/credits" class="inline-link">钱包流水</RouterLink> 查看链上余额。</span>
         </div>
       </section>
 
       <!-- Step 3 -->
       <section id="step3" class="doc-section">
-        <h2><span class="step-badge">3</span> 选择舰队模型</h2>
-        <p>通过 <code>model</code> 字段选不同舰队:</p>
+        <h2><span class="step-badge">3</span> 选择结算模式</h2>
+        <p>通过 <code>model</code> 字段选不同模式:</p>
         <div class="model-table">
           <div class="mt-row mt-head">
-            <span>model 值</span><span>舰队</span><span>说明</span><span>积分</span>
+            <span>model 值</span><span>模式</span><span>说明</span><span>计费</span>
           </div>
-          <div class="mt-row"><code>swarm-evo</code><span>进化旗舰 ★</span><span>最强,带经验继承/回流</span><span>50/次</span></div>
-          <div class="mt-row"><code>swarm-heavy</code><span>重型</span><span>拆解+分工流水线+突破广播</span><span>50/次</span></div>
-          <div class="mt-row"><code>swarm-lite</code><span>轻型</span><span>几只蜂并行+投票</span><span>50/次</span></div>
-          <div class="mt-row"><code>swarm-baseline</code><span>直通</span><span>单次调用,不走蜂群(对照)</span><span>50/次</span></div>
-          <div class="mt-row"><code>user:你的舰队名</code><span>自定义</span><span>按你在 Playground 搭的拓扑跑</span><span>50/次</span></div>
+          <div class="mt-row"><code>swarm-evo</code><span>进化旗舰 ★</span><span>最强,带经验继承/回流</span><span>按链上计费</span></div>
+          <div class="mt-row"><code>swarm-heavy</code><span>重型</span><span>拆解+分工流水线+突破广播</span><span>按链上计费</span></div>
+          <div class="mt-row"><code>swarm-lite</code><span>轻型</span><span>几只蜂并行+投票</span><span>按链上计费</span></div>
+          <div class="mt-row"><code>swarm-baseline</code><span>直通</span><span>单次调用,不走蜂群(对照)</span><span>按链上计费</span></div>
+          <div class="mt-row"><code>user:你的编队名</code><span>自定义</span><span>按你在 Playground 搭的拓扑跑</span><span>按链上计费</span></div>
         </div>
         <div class="callout">
           <span class="callout-icon">💡</span>
@@ -91,15 +91,15 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
 
       <!-- Step 4 -->
       <section id="step4" class="doc-section">
-        <h2><span class="step-badge">4</span> 找到你的舰队</h2>
-        <p>你保存的自定义舰队模型名格式是 <code>user:舰队名</code>。查看你所有舰队:</p>
+        <h2><span class="step-badge">4</span> 找到你的编队</h2>
+        <p>你保存的自定义编队模型名格式是 <code>user:编队名</code>。查看你所有编队:</p>
         <ul>
-          <li>页面入口:<RouterLink to="/my-fleets" class="inline-link">我的舰队</RouterLink>(右上角用户菜单 → 我的舰队)</li>
-          <li>每个舰队卡片显示 <code>model_id</code>(如 <code>user:my-fleet-1</code>),点击可复制</li>
+          <li>页面入口:<RouterLink to="/my-fleets" class="inline-link">我的编队</RouterLink>(右上角用户菜单 → 我的编队)</li>
+          <li>每个编队卡片显示 <code>model_id</code>(如 <code>user:my-fleet-1</code>),点击可复制</li>
           <li>调用时把这个值填入 <code>model</code> 字段即可</li>
         </ul>
         <div class="code-block">
-          <div class="cb-label">调用你的自定义舰队</div>
+          <div class="cb-label">调用你的自定义编队</div>
           <pre class="cb-code">curl {{ host }}/chat/completions \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer {{ apiKey }}" \
@@ -112,36 +112,36 @@ const host = typeof window !== "undefined" ? window.location.origin + "/v1" : "h
         </div>
         <div class="callout warn">
           <span class="callout-icon">🔑</span>
-          <span>自定义舰队必须用<b>你自己的 API Key</b> 调用(不能调别人的 <code>user:</code> 舰队)。想用别人的舰队?在 <RouterLink to="/community" class="inline-link">社区</RouterLink> 点「复制并编辑」变成你自己的。</span>
+          <span>自定义编队必须用<b>你自己的 API Key</b> 调用(不能调别人的 <code>user:</code> 编队)。想用别人的编队?在 <RouterLink to="/community" class="inline-link">社区</RouterLink> 点「复制并编辑」变成你自己的。</span>
         </div>
       </section>
 
       <!-- Step 5 -->
       <section id="step5" class="doc-section">
-        <h2><span class="step-badge">5</span> 在 Playground 搭自己的舰队</h2>
+        <h2><span class="step-badge">5</span> 在 Playground 搭自己的编队</h2>
         <ol>
           <li>进入 <RouterLink to="/playground" class="inline-link">Playground</RouterLink>,切换到「自定义编队」模式</li>
           <li>从左侧角色池拖节点(规划/实现/审查/探索/旗舰)到画布</li>
           <li>拉线连接节点,定义交接顺序(谁把结果交给谁)</li>
           <li>点节点卡片可<b>定制</b>:选角色类型、场景任务、写擅长描述</li>
-          <li>点「💾 保存为舰队」,起个名 → AI 自动美化每个节点人设</li>
-          <li>得到 <code>user:你的舰队名</code>,就能用它调用了</li>
+          <li>点「💾 保存为编队」,起个名 → AI 自动美化每个节点人设</li>
+          <li>得到 <code>user:你的编队名</code>,就能用它调用了</li>
         </ol>
         <div class="callout">
           <span class="callout-icon">🐝</span>
-          <span>保存后可直接「去对话测试」或「发布到社区」分享给别人。</span>
+          <span>每个节点 = 一个持链上钱包的 agent。保存后可直接「去对话测试」或「发布到社区」分享给别人。</span>
         </div>
       </section>
 
       <!-- Step 6 -->
       <section id="step6" class="doc-section">
-        <h2><span class="step-badge">6</span> 积分说明</h2>
+        <h2><span class="step-badge">6</span> 链上计费说明</h2>
         <div class="credit-grid">
-          <div class="cg-item"><span class="cg-num">+1000</span><span class="cg-text">注册赠送</span></div>
-          <div class="cg-item"><span class="cg-num">-50</span><span class="cg-text">每次完整蜂群调用(无论简单复杂)</span></div>
-          <div class="cg-item"><span class="cg-num">402</span><span class="cg-text">余额不足时返回的状态码</span></div>
+          <div class="cg-item"><span class="cg-num">+INJ</span><span class="cg-text">分润进账:蜂群调用完成后,各 agent 按贡献收到 INJ</span></div>
+          <div class="cg-item"><span class="cg-num">-INJ</span><span class="cg-text">按贡献扣,非固定:发起方按实际算力消耗从绑定地址扣 INJ</span></div>
+          <div class="cg-item"><span class="cg-num">402</span><span class="cg-text">链上余额不足时返回的状态码</span></div>
         </div>
-        <p>积分流水可在 <RouterLink to="/credits" class="inline-link">积分管理页</RouterLink> 查看。充值功能即将开放。</p>
+        <p>链上分润流水可在 <RouterLink to="/credits" class="inline-link">钱包流水页</RouterLink> 查看。</p>
       </section>
 
       <!-- Step 7 -->
@@ -182,7 +182,7 @@ const res = await client.chat.completions.create({
 console.log(res.choices[0].message.content);</pre>
         </div>
 
-        <h3>curl(完整版,带自定义舰队)</h3>
+        <h3>curl(完整版,带自定义编队)</h3>
         <div class="code-block">
           <pre class="cb-code">curl {{ host }}/chat/completions \
   -H "Content-Type: application/json" \
@@ -197,12 +197,12 @@ console.log(res.choices[0].message.content);</pre>
 
         <div class="callout">
           <span class="callout-icon">✅</span>
-          <span>任何兼容 OpenAI API 的工具(LangChain、Cursor、ChatBox、Open WebUI 等)都可以直接填入这个 base_url 和 key 使用。</span>
+          <span>任何兼容 OpenAI API 的工具(LangChain、Cursor、ChatBox、Open WebUI 等)都可以直接填入这个 base_url 和 key 使用。看链上分润回执去 <RouterLink to="/onchain" class="inline-link">/onchain</RouterLink> 或 <RouterLink to="/credits" class="inline-link">/credits</RouterLink>。</span>
         </div>
       </section>
 
       <div class="doc-footer">
-        <p>还有问题?联系 <a href="mailto:support@evoship.me" class="inline-link">support@evoship.me</a></p>
+        <p>还有问题?联系 <a href="mailto:support@swarmpay.me" class="inline-link">support@swarmpay.me</a></p>
         <RouterLink to="/playground" class="cta-final">🚀 去 Playground 开始 →</RouterLink>
       </div>
     </div>

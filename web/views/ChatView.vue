@@ -28,7 +28,7 @@ const builtinModels = [
   { id: "swarm-lite", name: "swarm-lite · 轻型" },
   { id: "swarm-baseline", name: "swarm-baseline · 直通(单次)" },
 ];
-// 用户自定义舰队
+// 用户自定义编队
 const customModels = computed(() => fleetsStore.fleets.map((f) => ({ id: f.model_id, name: `${f.model_id} · ${f.name}` })));
 const allModels = computed(() => [...customModels.value, ...builtinModels]);
 
@@ -93,7 +93,7 @@ onMounted(async () => {
   await auth.ensureLoaded();
   if (!auth.isAuthed) return;
   await fleetsStore.load();
-  // 从 Playground 跳转来时:预填舰队 + 问题(query 参数)
+  // 从 Playground 跳转来时:预填编队 + 问题(query 参数)
   const qModel = typeof route.query.model === "string" ? route.query.model : "";
   if (qModel) chatStore.setModel(qModel);
   const qGoal = typeof route.query.goal === "string" ? route.query.goal : "";
@@ -119,12 +119,12 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
 
   <div class="stage">
     <div class="chat-shell">
-      <!-- 顶栏:舰队选择 + direct 对比开关 -->
+      <!-- 顶栏:编队选择 + direct 对比开关 -->
       <div class="chat-topbar">
         <div class="fleet-select">
-          <span class="fs-label">🛰️ 舰队</span>
+          <span class="fs-label">🛰️ 编队</span>
           <select v-model="chatStore.modelId" class="fs-select" @change="chatStore.setModel(chatStore.modelId)">
-            <optgroup v-if="customModels.length" label="我的自定义舰队">
+            <optgroup v-if="customModels.length" label="我的自定义编队">
               <option v-for="m in customModels" :key="m.id" :value="m.id">{{ m.name }}</option>
             </optgroup>
             <optgroup label="内置档位">
@@ -153,7 +153,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
       <div class="msg-list" ref="listRef">
         <div v-if="!chatStore.messages.length" class="empty">
           <div class="empty-icon">💬</div>
-          <p>发一个问题,看舰队怎么协作回答。</p>
+          <p>发一个问题,看蜂群怎么协作回答。</p>
           <p class="empty-sub">答案下方可展开「蜂群协作过程」日志。开启对比还能同时看 direct 单次的效果。</p>
         </div>
 
@@ -175,7 +175,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
                 </div>
                 <!-- 答案 -->
                 <div v-if="msg.content" class="answer" v-html="renderHtml(msg.content)"></div>
-                <div v-else class="typing">●●● 舰队协作中…</div>
+                <div v-else class="typing">●●● 蜂群协作中…</div>
 
                 <!-- 可展开日志区 -->
                 <div v-if="msg.logs.length" class="log-zone">

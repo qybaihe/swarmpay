@@ -86,7 +86,7 @@ const triggerText = computed(() => {
     if (sel.source === "official") return `${fleetIcon(officialFleets.value.find(f => f.id === sel.fleetId)!)} ${sel.label}`;
     return sel.label;
   }
-  return loading.value ? "加载舰队中…" : "选择舰队";
+  return loading.value ? "加载编队中…" : "选择编队";
 });
 
 function toggleOpen() {
@@ -181,9 +181,9 @@ defineExpose({ buildSelected, loadFleetTopology });
           </button>
         </div>
 
-        <!-- 官方舰队 -->
+        <!-- 官方编队 -->
         <div v-if="officialFleets.length" class="group">
-          <div class="group-label">官方舰队 · 官方搭配</div>
+          <div class="group-label">官方编队 · 官方搭配</div>
           <button
             v-for="f in officialFleets" :key="`of-${f.id}`"
             class="item official" :class="{ active: modelValue === `of-${f.id}` }"
@@ -194,7 +194,7 @@ defineExpose({ buildSelected, loadFleetTopology });
               <span class="item-name">{{ fleetDisplayName(f) }}</span>
               <span class="item-meta">
                 <span class="intent" v-if="fleetDesignIntent(f)">{{ fleetDesignIntent(f) }}</span>
-                <span class="chip count">{{ f.node_count }} 舰</span>
+                <span class="chip count">{{ f.node_count }} 编</span>
               </span>
             </span>
           </button>
@@ -202,7 +202,7 @@ defineExpose({ buildSelected, loadFleetTopology });
 
         <!-- 空态 -->
         <div v-if="!loading && !endpoints.length && !officialFleets.length" class="empty">
-          暂无可用舰队。<br />登录后可选「我的端点」;官方舰队需后端已灌入。
+          暂无可用编队。<br />登录后可选「我的端点」;官方编队需后端已灌入。
         </div>
         <!-- 未登录提示端点 -->
         <div v-if="!auth.isAuthed && !endpoints.length" class="login-hint">

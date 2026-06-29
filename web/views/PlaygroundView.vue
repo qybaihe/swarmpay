@@ -999,7 +999,7 @@ async function saveAsFleet() {
     toast.show("先拖几个节点再保存 ✋");
     return;
   }
-  const name = window.prompt("给这套舰队起个名字(将作为模型名 user:<名字>):", `my-fleet-${Date.now().toString(36)}`);
+  const name = window.prompt("给这套编队起个名字(将作为模型名 user:<名字>):", `my-fleet-${Date.now().toString(36)}`);
   if (!name || !name.trim()) return;
   savingFleet.value = true;
   try {
@@ -1066,14 +1066,14 @@ async function loadFleetToCanvas(fleetId: number) {
       });
     setTimeout(() => fitView?.({ padding: 0.22, duration: 350 }), 60);
     showFleetList.value = false;
-    toast.show(`已加载舰队:${detail.name}`);
+    toast.show(`已加载编队:${detail.name}`);
   } catch (e) {
     toast.show(e instanceof Error ? `❌ ${e.message}` : "加载失败");
   }
 }
 
 async function deleteFleetFromCanvas(fleetId: number, name: string) {
-  if (!window.confirm(`删除舰队「${name}」?此操作不可恢复。`)) return;
+  if (!window.confirm(`删除编队「${name}」?此操作不可恢复。`)) return;
   try {
     await fleetsStore.remove(fleetId);
     toast.show("已删除");
@@ -1242,7 +1242,7 @@ function handleRewardDistributed(payment: { splits?: { archetype: string; addr: 
   if (routes.length) store.spawnCoins("out", routes);
 }
 
-/** 积分扣减动画:调用成功后,金币从画布飞向 NavBar 余额 + 显示 -50 飘字 */
+/** INJ 扣减动画:调用成功后,金币从画布飞向 NavBar 余额 + 显示 -50 飘字 */
 function playCreditDeductAnimation() {
   const cost = 50;
   // 起点:画布运行按钮的屏幕坐标(金币从这里飞出)
@@ -1250,7 +1250,7 @@ function playCreditDeductAnimation() {
   const rRect = runBtn?.getBoundingClientRect();
   const fromX = rRect ? rRect.left + rRect.width / 2 : window.innerWidth / 2;
   const fromY = rRect ? rRect.top + rRect.height / 2 : window.innerHeight - 60;
-  // 终点:NavBar 的积分余额元素
+  // 终点:NavBar 的 INJ 余额元素
   const creditEl = document.querySelector(".user-credits") as HTMLElement | null;
   const cRect = creditEl?.getBoundingClientRect();
   const toX = cRect ? cRect.left + cRect.width / 2 : window.innerWidth - 120;
@@ -1278,7 +1278,7 @@ async function onFleetSelect(fleet: SelectedFleet | null) {
         applyTopologyToCanvas(topo, fleet.label);
       }
     } catch (e) {
-      toast.show(e instanceof Error ? `❌ ${e.message}` : "舰队加载失败");
+      toast.show(e instanceof Error ? `❌ ${e.message}` : "编队加载失败");
     }
   } else if (fleet.source === "endpoint") {
     // 我的端点:用默认编队跑当前 tier
@@ -1310,7 +1310,7 @@ function applyTopologyToCanvas(topo: PlaygroundTopology, name: string) {
       return makePresetEdge({ id: e.id, source: e.source, target: e.target, kind, label: e.label || kind });
     });
   setTimeout(() => fitView?.({ padding: 0.22, duration: 350 }), 60);
-  toast.show(`已加载官方舰队:${name}`);
+  toast.show(`已加载官方编队:${name}`);
 }
 
 /** 经验宝箱金币动效:计算节点与宝箱的屏幕坐标,驱动金币飞行 */
@@ -1443,7 +1443,7 @@ function miniColor(n: { data?: PetNodeData }) {
       <!-- 顶栏 -->
       <div class="pg-topbar">
         <RouterLink to="/" class="back">← 首页</RouterLink>
-        <div class="pg-title">🎮 Playground · 舰队编排画布</div>
+        <div class="pg-title">🎮 Playground · Agent 编排画布</div>
         <div class="pg-actions">
           <span class="badge" v-if="store.breakthroughSources.size">
             ⚡ 突破源 ×{{ store.breakthroughSources.size }}
@@ -1465,23 +1465,23 @@ function miniColor(n: { data?: PetNodeData }) {
           <button class="btn-default" @click="loadDefaultFleet" :disabled="running">加载默认编队</button>
           <button class="btn-clear" @click="nodes = []; edges = []; store.resetRunState()" :disabled="running">清空</button>
           <button class="btn-fleet" @click="saveAsFleet" :disabled="running || savingFleet || store.mode !== 'custom'">
-            {{ savingFleet ? "保存中…" : "💾 保存为舰队" }}
+            {{ savingFleet ? "保存中…" : "💾 保存为编队" }}
           </button>
-          <button class="btn-fleet" @click="toggleFleetList" :disabled="running">📂 我的舰队</button>
+          <button class="btn-fleet" @click="toggleFleetList" :disabled="running">📂 我的编队</button>
           <button class="btn-chat" @click="goChat" :disabled="running">💬 对话测试 →</button>
         </div>
       </div>
 
-      <!-- 我的舰队列表面板 -->
+      <!-- 我的编队列表面板 -->
       <div v-if="showFleetList" class="fleet-panel">
         <div class="fleet-panel-head">
-          <span>📂 我的舰队</span>
+          <span>📂 我的编队</span>
           <button class="fleet-close" @click="showFleetList = false">✕</button>
         </div>
         <div v-if="fleetsStore.loading" class="fleet-empty">加载中…</div>
         <div v-else-if="fleetsStore.error" class="fleet-empty">⚠️ {{ fleetsStore.error }}</div>
         <div v-else-if="!fleetsStore.fleets.length" class="fleet-empty">
-          还没有舰队。拖节点搭一套拓扑,点「💾 保存为舰队」即可。
+          还没有编队。拖节点搭一套拓扑,点「💾 保存为编队」即可。
         </div>
         <div v-else class="fleet-list">
           <div v-for="f in fleetsStore.fleets" :key="f.id" class="fleet-item">
@@ -1532,11 +1532,11 @@ function miniColor(n: { data?: PetNodeData }) {
           denom="inj"
         />
 
-        <!-- 保存舰队成功后的快捷动作浮层(居中) -->
+        <!-- 保存编队成功后的快捷动作浮层(居中) -->
         <Transition name="fade">
           <div v-if="showSaveActions && lastSavedFleet" class="save-actions">
             <div class="save-actions-card">
-              <div class="save-actions-title">✅ 舰队已保存</div>
+              <div class="save-actions-title">✅ 编队已保存</div>
               <div class="save-actions-sub">{{ lastSavedFleet.model_id }}</div>
               <div class="save-actions-btns">
                 <button class="sa-btn primary" @click="savedGoChat">💬 去对话测试</button>
@@ -1571,14 +1571,14 @@ function miniColor(n: { data?: PetNodeData }) {
           <div v-if="store.backflowMsg" class="backflow-toast">{{ store.backflowMsg }}</div>
         </Transition>
 
-        <!-- 积分扣减飘字(调用成功后 -50 飞向 NavBar) -->
+        <!-- INJ 扣减飘字(调用成功后 -X 飞向 NavBar) -->
         <div
           v-for="c in store.creditFloat"
           :key="c.id"
           class="credit-float"
           :class="{ negative: c.delta < 0 }"
           :style="creditFloatStyle(c)"
-        >{{ c.delta > 0 ? '+' : '' }}{{ c.delta }} 积分</div>
+        >{{ c.delta > 0 ? '+' : '' }}{{ c.delta }} INJ</div>
 
         <!-- 链上分润飘字(各 agent 节点上方 +X INJ) -->
         <div
@@ -1594,7 +1594,7 @@ function miniColor(n: { data?: PetNodeData }) {
         <!-- 空状态 -->
         <div v-if="nodes.length === 0" class="empty-hint">
           <div class="empty-emoji">🐾</div>
-          <p>从左侧拖角色到这里,搭建你的舰队编队</p>
+          <p>从左侧拖角色到这里,搭建你的 agent 编队</p>
           <p class="sub">拖节点右边的圆点拉到另一个节点 = 连线</p>
         </div>
       </div>
@@ -1807,7 +1807,7 @@ function miniColor(n: { data?: PetNodeData }) {
 
       <!-- 对话日志 -->
       <div class="pg-log" v-if="store.log.length">
-        <div class="log-head">💬 舰队对话流</div>
+        <div class="log-head">💬 编队对话流</div>
         <div class="log-body">
           <div v-for="(l, i) in store.log" :key="i" class="log-line">
             <span class="log-from">{{ l.from }}:</span> {{ l.text }}
@@ -2280,7 +2280,7 @@ function miniColor(n: { data?: PetNodeData }) {
   transform: translateY(-1px);
 }
 
-/* 积分扣减飘字:从画布飞向 NavBar 余额 */
+/* INJ 扣减飘字:从画布飞向 NavBar 余额 */
 .credit-float {
   position: fixed;
   z-index: 9999;

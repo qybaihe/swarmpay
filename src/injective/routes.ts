@@ -11,6 +11,26 @@ import { SplitExecutor } from "./split-executor.js";
 import { payerDecide } from "./payer-agent.js";
 import type { OnchainRunRequest, OnchainRunResponse } from "./types.js";
 
+// ── 链上流水 ring-buffer(hackathon:进程内内存,重启丢失)──
+// 每次 /run 成功后 push 分润 + 悬赏回执,/transactions 按 addr 过滤返回。
+interface TxRecord {
+  txHash: string;
+  type: "reward_split" | "bounty" | "protocol_fee";
+  direction: "in" | "out";
+  amount: string; // 最小单位
+  denom: string;
+  counterpartyAddr: string;
+  counterpartyArchetype?: string;
+  memo: string;
+  timestamp: number;
+}
+const TX_BUFFER: TxRecord[] = [];
+const TX_CAP = 200;
+function pushTx(rec: TxRecord) {
+  TX_BUFFER.unshift(rec);
+  if (TX_BUFFER.length > TX_CAP) TX_BUFFER.length = TX_CAP;
+}
+
 export function createInjectiveRouter(): Router {
   const router = Router();
 
@@ -26,6 +46,16 @@ export function createInjectiveRouter(): Router {
       archetypeAddrsConfigured: Object.keys(config.injective.archetypeAddrs).length,
       archetypeAddrs: config.injective.archetypeAddrs,  // 暴露各角色地址(前端 Playground 显示链上身份用)
     });
+  });
+
+  // ── GET /api/injective/transactions?addr= ── 该地址相关的链上流水(内存 ring-buffer)
+  router.get("/transactions", (req, res) => {
+    const addr = String(req.query.addr || "").trim();
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+    const list = addr
+      ? TX_BUFFER.filter((t) => t.counterpartyAddr === addr)
+      : TX_BUFFER.slice(0, limit);
+    res.json({ transactions: list.slice(0, limit), total: TX_BUFFER.length });
   });
 
   // ── GET /api/injective/balance?addr=&denom= ──
@@ -103,6 +133,30 @@ export function createInjectiveRouter(): Router {
           console.log(`[injective/run] 执行 ${bountyResults.length} 个悬赏,成功 ${bountyResults.filter((r) => r.success).length} 个`);
         } catch (e) {
           console.warn("[injective/run] bounty execution failed:", e instanceof Error ? e.message : e);
+        }
+      }
+
+      // 5. 把本次分润 + 悬赏回执写入流水 ring-buffer(供 /transactions 查询)
+      const ts = Date.now();
+      if (payment?.success && payment.splits?.length) {
+        for (const s of payment.splits) {
+          // 付款方(out)→ agent(in)
+          pushTx({ txHash: payment.txHash, type: "reward_split", direction: "out", amount: s.amount, denom, counterpartyAddr: s.addr, counterpartyArchetype: s.archetype, memo: `swarmpay:split:${s.archetype}`, timestamp: ts });
+          pushTx({ txHash: payment.txHash, type: "reward_split", direction: "in", amount: s.amount, denom, counterpartyAddr: payerAddr, counterpartyArchetype: s.archetype, memo: `swarmpay:split:${s.archetype}`, timestamp: ts });
+        }
+        if (payment.feeDeducted && payment.feeDeducted !== "0") {
+          pushTx({ txHash: payment.txHash, type: "protocol_fee", direction: "out", amount: payment.feeDeducted, denom, counterpartyAddr: payerAddr, memo: "swarmpay:protocol_fee", timestamp: ts });
+        }
+      }
+      if (bountyResults) {
+        for (const b of bountyResults) {
+          if (!b.success) continue;
+          const fromAddr = config.injective.archetypeAddrs[b.bounty.fromArchetype];
+          const toAddr = config.injective.archetypeAddrs[b.bounty.toArchetype];
+          if (fromAddr && toAddr && b.txHash) {
+            pushTx({ txHash: b.txHash, type: "bounty", direction: "out", amount: b.bounty.amountSmallest, denom, counterpartyAddr: toAddr, counterpartyArchetype: b.bounty.toArchetype, memo: `swarmpay:bounty:${b.bounty.fromArchetype}->${b.bounty.toArchetype}`, timestamp: ts });
+            pushTx({ txHash: b.txHash, type: "bounty", direction: "in", amount: b.bounty.amountSmallest, denom, counterpartyAddr: fromAddr, counterpartyArchetype: b.bounty.fromArchetype, memo: `swarmpay:bounty:${b.bounty.fromArchetype}->${b.bounty.toArchetype}`, timestamp: ts });
+          }
         }
       }
 

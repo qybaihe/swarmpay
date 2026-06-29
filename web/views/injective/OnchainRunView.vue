@@ -2,7 +2,7 @@
 // OnchainRunView.vue —— 链上版蜂群运行页(核心 demo 页)。
 // 输入 goal + 预算 → POST /api/injective/run → 渲染 答案 / 协作trace / 分润流向图 / 交易回执。
 // 契约见 docs/injective-plan/05-API-CONTRACT.md §3。
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -43,6 +43,18 @@ type DistributeResultLike = {
 };
 type StageLike = { phase?: string; agent?: string; label?: string; status?: string; verdict?: string };
 
+/** 链上悬赏执行回执(深度3:reviewer→coder),宽松匹配后端 BountyExecutionResult。 */
+type BountyResultLike = {
+  bounty?: { fromArch?: string; toArch?: string; amountSmallest?: string; reason?: string };
+  fromArch?: string;
+  toArch?: string;
+  amountSmallest?: string;
+  reason?: string;
+  success?: boolean;
+  txHash?: string;
+  receipt?: { txHash?: string };
+};
+
 const loading = ref(false);
 const errorMsg = ref<string | null>(null);
 const content = ref<string>("");
@@ -50,7 +62,40 @@ const stages = ref<StageLike[]>([]);
 const rewardSplit = ref<{ archetype: string; weight: number; contribution: string }[]>([]);
 const breakthroughs = ref(0);
 const payment = ref<DistributeResultLike | null>(null);
+const bounties = ref<BountyResultLike[]>([]);
 const elapsedSec = ref(0);
+
+/** 协议费基点(默认 500 = 5%),从 wallet.status 读取,前端计费预览用。 */
+const protocolFeeBps = computed(() => wallet.status?.protocolFeeBps ?? 500);
+
+/** 计费预览:预算拆为 协议费 + 按 LLM 权重分给 agent 的池子。 */
+const billingPreview = computed(() => {
+  const budget = Number(budgetInj.value || "0") || 0;
+  const bps = protocolFeeBps.value;
+  const feeRate = bps / 10000;
+  const fee = budget * feeRate;
+  const pool = budget - fee;
+  const pct = (bps / 100).toFixed(bps % 100 === 0 ? 0 : 1);
+  return {
+    budget,
+    fee,
+    pool,
+    pct,
+  };
+});
+
+/** 取某个 archetype 的短链上地址(从 /api/injective/status 拉取的 archetypeAddrs)。 */
+function archShort(archetype?: string): string | null {
+  if (!archetype) return null;
+  const addr = wallet.archetypeAddrs[archetype];
+  if (!addr) return null;
+  return shortAddr(addr, 6, 4);
+}
+
+onMounted(() => {
+  // 拉取链层状态 + 各 archetype 链上地址(供 trace 时间线显示短地址)
+  wallet.fetchStatus?.();
+});
 
 const tiers = [
   { value: "swarm-evo", label: "swarm-evo (蜂群+经验继承)" },
@@ -83,6 +128,7 @@ async function runOnchain() {
   rewardSplit.value = [];
   breakthroughs.value = 0;
   payment.value = null;
+  bounties.value = [];
   const t0 = Date.now();
 
   try {
@@ -116,6 +162,16 @@ async function runOnchain() {
     rewardSplit.value = trace.reward_split || trace.rewardSplit || [];
     breakthroughs.value = trace.breakthroughs_broadcast || 0;
     payment.value = data.payment || null;
+    bounties.value = Array.isArray(data.bounties) ? data.bounties : [];
+
+    // 持久化最近一次成功分润回执(CreditsView 兜底展示近期活动)
+    if (payment.value && payment.value.success !== false) {
+      try {
+        localStorage.setItem("swarmpay:last-payment", JSON.stringify(payment.value));
+      } catch {
+        /* localStorage 不可用则忽略 */
+      }
+    }
   } catch (e) {
     errorMsg.value = e instanceof Error ? e.message : String(e);
   } finally {
@@ -131,18 +187,30 @@ const timeline = computed(() =>
     .map((s) => ({
       phase: s.phase || "-",
       agent: s.agent || "-",
+      archAddr: archShort(s.agent),
       label: s.label || s.status || "",
       verdict: s.verdict || "",
       status: s.status || "",
     })),
 );
+
+/** 提取悬赏回执的 txHash(兼容 receipt.txHash 与 top-level txHash 两种形状)。 */
+function bountyTxHash(b: BountyResultLike): string | null {
+  return b.receipt?.txHash || b.txHash || null;
+}
+
+/** 把悬赏 amount(最小单位)转人类可读 INJ。 */
+function bountyAmountInj(b: BountyResultLike): string {
+  const raw = b.bounty?.amountSmallest ?? b.amountSmallest ?? "0";
+  return baseUnitsToInj(raw);
+}
 </script>
 
 <template>
   <div class="onchain-page">
     <header class="page-head">
       <h1>⛓️ SwarmPay · 链上蜂群</h1>
-      <p class="sub">下目标 → 蜂群分工协作 → payer agent 按贡献在 Injective 链上分润。</p>
+      <p class="sub">下目标 → 蜂群协作 → LLM 按贡献链上分润 → agent 钱包入账 → reviewer 自签悬赏 coder</p>
       <div class="wallet-strip">
         <span v-if="wallet.address" class="addr-pill" :title="wallet.address">
           🪪 {{ shortAddr(wallet.address) }}
@@ -179,6 +247,11 @@ const timeline = computed(() =>
           <span>预算 (INJ)</span>
           <input v-model="budgetInj" type="text" inputmode="decimal" />
           <small class="hint">→ {{ budgetBaseUnits }} 最小单位</small>
+          <small class="hint billing">
+            计费预览:预算 {{ billingPreview.budget }} INJ = {{ billingPreview.pct }}% 协议费
+            ({{ billingPreview.fee.toFixed(4) }}) + {{ (100 - Number(billingPreview.pct)).toFixed(billingPreview.pct.includes('.') ? 1 : 0) }}% 按 LLM 权重分给 agent
+            ({{ billingPreview.pool.toFixed(4) }})
+          </small>
         </label>
         <label class="field">
           <span>denom</span>
@@ -206,6 +279,7 @@ const timeline = computed(() =>
           <li v-for="(s, i) in timeline" :key="i" :class="s.status">
             <span class="ph">{{ s.phase }}</span>
             <span class="ag">{{ s.agent }}</span>
+            <span v-if="s.archAddr" class="arch-addr" :title="wallet.archetypeAddrs[s.agent]">{{ s.archAddr }}</span>
             <span class="lb">{{ s.label }}</span>
             <span v-if="s.verdict" class="vd" :class="s.verdict.toLowerCase()">{{ s.verdict }}</span>
           </li>
@@ -236,6 +310,34 @@ const timeline = computed(() =>
         <h3>🧾 交易回执</h3>
         <TxTimelineCard v-if="payment" :payment="payment" :denom="denom" />
         <p v-else class="muted">无链上交易</p>
+        <a
+          v-if="payment?.txHash"
+          class="mintscan-link"
+          :href="`https://testnet.mintscan.io/injective-testnet/tx/${payment.txHash}`"
+          target="_blank"
+          rel="noopener noreferrer"
+        >🔍 在 Mintscan 查看 →</a>
+      </div>
+
+      <div class="cell bounty-flow">
+        <h3>💸 悬赏流向</h3>
+        <ul v-if="bounties.length" class="bounty-list">
+          <li v-for="(b, i) in bounties" :key="i" :class="{ ok: b.success, fail: b.success === false }">
+            <span class="bf-arch">{{ b.bounty?.fromArch ?? b.fromArch }}</span>
+            <span class="bf-arrow">→</span>
+            <span class="bf-arch">{{ b.bounty?.toArch ?? b.toArch }}</span>
+            <span class="bf-amt">· {{ bountyAmountInj(b) }} INJ</span>
+            <span v-if="b.bounty?.reason ?? b.reason" class="bf-reason">· {{ (b.bounty?.reason ?? b.reason) }}</span>
+            <a
+              v-if="bountyTxHash(b)"
+              class="mintscan-link inline"
+              :href="`https://testnet.mintscan.io/injective-testnet/tx/${bountyTxHash(b)}`"
+              target="_blank"
+              rel="noopener noreferrer"
+            >tx ↗</a>
+          </li>
+        </ul>
+        <p v-else class="muted">本次无悬赏(用 swarm-evo + HARD 难度更易触发 reviewer→coder 悬赏)</p>
       </div>
     </section>
   </div>
@@ -269,7 +371,7 @@ const timeline = computed(() =>
 .run-btn:disabled { opacity: .5; cursor: not-allowed; }
 .error { color: #f87171; margin: 10px 0 0; font-size: 13px; }
 
-.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 16px; }
 .cell { background: rgba(20,20,35,.6); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 16px; }
 .cell h3 { margin: 0 0 10px; font-size: 15px; }
 .muted { color: var(--muted, #8a8aa0); font-size: 13px; }
@@ -286,4 +388,18 @@ const timeline = computed(() =>
 .split-raw { margin-top: 10px; font-size: 12px; }
 .split-raw ul { padding-left: 16px; }
 @media (max-width: 760px) { .result-grid { grid-template-columns: 1fr; } }
+
+/* ── 新增:计费预览 / archetype 短地址 / 悬赏流向 / Mintscan 链接 ── */
+.billing { display: block; margin-top: 2px; color: var(--muted, #8a8aa0); line-height: 1.4; }
+.timeline .arch-addr { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; color: #67e8f9; background: rgba(34,211,238,.12); padding: 1px 5px; border-radius: 4px; letter-spacing: .3px; }
+.mintscan-link { display: inline-block; margin-top: 8px; color: #818cf8; font-size: 12px; text-decoration: none; }
+.mintscan-link:hover { text-decoration: underline; }
+.mintscan-link.inline { display: inline; margin-top: 0; margin-left: 4px; font-size: 11px; }
+.bounty-list { list-style: none; padding: 0; margin: 0; }
+.bounty-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 6px 0; font-size: 12px; border-bottom: 1px dashed rgba(255,255,255,.06); }
+.bounty-list li.fail { opacity: .55; }
+.bf-arch { color: #a5b4fc; font-weight: 600; }
+.bf-arrow { color: var(--muted, #8a8aa0); }
+.bf-amt { color: #4ade80; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.bf-reason { color: var(--muted, #8a8aa0); flex: 1; min-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>

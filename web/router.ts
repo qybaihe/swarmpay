@@ -25,7 +25,7 @@ export const router = createRouter({
     { path: "/playground", name: "playground", component: PlaygroundView, meta: { requiresAuth: true } },
     { path: "/my-fleets", name: "my-fleets", component: MyFleetsView, meta: { requiresAuth: true } },
     { path: "/chat", name: "chat", component: ChatView, meta: { requiresAuth: true } },
-    { path: "/credits", name: "credits", component: CreditsView, meta: { requiresAuth: true } },
+    { path: "/credits", name: "credits", component: CreditsView },
     { path: "/pricing", name: "pricing", component: PricingView },
     { path: "/api-keys", name: "api-keys", component: ApiKeyView, meta: { requiresAuth: true } },
     { path: "/docs", name: "docs", component: DocsView },

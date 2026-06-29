@@ -72,11 +72,11 @@ async function goSection(hash: string) {
         <nav class="nav-links">
           <RouterLink to="/endpoints">端点</RouterLink>
           <a href="#pipeline" @click.prevent="goSection('#pipeline')">原理</a>
-          <a href="#roster" @click.prevent="goSection('#roster')">舰队</a>
-          <a href="#tiers" @click.prevent="goSection('#tiers')">型号</a>
+          <a href="#roster" @click.prevent="goSection('#roster')">角色</a>
+          <a href="#tiers" @click.prevent="goSection('#tiers')">结算模式</a>
           <RouterLink to="/community">社区</RouterLink>
           <RouterLink to="/docs">文档</RouterLink>
-          <RouterLink v-if="auth.isAuthed" to="/my-fleets">我的舰队</RouterLink>
+          <RouterLink v-if="auth.isAuthed" to="/my-fleets">我的编队</RouterLink>
         </nav>
         <span class="status-badge" :class="{ off: status && !status.online }">
           <span class="dot"></span><span>{{ statusText() }}</span>
@@ -107,16 +107,16 @@ async function goSection(hash: string) {
                   <span class="dd-icon">🪙</span><span class="dd-text">链上钱包</span><span class="dd-val">{{ inj.balance ? `${baseUnitsToInj(inj.balance.amount)} INJ` : "未绑" }}</span>
                 </RouterLink>
                 <RouterLink to="/pricing" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">↑</span><span class="dd-text">升级我的套餐</span>
+                  <span class="dd-icon">⛓️</span><span class="dd-text">链上计费模式</span>
                 </RouterLink>
                 <RouterLink to="/api-keys" class="dd-item" @click="userMenuOpen = false">
                   <span class="dd-icon">🔑</span><span class="dd-text">API Key 管理</span>
                 </RouterLink>
                 <RouterLink to="/my-fleets" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">📂</span><span class="dd-text">我的舰队</span>
+                  <span class="dd-icon">📂</span><span class="dd-text">我的编队</span>
                 </RouterLink>
                 <RouterLink to="/community" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">🌐</span><span class="dd-text">舰队社区</span>
+                  <span class="dd-icon">🌐</span><span class="dd-text">Agent 社区</span>
                 </RouterLink>
                 <button class="dd-item dd-logout" type="button" @click="logout">
                   <span class="dd-icon">🚪</span><span class="dd-text">退出登录</span>
