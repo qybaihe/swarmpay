@@ -21,6 +21,7 @@ import { securityHeaders, rateLimit, originGuard } from "./middleware/security.j
 import { publicBaseUrl } from "./url.js";
 import { verifyWebhook, handleWebhookEvent, webhookEventStore, type WebhookEvent } from "./evomap-webhook.js";
 import { createInjectiveRouter } from "./injective/routes.js";
+import { seedOfficialFleets } from "./injective/official-fleets.js";
 import { createChain } from "./injective/index.js";
 import { SplitExecutor } from "./injective/split-executor.js";
 import { payerDecide } from "./injective/payer-agent.js";
@@ -136,6 +137,11 @@ registerApiKeyRoutes(app, authStore, apiKeyStore, fleetStore);
 registerEndpointRoutes(app, authStore, endpointStore, fleetStore);
 registerFleetRoutes(app, authStore, fleetStore);
 registerCommunityRoutes(app, authStore, fleetStore);
+
+// ── Seed 官方示例编队到社区(幂等,启动时异步执行,不阻塞服务)──
+seedOfficialFleets(authStore, fleetStore).catch((e) =>
+  console.warn("[seed] official fleets failed:", e instanceof Error ? e.message : e),
+);
 
 // ── 经验宝箱库存统计(只读,供前端宝箱角标展示)──
 app.get("/api/evolution/memory/stats", (_req, res) => {

@@ -29,12 +29,22 @@ function displayName(f: { name: string; label?: string }): string {
   }
   return f.name;
 }
-// 描述:label 里"·"后面的设计意图部分
+// 描述:label 里"·"后面的设计意图部分(去掉链上配方段,配方单独成徽章)
 function descText(f: { name: string; label?: string }): string {
   if (!f.label) return "";
-  const parts = f.label.split("·");
-  if (parts.length >= 2) return parts.slice(1).join("·").trim();
-  return f.label;
+  const parts = f.label.split("·").map((s) => s.trim()).filter(Boolean);
+  const descParts = parts.filter((p) => !p.startsWith("链上配方"));
+  return descParts.slice(1).join(" · ");
+}
+// 链上配方:从 label 提取 "链上配方:XXX" 段,作为金色徽章展示
+function recipeBadge(f: { name: string; label?: string }): string {
+  if (!f.label) return "";
+  const m = f.label.match(/链上配方[:：]\s*([^·]+)/);
+  return m ? m[1].trim() : "";
+}
+// 是否官方编队
+function isOfficial(f: { name: string; label?: string }): boolean {
+  return !!f.label?.includes("官方") || f.name.startsWith("official") || f.name.startsWith("swarm-") && f.name.endsWith("-official");
 }
 
 async function doFork(fleetId: number, name: string, target: "playground" | "chat") {
@@ -116,16 +126,18 @@ onMounted(async () => {
       </div>
 
       <div v-else class="grid">
-        <div v-for="f in community.fleets" :key="f.id" class="card">
+        <div v-for="f in community.fleets" :key="f.id" class="card" :class="{ official: isOfficial(f) }">
           <div class="card-head">
             <RouterLink :to="`/community/fleet/${f.id}`" class="card-name">{{ displayName(f) }}</RouterLink>
             <span class="card-meta">{{ f.node_count }}节点 · {{ f.edge_count }}边</span>
           </div>
           <div class="card-author">
             <RouterLink :to="`/community/user/${f.author.id}`" class="author-link">@{{ f.author.name }}</RouterLink>
+            <span v-if="isOfficial(f)" class="official-tag">官方</span>
             <span class="time">{{ timeAgo(f.created_at) }}</span>
           </div>
-          <div v-if="f.label" class="card-desc">{{ descText(f) }}</div>
+          <div v-if="recipeBadge(f)" class="recipe-badge">⛓️ 链上配方:{{ recipeBadge(f) }}</div>
+          <div v-if="descText(f)" class="card-desc">{{ descText(f) }}</div>
           <div class="card-stats">
             <span>❤️ {{ f.like_count }}</span>
             <span>💬 {{ f.comment_count }}</span>
@@ -184,7 +196,11 @@ onMounted(async () => {
 .card-author { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .author-link { font-size: 13px; color: #b89aff; text-decoration: none; }
 .author-link:hover { text-decoration: underline; }
+.official-tag { font-size: 10px; font-weight: 800; color: #ffd23f; background: rgba(255,210,63,0.14); border: 1px solid rgba(255,210,63,0.4); padding: 1px 6px; border-radius: 4px; letter-spacing: 0.3px; }
 .time { font-size: 11px; color: var(--dim); }
+.recipe-badge { font-size: 11px; font-weight: 600; color: var(--green); background: rgba(61,255,176,0.08); border: 1px solid rgba(61,255,176,0.3); padding: 5px 9px; border-radius: 6px; margin-bottom: 10px; line-height: 1.4; }
+.card.official { border-color: rgba(255,210,63,0.28); }
+.card.official:hover { border-color: rgba(255,210,63,0.5); box-shadow: 0 8px 26px rgba(255,210,63,0.12); }
 .card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .card-stats { display: flex; gap: 14px; font-size: 12px; color: var(--dim); margin-bottom: 14px; }
 .card-actions { display: flex; gap: 8px; }
