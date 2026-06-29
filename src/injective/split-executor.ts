@@ -4,6 +4,7 @@
 // 注意:真实 trace 用 snake_case(reward_split),archetype 是 string。
 
 import { config } from "../config.js";
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 import type {
   DistributeResult,
   IInjectiveChain,
@@ -111,9 +112,11 @@ export class SplitExecutor implements ISplitExecutor {
     let receipt;
     let mode: "contract" | "direct" = "direct";
     try {
-      // 先转服务费给 treasurer(若有地址)
+      // 先转服务费给 treasurer(若有地址)。testnet 模式连续多笔需间隔等 sequence 更新。
       if (fee > 0n && treasurerAddr) {
+        console.log(`[split] 转服务费 ${fee.toString()} → treasurer`);
         await this.chain.sendTransfer(senderAddr, treasurerAddr, fee.toString(), denom);
+        await sleep(3000);
       }
 
       if (useContract) {
@@ -128,20 +131,29 @@ export class SplitExecutor implements ISplitExecutor {
           },
         );
       } else {
-        // direct:逐笔转账
-        for (const s of splits) {
-          await this.chain.sendTransfer(senderAddr, s.addr, s.amount, denom);
+        // direct:逐笔转账。testnet 连续多笔需间隔等 account sequence 更新,否则签名 sequence 冲突。
+        const txHashes: string[] = [];
+        for (let i = 0; i < splits.length; i++) {
+          const s = splits[i];
+          console.log(`[split] 转账 ${i + 1}/${splits.length}: ${s.amount} → ${s.archetype} (${s.addr.slice(0, 12)}…)`);
+          const r = await this.chain.sendTransfer(senderAddr, s.addr, s.amount, denom);
+          if (!r.success) {
+            throw new Error(`transfer to ${s.archetype} failed: ${r.rawLog || r.txHash}`);
+          }
+          txHashes.push(r.txHash);
+          if (i < splits.length - 1) await sleep(3000); // 最后一笔不等
         }
         receipt = {
-          txHash: `direct_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+          txHash: txHashes[0] || `direct_${Date.now().toString(36)}`,
           height: 0,
           success: true,
           gasUsed: "0",
-          rawLog: `multi-transfer to ${splits.length} agents`,
+          rawLog: `${txHashes.length} transfers: ${txHashes.join(", ")}`,
         };
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
+      console.error("[split] distribute failed:", msg);
       return {
         txHash: "",
         mode: useContract ? "contract" : "direct",

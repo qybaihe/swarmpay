@@ -41,4 +41,9 @@ export class MockChain implements IInjectiveChain {
       rawLog: `[mock] distribute ${msg.denom}: ${parts.join(", ")}`,
     };
   }
+
+  /** mock 模式无代签,沿用调用方地址。 */
+  getSignerAddress(): string {
+    return "";
+  }
 }

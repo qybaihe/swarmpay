@@ -58,10 +58,12 @@ export function createInjectiveRouter(): Router {
 
     try {
       const chain = createChain();
+      // 代签模式(testnet):实际付款方 = 后端 DEMO_KEY 钱包;mock 模式沿用用户地址
+      const payerAddr = chain.getSignerAddress?.() || body.senderAddr;
 
       // 1. 余额校验(同构于原 credits 检查),0 预算时跳过
       if (total > 0n) {
-        const bal = await chain.getBalance(body.senderAddr, denom);
+        const bal = await chain.getBalance(payerAddr, denom);
         if (BigInt(bal.amount) < total) {
           return res.status(402).json({
             error: {
@@ -69,6 +71,7 @@ export function createInjectiveRouter(): Router {
               have: bal.amount,
               need: total.toString(),
               denom,
+              payerAddr,
             },
           });
         }
@@ -81,12 +84,12 @@ export function createInjectiveRouter(): Router {
         customTopology: body.topology as never,
       });
 
-      // 3. 分润:payer 决策权重 → split-executor 链上执行
+      // 3. 分润:payer 决策权重 → split-executor 链上执行(付款方=代签地址)
       let payment: OnchainRunResponse["payment"] = null;
       if (total > 0n) {
         const decidedSplits = payerDecide(out.trace as never);
         const executor = new SplitExecutor(chain);
-        payment = await executor.distribute({ reward_split: decidedSplits, breakthroughs_broadcast: 0 }, total.toString(), denom, body.senderAddr);
+        payment = await executor.distribute({ reward_split: decidedSplits, breakthroughs_broadcast: 0 }, total.toString(), denom, payerAddr);
       }
 
       const response: OnchainRunResponse = {

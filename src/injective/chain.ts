@@ -43,12 +43,18 @@ export class InjectiveChain implements IInjectiveChain {
     return { amount: res.amount || "0", denom };
   }
 
+  /** 代签模式下实际付款方 = 后端 DEMO_KEY 钱包地址。 */
+  getSignerAddress(): string {
+    return this.signer.address;
+  }
+
   /** 组装签名并广播一笔交易。signer 为后端代签钱包(测试网 demo)。 */
   private async signAndBroadcast(message: MsgSend | MsgExecuteContract, memo: string): Promise<TxReceipt> {
-    const { address, pubKeyBase64, privKeyHex } = this.signer;
+    const { pk, address, pubKeyBase64, privKeyHex } = this.signer;
 
-    // createTransactionForAddressAndMsg 内部查 account number/sequence 后透传给 createTransaction,
-    // privateKey 在运行时透传(SDK v1.20 类型签名未列 privateKey,用 as 强转绕过类型)。
+    // createTransactionForAddressAndMsg 查 account number/sequence 并组装 signDoc,
+    // 但不签名 —— 需用私钥签 signHashedBytes 后填回 txRaw.signatures。
+    // privateKey 运行时透传(SDK v1.20 类型签名未列,用 as 强转)。
     const params = {
       message,
       address,
@@ -62,10 +68,18 @@ export class InjectiveChain implements IInjectiveChain {
       },
       memo,
     } as never;
-    const { txRaw } = await createTransactionForAddressAndMsg(params);
+    const result = (await createTransactionForAddressAndMsg(params)) as {
+      txRaw: { bodyBytes: Uint8Array; authInfoBytes: Uint8Array; signatures: Uint8Array[] };
+      signHashedBytes: Uint8Array;
+    };
+
+    // 用私钥对 signHashedBytes(= keccak256(signDoc)) 做 ethereum 签名。
+    // 注意用 signHashed(直接签给定 hash),不能用 sign()(会再 hash 一次导致验证失败)。
+    const signature = pk.signHashed(result.signHashedBytes);
+    result.txRaw.signatures = [signature];
 
     const txApi = new TxGrpcApi(this.networkInfo.grpc);
-    const broadcastRes = (await txApi.broadcast(txRaw as never)) as {
+    const broadcastRes = (await txApi.broadcast(result.txRaw as never)) as {
       txHash?: string;
       height?: number | string;
       code?: number;

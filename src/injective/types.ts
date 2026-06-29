@@ -41,6 +41,8 @@ export interface IInjectiveChain {
   sendTransfer(from: string, to: string, amount: string, denom: string): Promise<TxReceipt>;
   /** 执行 CosmWasm 合约（分润合约），sender 为签名方，附带 funds=total */
   executeContract(sender: string, contractAddr: string, msg: SplitMsg): Promise<TxReceipt>;
+  /** 实际签名方地址(代签模式=后端钱包;前端签名模式=用户地址)。用于余额校验与付款。 */
+  getSignerAddress?(): string;
 }
 
 // ── 分润相关：对齐真实 SwarmTrace(openai-types.ts) 的 snake_case 结构 ──
