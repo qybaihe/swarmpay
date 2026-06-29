@@ -21,6 +21,9 @@ import { securityHeaders, rateLimit, originGuard } from "./middleware/security.j
 import { publicBaseUrl } from "./url.js";
 import { verifyWebhook, handleWebhookEvent, webhookEventStore, type WebhookEvent } from "./evomap-webhook.js";
 import { createInjectiveRouter } from "./injective/routes.js";
+import { createChain } from "./injective/index.js";
+import { SplitExecutor } from "./injective/split-executor.js";
+import { payerDecide } from "./injective/payer-agent.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -312,15 +315,28 @@ app.post("/v1/chat/completions", async (req, res) => {
   if (resolved.error) {
     return res.status(resolved.error.status).json({ error: { message: resolved.error.message, type: "invalid_request" } });
   }
-  // 必须有用户 API key 才能调用:积分体系要求能定位用户
+  // 必须有用户 API key 才能调用:链上付费要求能定位用户
   if (!caller) {
     return res.status(401).json({ error: { message: "请先登录并在「我的 API Key」页面创建 API Key。", type: "unauthorized" } });
   }
-  // 积分检查:每次完整调用需 callCostCredits
+  // 链上 INJ 余额检查(替代已废除的 credits):每次调用需 callCostInj
   const userId = caller.userId;
-  const balanceBefore = authStore.getCredits(userId);
-  if (balanceBefore < config.callCostCredits) {
-    return res.status(402).json({ error: { message: `积分不足:当前余额 ${balanceBefore},每次调用需 ${config.callCostCredits}。请充值后再试。`, type: "insufficient_credits", balance: balanceBefore, required: config.callCostCredits } });
+  const userRow = authStore.findUserById(userId);
+  const payerAddr = userRow?.injective_address || (createChain().getSignerAddress?.() ?? "");
+  if (!payerAddr) {
+    return res.status(402).json({ error: { message: "未绑定 Injective 地址,请到个人设置绑定钱包地址。", type: "no_injective_address" } });
+  }
+  const callCostInj = config.injective.callCostInj;
+  if (callCostInj) {
+    try {
+      const bal = await createChain().getBalance(payerAddr, config.injective.denom);
+      if (BigInt(bal.amount) < BigInt(callCostInj)) {
+        return res.status(402).json({ error: { message: `链上 INJ 不足:当前 ${bal.amount},每次调用需 ${callCostInj}。`, type: "insufficient_balance", balance: bal.amount, required: callCostInj } });
+      }
+    } catch (e) {
+      // 余额查询失败(mock 或测试网异常)不阻断,降级放行(后扣模式兜底)
+      console.warn("[v1] balance check skipped:", e instanceof Error ? e.message : e);
+    }
   }
   // 优先级:user:模型绑定的拓扑 > 请求体 x_playground_topology > 无(走 tier 默认)
   const customTopology = resolved.customTopology || body.x_playground_topology;
@@ -331,8 +347,18 @@ app.post("/v1/chat/completions", async (req, res) => {
       messages: body.messages,
       customTopology,
     }));
-    // 成功完成:扣积分
-    const dc = authStore.deductCredits(userId, config.callCostCredits, `蜂群调用 ${requested}`);
+    // 成功完成:链上分润(替代扣积分)。预算=callCostInj,付款方=payerAddr(代签或用户)
+    let payment: unknown = null;
+    if (callCostInj && BigInt(callCostInj) > 0n) {
+      try {
+        const chain = createChain();
+        const actualPayer = chain.getSignerAddress?.() || payerAddr;
+        const decided = payerDecide(out.trace as never);
+        payment = await new SplitExecutor(chain).distribute({ reward_split: decided, breakthroughs_broadcast: 0 }, callCostInj, config.injective.denom, actualPayer);
+      } catch (e) {
+        console.warn("[v1] onchain distribute failed (answer still returned):", e instanceof Error ? e.message : e);
+      }
+    }
     apiKeyStore.markUse(caller.key.id, true);
     if (caller.configuredEndpoint) endpointStore.markUse(caller.configuredEndpoint.row.id, true);
 
@@ -399,11 +425,20 @@ app.post("/api/playground/swarm/run", async (req, res) => {
   if (!caller) {
     return res.status(401).json({ error: { message: "请先登录获取 API Key。", type: "unauthorized" } });
   }
-  // 积分检查
+  // 链上 INJ 余额检查(替代积分)+ 付款方解析
   const userId = caller.userId;
-  const balanceBefore = authStore.getCredits(userId);
-  if (balanceBefore < config.callCostCredits) {
-    return res.status(402).json({ error: { message: `积分不足:当前余额 ${balanceBefore},每次调用需 ${config.callCostCredits}。`, type: "insufficient_credits", balance: balanceBefore, required: config.callCostCredits } });
+  const userRow = authStore.findUserById(userId);
+  const payerAddr = userRow?.injective_address || (createChain().getSignerAddress?.() ?? "");
+  const callCostInj = config.injective.callCostInj;
+  if (callCostInj && payerAddr) {
+    try {
+      const bal = await createChain().getBalance(payerAddr, config.injective.denom);
+      if (BigInt(bal.amount) < BigInt(callCostInj)) {
+        return res.status(402).json({ error: { message: `链上 INJ 不足:当前 ${bal.amount},每次调用需 ${callCostInj}。`, type: "insufficient_balance", balance: bal.amount, required: callCostInj } });
+      }
+    } catch (e) {
+      console.warn("[playground] balance check skipped:", e instanceof Error ? e.message : e);
+    }
   }
   // 优先级:user:模型绑定的拓扑 > 请求体 topology > 无
   const customTopology = resolved.customTopology || body.topology;
@@ -415,11 +450,21 @@ app.post("/api/playground/swarm/run", async (req, res) => {
       customTopology,
     });
     const out = await withModelProvider(caller.provider, run);
-    // 成功完成:扣积分
-    authStore.deductCredits(userId, config.callCostCredits, `Playground 蜂群 ${requested}`);
+    // 成功完成:链上分润(替代扣积分)+ 响应附带 payment(供前端 Playground 画金钱流动)
+    let payment: unknown = null;
+    if (callCostInj && BigInt(callCostInj) > 0n) {
+      try {
+        const chain = createChain();
+        const actualPayer = chain.getSignerAddress?.() || payerAddr;
+        const decided = payerDecide(out.trace as never);
+        payment = await new SplitExecutor(chain).distribute({ reward_split: decided, breakthroughs_broadcast: 0 }, callCostInj, config.injective.denom, actualPayer);
+      } catch (e) {
+        console.warn("[playground] onchain distribute failed (answer still returned):", e instanceof Error ? e.message : e);
+      }
+    }
     apiKeyStore.markUse(caller.key.id, true);
     if (caller.configuredEndpoint) endpointStore.markUse(caller.configuredEndpoint.row.id, true);
-    res.json({ content: out.content, trace: out.trace });
+    res.json({ content: out.content, trace: out.trace, payment });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     apiKeyStore.markUse(caller.key.id, false);

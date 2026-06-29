@@ -115,7 +115,7 @@ async function dispatch() {
         </div>
         <div class="demo-options">
           <span>API Key(留空走全局 demo):</span>
-          <input v-model="apiKey" type="password" placeholder="sk-evoship-..." autocomplete="off" />
+          <input v-model="apiKey" type="password" placeholder="sk-swarmpay-..." autocomplete="off" />
           <button class="ghost-btn" :class="{ on: demoStore.demoMode }" @click="toggleDemoMode">
             {{ demoStore.demoMode ? "✅ 演示模式已开" : "演示模式" }}
           </button>

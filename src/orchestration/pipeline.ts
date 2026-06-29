@@ -12,6 +12,8 @@ import { declareIntent, sendMessage, submitResult } from "../protocol/adapter.js
 import { handoff, renderHandoffContext } from "./handoff.js";
 import { broadcastBreakthrough, isBreakthrough } from "./breakthrough.js";
 import { emit } from "../log.js";
+import { decideBounty } from "../injective/bounty-decider.js";
+import type { BountyRequest } from "../agents/types.js";
 import type {
   AgentRunResult,
   Archetype,
@@ -118,10 +120,13 @@ export async function runSubtaskPipeline(params: {
   inheritanceText: string;
   trace: CollaborationTrace["stages"];
   handoffs: HandoffContext[];
+  bounties?: BountyRequest[];
+  reviewerBalanceInj?: string;  // reviewer 链上余额(深度3 悬赏决策用)
   maxRevisionRounds?: number;
   platformSideEffects?: boolean;
 }): Promise<{ accepted: AgentRunResult[]; allResults: AgentRunResult[]; revisionRounds: number }> {
   const { subtask, inheritanceText, trace, handoffs } = params;
+  const bounties = params.bounties ?? [];
   const maxRevisionRounds = params.maxRevisionRounds ?? config.maxRevisionRounds;
   const platformSideEffects = params.platformSideEffects ?? true;
   const taskRef: TaskRef = {
@@ -258,6 +263,35 @@ export async function runSubtaskPipeline(params: {
       return { accepted: [coderRes], allResults, revisionRounds };
     }
     emit("converge", `🔁 reviewer REJECT 第${round + 1}轮 → 返工 coder(带反馈)`);
+
+    // ── 深度3:LLM 决策悬赏(reviewer 觉得难 → 用自己 INJ 悬赏 coder)──
+    try {
+      const decision = await decideBounty({
+        reviewerVerdict: "REJECT",
+        reviewerContent: reviewerRes.content,
+        coderContent: coderRes.content,
+        taskGoal: subtask.body,
+        reviewerBalanceInj: params.reviewerBalanceInj || "0",
+      });
+      if (decision.shouldBounty && BigInt(decision.amountSmallest) > 0n) {
+        const bounty: BountyRequest = {
+          fromArch: "reviewer",
+          toArch: "coder",
+          fromInstanceId: reviewerRes.instanceId,
+          toInstanceId: AgentRegistry.newInstanceId("coder"),
+          taskId: taskRef.id,
+          amountSmallest: decision.amountSmallest,
+          denom: "inj",
+          reason: decision.reason,
+          difficultySignal: decision.difficultySignal,
+          status: "proposed",
+        };
+        bounties.push(bounty);
+        emit("converge", `💰 reviewer 悬赏 coder ${decision.amountSmallest} INJ(${decision.reason})`);
+      }
+    } catch (e) {
+      console.warn("[bounty] decideBounty skipped:", e instanceof Error ? e.message : e);
+    }
 
     // handoff: reviewer → coder(返工)
     const reworkCoderInstanceId = AgentRegistry.newInstanceId("coder");

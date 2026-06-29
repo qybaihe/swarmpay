@@ -30,36 +30,36 @@ const plans: Plan[] = [
     credits: 1000,
     tagline: "注册即开通,适合初次体验与小规模验证。",
     features: [
-      "注册后赠送 1,000 积分",
+      "注册后赠送 1,000 INJ 额度",
       "约可完成 20 次完整调用",
       "支持 Playground 与 API 端点体验",
-      "可浏览社区舰队并进行基础试用",
+      "可浏览社区蜂群并进行基础试用",
     ],
   },
   {
     key: "standard",
     name: "Standard",
     nameCn: "标准套餐",
-    price: 39,
+    price: 20,
     credits: 20000,
     tagline: "适合个人开发、日常调试与稳定的小规模项目。",
     features: [
-      "包含 20,000 积分",
+      "包含 20,000 INJ 额度",
       "约可完成 400 次完整调用",
-      "适用于 Playground、API 端点与舰队运行",
-      "账户内统一查看余额与积分流水",
+      "适用于 Playground、API 端点与蜂群运行",
+      "账户内统一查看余额与 INJ 流水",
     ],
   },
   {
     key: "pro",
     name: "Pro",
     nameCn: "专业套餐",
-    price: 129,
+    price: 80,
     credits: 80000,
     tagline: "适合高频使用、团队协作与持续迭代场景。",
     featured: true,
     features: [
-      "包含 80,000 积分",
+      "包含 80,000 INJ 额度",
       "约可完成 1,600 次完整调用",
       "适用于批量测试、原型迭代与集成验证",
       "与现有账户、API Key 和调用记录统一管理",
@@ -69,13 +69,13 @@ const plans: Plan[] = [
     key: "max",
     name: "Max",
     nameCn: "旗舰套餐",
-    price: 359,
+    price: 200,
     credits: 250000,
     tagline: "适合密集评测、连续任务与生产前验证负载。",
     features: [
-      "包含 250,000 积分",
+      "包含 250,000 INJ 额度",
       "约可完成 5,000 次完整调用",
-      "适用于更高频的 API 调用与舰队编排任务",
+      "适用于更高频的 API 调用与蜂群编排任务",
       "适合将额度集中给团队或核心项目使用",
     ],
   },
@@ -124,12 +124,12 @@ function upgradePlan(plan: Plan) {
   const body = encodeURIComponent(
     [
       `你好,我想开通 ${plan.name} 套餐。`,
-      `套餐价格: ¥${plan.price}`,
-      `套餐积分: ${formatNumber(plan.credits)}`,
+      `套餐价格: ${plan.price} INJ`,
+      `套餐额度: ${formatNumber(plan.credits)} INJ`,
       `账号邮箱: ${auth.user?.email ?? ""}`,
     ].join("\n"),
   );
-  window.location.href = `mailto:support@evoship.me?subject=${subject}&body=${body}`;
+  window.location.href = `mailto:support@swarmpay.me?subject=${subject}&body=${body}`;
 }
 
 onMounted(async () => {
@@ -147,7 +147,7 @@ onMounted(async () => {
   <main class="pricing-page" aria-labelledby="pricing-title">
     <section class="hero">
       <div class="eyebrow">升级套餐</div>
-      <h1 id="pricing-title">为你的 EvoShip 调用选择合适额度</h1>
+      <h1 id="pricing-title">为你的 SwarmPay 调用选择合适额度</h1>
     </section>
 
     <div class="plans-wrap" :style="selectionStyle">
@@ -176,7 +176,7 @@ onMounted(async () => {
           </header>
 
           <div class="price-row">
-            <span class="currency">¥</span>
+            <span class="currency">INJ</span>
             <span class="amount">{{ plan.price }}</span>
             <span class="price-note">{{ plan.price === 0 ? "注册即享" : "套餐价" }}</span>
           </div>
@@ -184,7 +184,7 @@ onMounted(async () => {
 
           <div class="credits-block">
             <span class="credits">{{ formatNumber(plan.credits) }}</span>
-            <span class="credits-label">积分额度</span>
+            <span class="credits-label">INJ 额度</span>
             <span class="credits-calls">约 {{ callCount(plan.credits) }} 次完整调用</span>
           </div>
 
@@ -212,11 +212,11 @@ onMounted(async () => {
     <section class="notes" aria-label="套餐说明">
       <div class="note-item">
         <h3>统一计费口径</h3>
-        <p>完整舰队调用按 50 积分/次结算,余额不足时调用会返回积分不足提示。</p>
+        <p>完整蜂群调用按 50 INJ 单位/次结算,余额不足时调用会返回额度不足提示。</p>
       </div>
       <div class="note-item">
         <h3>账户内统一使用</h3>
-        <p>套餐积分进入当前账户余额,可同时覆盖 Playground、API 端点和已创建舰队的运行消耗。</p>
+        <p>套餐 INJ 额度进入当前账户余额,可同时覆盖 Playground、API 端点和已创建蜂群的运行消耗。</p>
       </div>
       <div class="note-item">
         <h3>开通协助</h3>
@@ -226,7 +226,7 @@ onMounted(async () => {
 
     <p class="contact">
       团队或企业用量方案可联系
-      <a href="mailto:support@evoship.me">support@evoship.me</a>
+      <a href="mailto:support@swarmpay.me">support@swarmpay.me</a>
       获取正式报价。
     </p>
   </main>

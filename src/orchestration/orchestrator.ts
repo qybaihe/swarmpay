@@ -9,7 +9,8 @@ import { proposeDecomposition, declareIntent, beginSession, submitResult } from 
 import { runSubtaskPipeline } from "./pipeline.js";
 import { handoff } from "./handoff.js";
 import { broadcastBreakthrough, isBreakthrough } from "./breakthrough.js";
-import { recordRun } from "../agents/identity.js";
+import { recordRun, onchainBalance } from "../agents/identity.js";
+import { decideRewardSplit } from "../injective/reward-decider.js";
 import { evomap, renderInheritance, type InheritedRecipe } from "../evomap.js";
 import { activeEvolutionMemory } from "../evolution-memory.js";
 import { emit } from "../log.js";
@@ -754,6 +755,7 @@ export async function orchestrate(params: {
 
   const allAccepted: AgentRunResult[] = [];
   let subtasks: Subtask[] = [];
+  const bounties: import("../agents/types.js").BountyRequest[] = [];
 
   if (customTopology) {
     const custom = await runCustomTopology({
@@ -778,6 +780,8 @@ export async function orchestrate(params: {
         inheritanceText: effectiveInheritance,
         trace,
         handoffs,
+        bounties,
+        reviewerBalanceInj: "0", // TODO: 从 agent identity 读 reviewer 链上余额
         maxRevisionRounds: policy.maxRevisionRounds,
         platformSideEffects: policy.createSession,
       });
@@ -845,7 +849,8 @@ export async function orchestrate(params: {
     handoffs,
     breakthroughsBroadcast,
     revisionRounds: totalRevisionRounds,
-    rewardSplit: buildRewardSplit(allAccepted, totalRevisionRounds),
+    rewardSplit: await buildRewardSplit(allAccepted, totalRevisionRounds),
+    bounties: bounties.length > 0 ? bounties : undefined,
     totalLatencyMs: Date.now() - t0,
   };
 
@@ -861,16 +866,32 @@ export async function orchestrate(params: {
   };
 }
 
-/** 根据 AGENTS.md 的 reward_weight 构造 reward 分配 */
-function buildRewardSplit(results: AgentRunResult[], revisions: number): CollaborationTrace["rewardSplit"] {
-  const contribution = (arch: string) => {
-    const count = results.filter((r) => r.archetype === arch).length;
+/**
+ * 构造 reward 分配:改用 LLM 动态决策(像评审委员会一样根据贡献+余额+绩效评定权重)。
+ * LLM 不可用/失败时,回落 registry 的静态 rewardWeight(reward-decider 内部已兜底)。
+ */
+async function buildRewardSplit(
+  results: AgentRunResult[],
+  revisions: number,
+): Promise<CollaborationTrace["rewardSplit"]> {
+  const archs = ["planner", "coder", "reviewer", "orchestrator"] as const;
+  const contribution = (arch: string, count: number) => {
     if (arch === "coder") return `${count} 次产出${revisions ? `(含${revisions}轮返工)` : ""}`;
     return `${count} 次产出`;
   };
-  return (["planner", "coder", "reviewer", "orchestrator"] as const).map((a) => ({
-    archetype: a,
-    weight: AgentRegistry.getDef(a).rewardWeight,
-    contribution: contribution(a),
+  const inputs = archs.map((a) => {
+    const count = results.filter((r) => r.archetype === a).length;
+    return {
+      archetype: a,
+      contribution: contribution(a, count),
+      // 链上余额从 identity 读取(未配置链上地址/未刷新过则为 "0")
+      balance: onchainBalance(a),
+    };
+  });
+  const decided = await decideRewardSplit(inputs);
+  return decided.map((d) => ({
+    archetype: d.archetype,
+    weight: d.weight,
+    contribution: d.contribution,
   }));
 }

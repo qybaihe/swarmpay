@@ -20,11 +20,59 @@ import type { Balance, IInjectiveChain, SplitMsg, TxReceipt } from "./types.js";
 function loadSigner(): { pk: PrivateKey; address: string; pubKeyBase64: string; privKeyHex: string } {
   const hex = config.injective.demoKey;
   if (!hex) throw new Error("INJECTIVE_DEMO_KEY 未配置(测试网代签私钥 0x+64hex)");
-  const pk = PrivateKey.fromPrivateKey(hex);
+  return buildSigner(hex);
+}
+
+/** 从任意私钥 hex 构造 signer(per-archetype 钱包复用)。 */
+export function buildSigner(privKeyHex: string): { pk: PrivateKey; address: string; pubKeyBase64: string; privKeyHex: string } {
+  const pk = PrivateKey.fromPrivateKey(privKeyHex);
   const eth = pk.toHex(); // toHex 返回 ethereum 地址
   const address = getInjectiveAddress(eth);
   const pubKeyBase64 = pk.toPublicKey().toBase64();
-  return { pk, address, pubKeyBase64, privKeyHex: hex };
+  return { pk, address, pubKeyBase64, privKeyHex };
+}
+
+/** 用指定 signer 组装签名并广播一笔交易(per-archetype 钱包复用)。 */
+export async function signAndBroadcastWithKey(
+  signer: { pk: PrivateKey; address: string; pubKeyBase64: string; privKeyHex: string },
+  networkInfo: ReturnType<typeof getNetworkInfo>,
+  message: MsgSend | MsgExecuteContract,
+  memo: string,
+): Promise<TxReceipt> {
+  const params = {
+    message,
+    address: signer.address,
+    endpoint: networkInfo.rest,
+    pubKey: signer.pubKeyBase64,
+    privateKey: signer.privKeyHex,
+    chainId: networkInfo.chainId,
+    fee: {
+      amount: [{ amount: "2000000000000000", denom: "inj" }], // 0.002 INJ
+      gas: "400000",
+    },
+    memo,
+  } as never;
+  const result = (await createTransactionForAddressAndMsg(params)) as {
+    txRaw: { bodyBytes: Uint8Array; authInfoBytes: Uint8Array; signatures: Uint8Array[] };
+    signHashedBytes: Uint8Array;
+  };
+  const signature = signer.pk.signHashed(result.signHashedBytes);
+  result.txRaw.signatures = [signature];
+  const txApi = new TxGrpcApi(networkInfo.grpc);
+  const broadcastRes = (await txApi.broadcast(result.txRaw as never)) as {
+    txHash?: string;
+    height?: number | string;
+    code?: number;
+    gasUsed?: number | string;
+    rawLog?: string;
+  };
+  return {
+    txHash: broadcastRes.txHash || "",
+    height: Number(broadcastRes.height || 0),
+    success: broadcastRes.code === 0 || broadcastRes.code === undefined,
+    gasUsed: String(broadcastRes.gasUsed || 0),
+    rawLog: broadcastRes.rawLog,
+  };
 }
 
 export class InjectiveChain implements IInjectiveChain {
@@ -50,50 +98,7 @@ export class InjectiveChain implements IInjectiveChain {
 
   /** 组装签名并广播一笔交易。signer 为后端代签钱包(测试网 demo)。 */
   private async signAndBroadcast(message: MsgSend | MsgExecuteContract, memo: string): Promise<TxReceipt> {
-    const { pk, address, pubKeyBase64, privKeyHex } = this.signer;
-
-    // createTransactionForAddressAndMsg 查 account number/sequence 并组装 signDoc,
-    // 但不签名 —— 需用私钥签 signHashedBytes 后填回 txRaw.signatures。
-    // privateKey 运行时透传(SDK v1.20 类型签名未列,用 as 强转)。
-    const params = {
-      message,
-      address,
-      endpoint: this.networkInfo.rest,
-      pubKey: pubKeyBase64,
-      privateKey: privKeyHex,
-      chainId: this.networkInfo.chainId,
-      fee: {
-        amount: [{ amount: "2000000000000000", denom: "inj" }], // 0.002 INJ
-        gas: "400000",
-      },
-      memo,
-    } as never;
-    const result = (await createTransactionForAddressAndMsg(params)) as {
-      txRaw: { bodyBytes: Uint8Array; authInfoBytes: Uint8Array; signatures: Uint8Array[] };
-      signHashedBytes: Uint8Array;
-    };
-
-    // 用私钥对 signHashedBytes(= keccak256(signDoc)) 做 ethereum 签名。
-    // 注意用 signHashed(直接签给定 hash),不能用 sign()(会再 hash 一次导致验证失败)。
-    const signature = pk.signHashed(result.signHashedBytes);
-    result.txRaw.signatures = [signature];
-
-    const txApi = new TxGrpcApi(this.networkInfo.grpc);
-    const broadcastRes = (await txApi.broadcast(result.txRaw as never)) as {
-      txHash?: string;
-      height?: number | string;
-      code?: number;
-      gasUsed?: number | string;
-      rawLog?: string;
-    };
-
-    return {
-      txHash: broadcastRes.txHash || "",
-      height: Number(broadcastRes.height || 0),
-      success: broadcastRes.code === 0 || broadcastRes.code === undefined,
-      gasUsed: String(broadcastRes.gasUsed || 0),
-      rawLog: broadcastRes.rawLog,
-    };
+    return signAndBroadcastWithKey(this.signer, this.networkInfo, message, memo);
   }
 
   async sendTransfer(from: string, to: string, amount: string, denom: string): Promise<TxReceipt> {

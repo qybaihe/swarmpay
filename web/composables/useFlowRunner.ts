@@ -56,6 +56,8 @@ interface RunParams {
   onExperience?: (kind: "in" | "out", count: number, nodeId?: string) => void;
   /** 积分扣减动效钩子:普通真实调用成功扣费后触发,用于播放 -50 金币飞向 NavBar 的动画 */
   onCreditsDeducted?: () => void;
+  /** 链上分润动效钩子:回放结束后,若有 payment.splits,触发金色分润流向箭头 overlay */
+  onRewardDistributed?: (payment: { splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null) => void;
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -557,6 +559,18 @@ export function useFlowRunner() {
           ? "成功路径已进入 EvoMap 回流队列"
           : params.demo ? "预制 Evo 蜂群演示回放完成" : "真实蜂群协作回放完成";
       store.playbackStatus = "done";
+
+      // 链上分润:回放结束后,若有 payment.splits,写 nodeChainState + 触发金色流向 overlay
+      if (result.payment?.splits?.length) {
+        for (const s of result.payment.splits) {
+          // 按 archetype 找对应画布节点写链上态(节点 id 含 archetype 名)
+          const node = nodes.find((n: any) => n?.data?.role === s.archetype || n?.id?.includes(s.archetype));
+          if (node) {
+            store.setNodeChainState?.(node.id, { addr: s.addr, earnedInj: s.amount });
+          }
+        }
+        params.onRewardDistributed?.(result.payment);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       store.setError(msg.includes("aborted") ? "后端调用被中断,可改用 swarm-lite 后重试。" : msg);

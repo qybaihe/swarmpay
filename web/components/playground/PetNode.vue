@@ -4,6 +4,7 @@ import { Handle, Position } from "@vue-flow/core";
 import PetSprite from "./PetSprite.vue";
 import { PET_BY_ID, ROLE_INFO, TASK_TYPES, TASK_TYPE_BY_KEY, type Action, type Role } from "../../constants/pets";
 import { usePlaygroundStore } from "../../stores/playground";
+import { shortAddr, baseUnitsToInj } from "../../stores/injective";
 
 export interface PetNodeData {
   petId: string; // 角色 id(claude/doubao...)
@@ -44,6 +45,23 @@ const instanceTail = computed(() => {
 const runtime = computed(() => store.nodeState[props.id]);
 const status = computed(() => runtime.value?.status ?? "idle");
 const bubble = computed(() => runtime.value?.bubble ?? "");
+
+// 链上态:从 store.nodeChainState 读(reactive 对象,避开 node.data 的 markRaw 响应坑)
+const chainState = computed(() => store.nodeChainState[props.id]);
+const hasChain = computed(() => !!(chainState.value && (chainState.value.addr || chainState.value.balance || chainState.value.earnedInj)));
+const shortAddress = computed(() => shortAddr(chainState.value?.addr ?? null, 6, 4));
+// balance 存的可读字符串就直接用;若写入方误传最小单位,用 baseUnitsToInj 兜底格式化
+const balanceInj = computed(() => {
+  const b = chainState.value?.balance;
+  if (b == null || b === "") return "0";
+  // 含小数点或纯短数字视为已格式化;超长整数串视为最小单位
+  return b.includes(".") || b.length <= 18 ? b : baseUnitsToInj(b);
+});
+const earnedInj = computed(() => {
+  const e = chainState.value?.earnedInj;
+  if (e == null || e === "") return "0";
+  return e.includes(".") || e.length <= 18 ? e : baseUnitsToInj(e);
+});
 
 // 动作映射:idle→Idle, active/entrancing→Speaking, breakthrough→Supported
 const action = computed<Action>(() => {
@@ -133,6 +151,13 @@ function onCardMouseMove(e: MouseEvent) {
       <span class="role-name">{{ roleInfo.name }}</span>
     </div>
     <div v-if="instanceTail" class="instance-id">{{ instanceTail }}</div>
+
+    <!-- 链上信息:地址 + INJ 余额 + 本次赚多少(无数据时优雅降级,不渲染) -->
+    <div v-if="hasChain" class="onchain-bar" :title="`地址: ${chainState?.addr || '—'}\n余额: ${balanceInj} INJ\n本次: +${earnedInj} INJ`">
+      <span class="oc-addr">🔗 {{ shortAddress }}</span>
+      <span class="oc-bal">{{ balanceInj }} INJ</span>
+      <span v-if="chainState?.earnedInj" class="oc-earned">+{{ earnedInj }}</span>
+    </div>
 
     <!-- 操作按钮(悬停显示) -->
     <div class="node-actions">
@@ -259,6 +284,38 @@ function onCardMouseMove(e: MouseEvent) {
   font-size: 9px;
   line-height: 1;
   text-align: center;
+}
+
+/* 链上信息条:地址 + 余额 + 本次赚 */
+.onchain-bar {
+  margin-top: 4px;
+  padding: 3px 5px;
+  background: linear-gradient(90deg, rgba(255, 210, 63, 0.1), rgba(58, 224, 255, 0.08));
+  border: 1px solid rgba(255, 210, 63, 0.28);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.onchain-bar .oc-addr {
+  color: #ffd23f;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.onchain-bar .oc-bal {
+  color: #3ae0ff;
+  flex: 0 0 auto;
+}
+.onchain-bar .oc-earned {
+  color: #3dffb0;
+  font-weight: 700;
+  flex: 0 0 auto;
 }
 
 .node-actions {

@@ -92,10 +92,24 @@ export function createInjectiveRouter(): Router {
         payment = await executor.distribute({ reward_split: decidedSplits, breakthroughs_broadcast: 0 }, total.toString(), denom, payerAddr);
       }
 
-      const response: OnchainRunResponse = {
+      // 4. 深度3:执行 agent 自主悬赏(若有)——用发起方 agent 自己钱包签名
+      const traceBounties = (out.trace as { bounties?: import("../agents/types.js").BountyRequest[] }).bounties;
+      let bountyResults: Awaited<ReturnType<import("./bounty-executor.js").BountyExecutor["executeAll"]>> | null = null;
+      if (traceBounties && traceBounties.length > 0 && config.injective.network !== "mock") {
+        try {
+          const { BountyExecutor } = await import("./bounty-executor.js");
+          bountyResults = await new BountyExecutor().executeAll(traceBounties);
+          console.log(`[injective/run] 执行 ${bountyResults.length} 个悬赏,成功 ${bountyResults.filter((r) => r.success).length} 个`);
+        } catch (e) {
+          console.warn("[injective/run] bounty execution failed:", e instanceof Error ? e.message : e);
+        }
+      }
+
+      const response: OnchainRunResponse & { bounties?: unknown } = {
         content: out.content,
         trace: out.trace,
         payment,
+        bounties: bountyResults,
       };
       res.json(response);
     } catch (e) {

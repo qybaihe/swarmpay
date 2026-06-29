@@ -1,4 +1,4 @@
-// 端点注册 API。只负责上传/复检用户自己的上游模型,不再创建 EvoShip API Key。
+// 端点注册 API。只负责上传/复检用户自己的上游模型,不再创建 SwarmPay API Key。
 
 export interface RegisteredEndpoint {
   id: number;

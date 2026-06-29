@@ -13,12 +13,14 @@ import "@vue-flow/minimap/dist/style.css";
 import Sidebar from "../components/playground/Sidebar.vue";
 import PetNode, { type PetNodeData } from "../components/playground/PetNode.vue";
 import ExperienceTreasure from "../components/playground/ExperienceTreasure.vue";
+import RewardFlowOverlay from "../components/playground/RewardFlowOverlay.vue";
 import FleetPicker from "../components/FleetPicker.vue";
 import { PET_BY_ID } from "../constants/pets";
 import { usePlaygroundStore } from "../stores/playground";
 import { useAuthStore } from "../stores/auth";
 import { useTransformStore } from "../stores/transform";
 import { useFleetsStore } from "../stores/fleets";
+import { useInjectiveStore } from "../stores/injective";
 import { useFlowRunner, type Particle } from "../composables/useFlowRunner";
 import { useToast } from "../composables/useToast";
 import type { PlaygroundTopology, SwarmGraph, SwarmGraphArchetype, SwarmGraphEdge, SwarmGraphEvent, SwarmGraphNode } from "../api/swarm";
@@ -1114,6 +1116,7 @@ function dispatch(options: { demo?: boolean } = {}) {
     syncGraphCanvas: store.mode === "default" && !isOfficial ? syncDefaultCanvasFromGraph : undefined,
     onExperience: handleExperienceFlow,
     onCreditsDeducted: playCreditDeductAnimation,
+    onRewardDistributed: handleRewardDistributed,
   });
 }
 
@@ -1127,6 +1130,20 @@ async function runDemo() {
   loadHardPresetFleet();      // 铺 14 节点 HARD 编队
   toast.show("🎬 Demo 已就绪:无需 API Key,正在播放预制默认 Evo 蜂群链路…");
   nextTick(() => dispatch({ demo: true }));
+}
+
+/** 链上分润流向:回放结束后,持有 payment 供 RewardFlowOverlay 渲染金色箭头 */
+const rewardPayment = ref<{ splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null>(null);
+const senderAddr = ref<string>("");
+function handleRewardDistributed(payment: { splits?: { archetype: string; addr: string; amount: string; weight: number }[]; txHash?: string; success?: boolean } | null) {
+  rewardPayment.value = payment;
+  // senderAddr 从 injective store 取(用户钱包),无则用 splits 里地址兜底
+  try {
+    const injStore = useInjectiveStore();
+    senderAddr.value = injStore.address || payment?.splits?.[0]?.addr || "";
+  } catch {
+    senderAddr.value = payment?.splits?.[0]?.addr || "";
+  }
 }
 
 /** 积分扣减动画:调用成功后,金币从画布飞向 NavBar 余额 + 显示 -50 飘字 */
@@ -1391,6 +1408,15 @@ function miniColor(n: { data?: PetNodeData }) {
 
         <!-- 经验宝箱(画布内左上角,在 vue-flow 画布区,不遮挡顶栏) -->
         <ExperienceTreasure />
+
+        <!-- 链上分润流向 overlay(回放结束后,金色箭头从付款方流向各 agent 节点) -->
+        <RewardFlowOverlay
+          v-if="rewardPayment?.splits?.length"
+          :splits="rewardPayment.splits"
+          :sender-addr="senderAddr"
+          :total-distributed="rewardPayment.splits.reduce((a, s) => a + BigInt(s.amount || '0'), 0n).toString()"
+          denom="inj"
+        />
 
         <!-- 保存舰队成功后的快捷动作浮层(居中) -->
         <Transition name="fade">

@@ -1,6 +1,6 @@
 // Playground 状态:节点运行态、突破源、运行控制
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import type { SwarmTrace } from "../api/swarm";
 
 export type NodeStatus = "idle" | "active" | "breakthrough" | "entrancing" | "error";
@@ -10,6 +10,18 @@ export type PlaybackStatus = "idle" | "calling" | "replaying" | "done" | "error"
 export interface NodeRuntime {
   status: NodeStatus;
   bubble: string;
+}
+
+/**
+ * 节点链上态:keyed by node id。
+ * 注意:vue-flow 的 node.data 被 markRaw(见 PlaygroundView),直接写 data 字段不触发响应,
+ * 故链上数据(addr/balance/earnedInj)单独存这里,reactive 保持响应。
+ * 三个字段都是最小单位字符串或已格式化字符串,由写入方(useFlowRunner 回放后)决定格式。
+ */
+export interface NodeChainState {
+  addr?: string;       // 该节点 agent 对应的链上钱包地址(bech32)
+  balance?: string;    // 当前 INJ 余额(可读字符串,如 "12.345",由 baseUnitsToInj 格式化后写入)
+  earnedInj?: string;  // 本次运行该节点赚到的 INJ(可读字符串)
 }
 
 export interface EvolutionRunSnapshot {
@@ -44,6 +56,8 @@ export interface EvolutionRunSnapshot {
 export const usePlaygroundStore = defineStore("playground", () => {
   // 节点运行态 keyed by node id
   const nodeState = ref<Record<string, NodeRuntime>>({});
+  // 节点链上态 keyed by node id(reactive 对象,避开 node.data 的 markRaw 响应坑)
+  const nodeChainState = reactive<Record<string, NodeChainState>>({});
   // 标记为突破源的节点 id 集合
   const breakthroughSources = ref<Set<string>>(new Set());
   // 是否正在跑流转
@@ -191,6 +205,7 @@ export const usePlaygroundStore = defineStore("playground", () => {
     errorMsg.value = "";
     lastTrace.value = null;
     playbackStatus.value = "idle";
+    clearNodeChain();
   }
 
   function setFinalAnswer(text: string) {
@@ -283,17 +298,30 @@ export const usePlaygroundStore = defineStore("playground", () => {
     breakthroughSources.value = new Set(breakthroughSources.value);
   }
 
+  /** 写入某节点的链上态(addr/balance/earnedInj),浅合并,不传的字段保留原值。 */
+  function setNodeChainState(nodeId: string, data: NodeChainState) {
+    nodeChainState[nodeId] = { ...nodeChainState[nodeId], ...data };
+  }
+
+  /** 清空所有节点的链上态(新一轮运行前调用)。 */
+  function clearNodeChain() {
+    for (const k of Object.keys(nodeChainState)) {
+      delete nodeChainState[k];
+    }
+  }
+
   function addLog(from: string, text: string) {
     log.value.push({ from, text, ts: Date.now() });
     if (log.value.length > 50) log.value.shift();
   }
 
   return {
-    nodeState, breakthroughSources, running, activeNodeId,
+    nodeState, nodeChainState, breakthroughSources, running, activeNodeId,
     mode, tier, playbackStatus, finalAnswer, errorMsg, lastTrace, evolutionHistory, backflowMsg, log,
     treasury, treasurePulse, coins, loadTreasury, addTreasury, pulseTreasure, spawnCoins,
     creditFloat, showCreditFloat,
     ensure, activate, setBubble, entrance, clearBubble, resetAll, resetRunState,
     setFinalAnswer, setError, setTrace, clearEvolutionHistory, setNodeRole, toggleBreakthroughSource, addLog,
+    setNodeChainState, clearNodeChain,
   };
 });

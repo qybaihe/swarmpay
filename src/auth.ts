@@ -5,7 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { Request, Response, Router } from "express";
 import { publicV1BaseUrl } from "./url.js";
 
-const SESSION_COOKIE = "evoship_session";
+const SESSION_COOKIE = "swarmpay_session";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const DATA_DIR = path.join(process.cwd(), "data");
 export const DB_PATH = path.join(DATA_DIR, "evoship.sqlite");
@@ -14,7 +14,10 @@ export interface AuthUser {
   id: number;
   email: string;
   name: string;
-  credits: number;
+  /** 用户绑定的 Injective 链上地址(链上付费的付款方) */
+  injective_address?: string;
+  /** credits 已废除,保留字段仅为向后兼容(始终 0),新逻辑用链上 INJ */
+  credits?: number;
   created_at: number;
 }
 
@@ -35,7 +38,8 @@ function publicUser(row: UserRow | AuthUser): AuthUser {
     id: row.id,
     email: row.email,
     name: row.name,
-    credits: row.credits ?? 0,
+    injective_address: row.injective_address,
+    credits: 0,
     created_at: row.created_at,
   };
 }
@@ -109,6 +113,7 @@ export class AuthStore {
         email TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL,
         password_hash TEXT NOT NULL,
+        injective_address TEXT,
         created_at INTEGER NOT NULL
       );
 
@@ -122,34 +127,25 @@ export class AuthStore {
 
       CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON sessions(token_hash);
       CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
-
-      CREATE TABLE IF NOT EXISTS credit_transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        delta INTEGER NOT NULL,
-        balance INTEGER NOT NULL,
-        reason TEXT NOT NULL,
-        created_at INTEGER NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_credit_tx_user ON credit_transactions(user_id);
     `);
-    // 向后兼容:旧库 users 表无 credits 列时补上(幂等)
+    // 向后兼容迁移:旧库可能无 injective_address 列(或仍有 credits 列)
     const cols = this.db.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
-    if (!cols.some((c) => c.name === "credits")) {
-      this.db.exec("ALTER TABLE users ADD COLUMN credits INTEGER NOT NULL DEFAULT 1000");
+    if (!cols.some((c) => c.name === "injective_address")) {
+      this.db.exec("ALTER TABLE users ADD COLUMN injective_address TEXT");
     }
   }
 
-  createUser(input: { email: string; password: string; name?: string }): AuthUser {
+  createUser(input: { email: string; password: string; name?: string; injective_address?: string }): AuthUser {
     const email = normalizeEmail(input.email);
-    const name = input.name?.trim() || email.split("@")[0] || "EvoShip 用户";
+    const name = input.name?.trim() || email.split("@")[0] || "SwarmPay 用户";
     const passwordHash = hashPassword(input.password);
+    const injectiveAddress = input.injective_address?.trim() || null;
     const createdAt = now();
     try {
       const result = this.db.prepare(
-        "INSERT INTO users (email, name, password_hash, credits, created_at) VALUES (?, ?, ?, ?, ?)",
-      ).run(email, name, passwordHash, 1000, createdAt);
-      return { id: Number(result.lastInsertRowid), email, name, credits: 1000, created_at: createdAt };
+        "INSERT INTO users (email, name, password_hash, injective_address, created_at) VALUES (?, ?, ?, ?, ?)",
+      ).run(email, name, passwordHash, injectiveAddress, createdAt);
+      return { id: Number(result.lastInsertRowid), email, name, injective_address: injectiveAddress || undefined, credits: 0, created_at: createdAt };
     } catch (e) {
       if (e instanceof Error && /UNIQUE|constraint/i.test((e as Error).message)) {
         throw new Error("该邮箱已注册。");
@@ -158,15 +154,27 @@ export class AuthStore {
     }
   }
 
+  /** 绑定/更新用户的 Injective 链上地址 */
+  bindInjectiveAddress(userId: number, address: string): boolean {
+    const r = this.db.prepare("UPDATE users SET injective_address = ? WHERE id = ?").run(address.trim(), userId);
+    return r.changes > 0;
+  }
+
   findUserByEmail(email: string): UserRow | null {
     return this.db.prepare("SELECT * FROM users WHERE email = ?").get(normalizeEmail(email)) as UserRow | undefined || null;
+  }
+
+  /** 按 id 查用户(链上付费时用:从 API key 的 userId 反查 injective_address) */
+  findUserById(userId: number): AuthUser | null {
+    const row = this.db.prepare("SELECT id, email, name, injective_address, created_at FROM users WHERE id = ?").get(userId) as AuthUser | undefined;
+    return row ? publicUser(row) : null;
   }
 
   findUserBySession(token: string): AuthUser | null {
     if (!token) return null;
     this.deleteExpiredSessions();
     const row = this.db.prepare(`
-      SELECT users.id, users.email, users.name, users.credits, users.created_at
+      SELECT users.id, users.email, users.name, users.injective_address, users.created_at
       FROM sessions
       JOIN users ON users.id = sessions.user_id
       WHERE sessions.token_hash = ? AND sessions.expires_at > ?
@@ -197,50 +205,23 @@ export class AuthStore {
     this.db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(now());
   }
 
-  // ── 积分体系 ──
-  getCredits(userId: number): number {
-    const row = this.db.prepare("SELECT credits FROM users WHERE id = ?").get(userId) as { credits: number } | undefined;
-    return Number(row?.credits ?? 0);
-  }
-
-  /** 扣分:原子操作,余额不足返回 false(不扣)。成功则记流水 */
-  deductCredits(userId: number, amount: number, reason: string): { ok: boolean; balance: number } {
-    const r = this.db.prepare("UPDATE users SET credits = credits - ? WHERE id = ? AND credits >= ?")
-      .run(amount, userId, amount);
-    if (Number(r.changes) === 0) {
-      return { ok: false, balance: this.getCredits(userId) };
-    }
-    const balance = this.getCredits(userId);
-    this.db.prepare("INSERT INTO credit_transactions (user_id, delta, balance, reason, created_at) VALUES (?, ?, ?, ?, ?)")
-      .run(userId, -amount, balance, reason, now());
-    return { ok: true, balance };
-  }
-
-  /** 加分(注册赠送/充值/兑换)。记流水 */
-  addCredits(userId: number, amount: number, reason: string): number {
-    this.db.prepare("UPDATE users SET credits = credits + ? WHERE id = ?").run(amount, userId);
-    const balance = this.getCredits(userId);
-    this.db.prepare("INSERT INTO credit_transactions (user_id, delta, balance, reason, created_at) VALUES (?, ?, ?, ?, ?)")
-      .run(userId, amount, balance, reason, now());
-    return balance;
-  }
-
-  listTransactions(userId: number, limit = 50): Array<{ id: number; delta: number; balance: number; reason: string; created_at: number }> {
-    const rows = this.db.prepare("SELECT id, delta, balance, reason, created_at FROM credit_transactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?")
-      .all(userId, limit) as Array<{ id: number; delta: number; balance: number; reason: string; created_at: number }>;
-    return rows;
-  }
+  // credits 体系已废除,改用链上 INJ 付费(见 src/injective/)。
+  // 下列 getCredits/deductCredits/addCredits/listTransactions 已移除。
 }
 
-function validateAuthInput(body: unknown, mode: "login" | "register"): { email: string; password: string; name?: string } {
-  const b = (body || {}) as { email?: unknown; password?: unknown; name?: unknown };
+function validateAuthInput(body: unknown, mode: "login" | "register"): { email: string; password: string; name?: string; injective_address?: string } {
+  const b = (body || {}) as { email?: unknown; password?: unknown; name?: unknown; injective_address?: unknown };
   const email = typeof b.email === "string" ? normalizeEmail(b.email) : "";
   const password = typeof b.password === "string" ? b.password : "";
   const name = typeof b.name === "string" ? b.name.trim() : "";
+  const injective_address = typeof b.injective_address === "string" ? b.injective_address.trim() : "";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("请输入有效的邮箱地址。");
   if (password.length < 6) throw new Error("密码至少 6 位。");
   if (mode === "register" && name.length > 80) throw new Error("称呼不能超过 80 个字符。");
-  return { email, password, name };
+  if (mode === "register" && injective_address && !/^inj1[a-z0-9]+$/i.test(injective_address)) {
+    throw new Error("Injective 地址格式不正确,应以 inj1 开头。");
+  }
+  return { email, password, name, injective_address: injective_address || undefined };
 }
 
 export function getSessionToken(req: Request): string {
@@ -305,10 +286,15 @@ export function registerAuthRoutes(
     res.json({ ok: true });
   });
 
-  // ── 积分管理路由 ──
-  router.get("/api/credits", (req, res) => {
+  // ── 绑定 Injective 链上地址(链上付费的付款方)──
+  router.post("/api/auth/bind-address", (req, res) => {
     const user = auth.findUserBySession(getSessionToken(req));
     if (!user) return res.status(401).json({ error: { message: "not authenticated" } });
-    res.json({ balance: user.credits, transactions: auth.listTransactions(user.id) });
+    const addr = (req.body as { injective_address?: unknown })?.injective_address;
+    if (typeof addr !== "string" || !/^inj1[a-z0-9]+$/i.test(addr.trim())) {
+      return res.status(400).json({ error: { message: "Injective 地址格式不正确,应以 inj1 开头。" } });
+    }
+    auth.bindInjectiveAddress(user.id, addr.trim());
+    res.json({ ok: true, injective_address: addr.trim() });
   });
 }

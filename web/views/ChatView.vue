@@ -112,7 +112,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
   <div class="top">
     <RouterLink to="/" class="logo">
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
-      <b>EvoShip</b>
+      <b>SwarmPay</b>
     </RouterLink>
     <RouterLink to="/playground" class="back-home">← 返回 Playground</RouterLink>
   </div>

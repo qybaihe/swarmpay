@@ -6,6 +6,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AgentState, Archetype } from "./types.js";
+import type { IInjectiveChain } from "../injective/types.js";
+import { config } from "../config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const STATE_DIR = path.join(__dirname, "..", "..", ".agent-state");
@@ -26,7 +28,25 @@ export function loadState(arch: Archetype): AgentState {
   ensureDir();
   try {
     const raw = fs.readFileSync(statePath(arch), "utf8");
-    return JSON.parse(raw) as AgentState;
+    const parsed = JSON.parse(raw) as Partial<AgentState>;
+    // 兼容旧数据:补齐可能缺失的链上余额字段(待 types.ts 加 onchainBalance/walletAddr 后启用)。
+    // @ts-ignore — 待主线在 types.ts 的 AgentState 增加 onchainBalance?: string 与 walletAddr?: string 字段
+    return {
+      archetype: arch,
+      instanceId: parsed.instanceId ?? "",
+      stats: parsed.stats ?? {
+        runs: 0,
+        successes: 0,
+        breakthroughs: 0,
+        avgLatencyMs: 0,
+        rewardWeight: 0,
+      },
+      memory: parsed.memory ?? [],
+      // @ts-ignore — 待 types.ts AgentState 增加 onchainBalance/walletAddr 字段后此行生效
+      onchainBalance: (parsed as { onchainBalance?: string }).onchainBalance ?? "0",
+      // @ts-ignore — 待 types.ts AgentState 增加 walletAddr 字段后此行生效
+      walletAddr: (parsed as { walletAddr?: string }).walletAddr ?? "",
+    } as AgentState;
   } catch {
     return {
       archetype: arch,
@@ -39,8 +59,57 @@ export function loadState(arch: Archetype): AgentState {
         rewardWeight: 0,
       },
       memory: [],
-    };
+      // @ts-ignore — 待 types.ts AgentState 增加 onchainBalance/walletAddr 字段后此行生效
+      onchainBalance: "0",
+      // @ts-ignore — 待 types.ts AgentState 增加 walletAddr 字段后此行生效
+      walletAddr: "",
+    } as AgentState;
   }
+}
+
+/** 取某 archetype 的链上地址(从 config.injective.archetypeAddrs)。 */
+function addrOf(archetype: Archetype): string {
+  return config.injective.archetypeAddrs[archetype] || "";
+}
+
+/** 取某 archetype 持久化的链上 INJ 余额(最小单位字符串;未刷新过返回 "0")。 */
+export function onchainBalance(arch: Archetype): string {
+  // @ts-ignore — 待 types.ts AgentState 增加 onchainBalance 字段后此行生效
+  return (loadState(arch) as { onchainBalance?: string }).onchainBalance ?? "0";
+}
+
+/**
+ * 刷新某 archetype 的链上 INJ 余额并持久化。
+ * 调 chain.getBalance(addrOf(arch), "inj") 更新 identity 里的 onchainBalance。
+ * addr 取自 config.injective.archetypeAddrs(未配置则记 "" 且余额保持 0)。
+ */
+export async function refreshOnchainBalance(
+  arch: Archetype,
+  chain: IInjectiveChain,
+): Promise<string> {
+  const state = loadState(arch);
+  const addr = addrOf(arch);
+  let balance = "0";
+  if (addr) {
+    try {
+      const bal = await chain.getBalance(addr, config.injective.denom || "inj");
+      balance = bal?.amount ?? "0";
+    } catch {
+      /* 链查询失败不阻塞主流程,保持旧值 */
+      // @ts-ignore — 待 types.ts AgentState 增加 onchainBalance 字段后此行生效
+      return (state as { onchainBalance?: string }).onchainBalance ?? "0";
+    }
+  }
+  // @ts-ignore — 待 types.ts AgentState 增加 onchainBalance/walletAddr 字段后此两行生效
+  (state as { onchainBalance?: string }).onchainBalance = balance;
+  // @ts-ignore — 待 types.ts AgentState 增加 walletAddr 字段后此行生效
+  (state as { walletAddr?: string }).walletAddr = addr;
+  try {
+    fs.writeFileSync(statePath(arch), JSON.stringify(state, null, 2), { mode: 0o600 });
+  } catch {
+    /* 持久化失败不阻塞主流程 */
+  }
+  return balance;
 }
 
 /** 记录一次 agent 执行结果,更新绩效 + 记忆(组织级进化) */

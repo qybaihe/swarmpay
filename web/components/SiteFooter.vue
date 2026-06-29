@@ -21,15 +21,15 @@ async function goSection(hash: string) {
       <div class="col col-brand">
         <span class="logo">
           <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
-          <b>EvoShip</b>
+          <b>SwarmPay</b>
         </span>
-        <p class="tagline">Beyond the Maze · A2A 进化舰队协作</p>
+        <p class="tagline">Injective 上的自进蜂群 × 链上分润 Agent 经济体</p>
         <p class="powered">
-          <span class="pw-label">深度基于</span>
-          <a href="https://evomap.ai" target="_blank" rel="noopener" class="pw-link">
-            <img src="/brand/evomap-logo-white.svg" alt="EvoMap" class="pw-logo" />
+          <span class="pw-label">链上分润结算基于</span>
+          <a href="https://injective.com" target="_blank" rel="noopener" class="pw-link">
+            <span class="pw-logo">Injective</span>
           </a>
-          <span>打造</span>
+          <span>构建</span>
         </p>
       </div>
 
@@ -54,18 +54,18 @@ async function goSection(hash: string) {
       <!-- 联系区 -->
       <div class="col col-contact">
         <h4>联系</h4>
-        <a href="mailto:support@evoship.me" class="contact-item">
+        <a href="mailto:support@swarmpay.me" class="contact-item">
           <span class="ci-icon">✉️</span>
           <span class="ci-text">
             <span class="ci-label">支持页面</span>
-            <span class="ci-value">support@evoship.me</span>
+            <span class="ci-value">support@swarmpay.me</span>
           </span>
         </a>
-        <a href="https://business.evoship.me" target="_blank" rel="noopener" class="contact-item">
+        <a href="https://business.swarmpay.me" target="_blank" rel="noopener" class="contact-item">
           <span class="ci-icon">🤝</span>
           <span class="ci-text">
             <span class="ci-label">商务联系</span>
-            <span class="ci-value">business.evoship.me</span>
+            <span class="ci-value">business.swarmpay.me</span>
           </span>
         </a>
       </div>
@@ -73,13 +73,13 @@ async function goSection(hash: string) {
 
     <!-- 版权底栏 -->
     <div class="footer-bottom">
-      <span class="copyright">© 2026 @EvoShip · 编队推理 × 经验进化</span>
+      <span class="copyright">© 2026 @SwarmPay · 自进蜂群 × 链上分润</span>
       <span class="built-with">
-        深度基于
-        <a href="https://evomap.ai" target="_blank" rel="noopener" class="bw-link">
-          <img src="/brand/evomap-logo-white.svg" alt="EvoMap" class="bw-logo" />
+        链上分润结算基于
+        <a href="https://injective.com" target="_blank" rel="noopener" class="bw-link">
+          <span class="bw-logo">Injective</span>
         </a>
-        打造
+        构建
       </span>
     </div>
   </footer>

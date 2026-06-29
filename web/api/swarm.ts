@@ -1,5 +1,5 @@
-// 蜂群推理 API(POST /v1/chat/completions)
-// 返回 OpenAI 兼容格式 + x_swarm_trace
+// SwarmPay 蜂群推理 API(POST /v1/chat/completions)
+// 返回 OpenAI 兼容格式 + x_swarm_trace。Injective 上的自进蜂群 × 链上分润 Agent 经济体。
 
 export interface SwarmBee {
   id: string;
@@ -199,6 +199,18 @@ export interface SwarmTrace {
 export interface SwarmResponse {
   content: string;
   trace: SwarmTrace | null;
+  /** 链上分润回执(后端 /api/playground/swarm/run 附带,供 Playground 画金钱流动) */
+  payment?: {
+    txHash: string;
+    mode: "contract" | "direct";
+    splits: { archetype: string; addr: string; amount: string; weight: number }[];
+    totalDistributed: string;
+    feeDeducted: string;
+    success: boolean;
+    error?: string;
+  } | null;
+  /** 链上悬赏执行回执(深度3) */
+  bounties?: { bounty: { fromArch: string; toArch: string; amountSmallest: string; reason: string }; success: boolean; txHash?: string }[] | null;
 }
 
 export interface PlaygroundTopology {
@@ -257,7 +269,7 @@ export async function runSwarm(params: {
     }
 
     const d = await res.json();
-    return { content: d.content || "(空)", trace: d.trace || null };
+    return { content: d.content || "(空)", trace: d.trace || null, payment: d.payment ?? null, bounties: d.bounties ?? null };
   }
 
   const res = await fetch("/v1/chat/completions", {

@@ -1,9 +1,9 @@
 {
-  "name": "swarm-endpoint",
+  "name": "swarmpay",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "OpenAI-compatible endpoint backed by a self-evolving agent swarm with EvoMap capability inheritance.",
+  "description": "SwarmPay — Injective 上的自进蜂群 × 链上分润 Agent 经济体。",
   "engines": {
     "node": ">=22.0.0"
   },

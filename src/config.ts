@@ -57,7 +57,7 @@ export const config = {
     model: (process.env.DEFAULT_PROVIDER_MODEL || process.env.SWARM_MODEL || "").trim(),
   },
 
-  // 积分体系
+  // 积分体系已废除,改用链上 INJ 付费(见 config.injective.callCostInj)。下列字段保留仅为向后兼容。
   signupCredits: num(process.env.SIGNUP_CREDITS, 1000),
   callCostCredits: num(process.env.CALL_COST_CREDITS, 50),
 
@@ -101,12 +101,27 @@ export const config = {
     // 测试网代签私钥(仅 testnet;主网绝不使用)
     demoKey: (process.env.INJECTIVE_DEMO_KEY || "").trim(),
     protocolFeeBps: num(process.env.INJECTIVE_PROTOCOL_FEE_BPS, 500), // 5%
+    // 每次蜂群调用的链上 INJ 计费(最小单位字符串)。默认 0.05 INJ = 5*10^16。
+    callCostInj: (process.env.INJECTIVE_CALL_COST_INJ || "50000000000000000").trim(),
     archetypeAddrs: parseArchetypeAddrs(process.env.INJECTIVE_ARCHETYPE_ADDRS),
+    // per-archetype 钱包(含私钥,用于深度3 agent 自主悬赏)。从 env JSON 解析,私钥仅后端持有。
+    archetypeWallets: parseArchetypeWallets(process.env.INJECTIVE_ARCHETYPE_WALLETS),
   },
 };
 
 /** 解析 INJECTIVE_ARCHETYPE_ADDRS(JSON 字符串)→ Record<archetype, addr> */
 function parseArchetypeAddrs(raw: string | undefined): Record<string, string> {
+  if (!raw || !raw.trim()) return {};
+  try {
+    const obj = JSON.parse(raw);
+    return typeof obj === "object" && obj ? obj : {};
+  } catch {
+    return {};
+  }
+}
+
+/** 解析 INJECTIVE_ARCHETYPE_WALLETS(JSON: {archetype: {addr, keyHex}}) */
+function parseArchetypeWallets(raw: string | undefined): Record<string, { addr: string; keyHex: string }> {
   if (!raw || !raw.trim()) return {};
   try {
     const obj = JSON.parse(raw);

@@ -70,6 +70,8 @@ export interface AgentState {
     breakthroughs: number; // 触发突破的次数
     avgLatencyMs: number;
     rewardWeight: number;  // 当前权重(可随进化调整)
+    onchainBalance?: string; // 链上 INJ 余额(最小单位,深度3 用)
+    walletAddr?: string;     // 链上钱包地址
   };
   // 记忆:最近 N 次的关键产出摘要
   memory: { goal: string; contribution: string; ts: number }[];
@@ -83,7 +85,8 @@ export type MessageIntent =
   | "report"       // 提交结果
   | "escalate"     // 升级到 supervisor
   | "vote"         // 投票
-  | "approval";    // 审批
+  | "approval"     // 审批
+  | "bounty";      // 悬赏(深度3:agent 自主花钱激励另一 agent)
 
 export type MessageType = "dialog" | "report" | "decision";
 
@@ -132,6 +135,23 @@ export interface HandoffContext {
   blob: string;       // 上游产出/反馈文本
   feedback?: string;  // reviewer 返工意见
   revisionRound?: number;  // 第几轮返工(0=首次)
+  bounty?: BountyRequest;  // 深度3:reviewer→coder 返工 handoff 可附带悬赏
+}
+
+// ── 深度3:agent 自主悬赏(LLM 决策,发起方 agent 用自己钱包签名)──
+export interface BountyRequest {
+  fromArch: Archetype;        // 悬赏发起方(通常 reviewer)
+  toArch: Archetype;          // 被悬赏方(通常 coder)
+  fromInstanceId: string;
+  toInstanceId: string;
+  taskId: string;
+  amountSmallest: string;     // 最小单位 INJ 字符串
+  denom: string;
+  reason: string;             // LLM 给出的悬赏理由
+  difficultySignal: "hard" | "normal";
+  // 链上回执(执行后回填)
+  txHash?: string;
+  status?: "proposed" | "executed" | "failed";
 }
 
 // ── 单个 agent 执行结果 ──
@@ -169,5 +189,6 @@ export interface CollaborationTrace {
   breakthroughsBroadcast: number;
   revisionRounds: number;
   rewardSplit: { archetype: Archetype; weight: number; contribution: string }[];
+  bounties?: BountyRequest[];  // 深度3:本次协作产生的悬赏(LLM 决策+链上执行)
   totalLatencyMs: number;
 }

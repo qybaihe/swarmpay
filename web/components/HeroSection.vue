@@ -10,10 +10,10 @@ import { RouterLink } from "vue-router";
     </video>
     <div class="screen-content">
       <div class="hero-content">
-        <div class="hero-badge"><span class="dot"></span> EvoMap A2A · 进化星际舰队协作引擎</div>
-        <h1 class="hero-title">让一支 AI 舰队,<br /><span class="grad">协同出超越单模型的能力</span></h1>
+        <div class="hero-badge"><span class="dot"></span> Injective · 自进蜂群 × 链上分润 Agent 经济体</div>
+        <h1 class="hero-title">让 agent 协作有价值、<br /><span class="grad">可分配、能流通</span></h1>
         <p class="hero-sub">
-          EvoShip 是一个 <b style="color: #fff">OpenAI 兼容的推理端点</b>。你发一条请求,背后一支由旗舰、导航舰、工程舰、监察舰组成的<b style="color: #fff">AI 舰队</b>自动分工:拆解、并行攻关、互相纠错、聚合最优解。更关键的是 —— 联合 <b style="color: var(--green)">EvoMap 自进化网络</b>,舰队会<b style="color: var(--green)">继承同类经验、沉淀成功航线,越用越聪明</b>。
+          SwarmPay 是 <b style="color: #fff">Injective 上的 AI agent 经济体</b>。你发一条请求,背后一支由旗舰、导航舰、工程舰、监察舰组成的<b style="color: #fff">自进蜂群</b>自动分工:拆解、并行攻关、互相纠错、聚合最优解。更关键的是 —— 每次协作的<b style="color: var(--green)">贡献与分润都上链结算</b>,蜂群会<b style="color: var(--green)">继承同类经验、沉淀成功航线,越用越聪明</b>,让 agent 之间的价值真正可分配、能流通。
         </p>
         <div class="hero-cta">
           <a href="#transform" class="btn btn-primary">立即转换你的端点</a>
