@@ -781,7 +781,10 @@ export async function orchestrate(params: {
         trace,
         handoffs,
         bounties,
-        reviewerBalanceInj: "0", // TODO: 从 agent identity 读 reviewer 链上余额
+        // reviewer 链上余额(最小单位):从 agent identity 持久化值读取。
+        // /api/injective/run 在跑蜂群前会调 refreshOnchainBalance("reviewer") 刷新此值,
+        // 因此 HARD 任务的悬赏决策用真实余额,reviewer 钱包有币就能真实发悬赏。
+        reviewerBalanceInj: onchainBalance("reviewer"),
         maxRevisionRounds: policy.maxRevisionRounds,
         platformSideEffects: policy.createSession,
       });

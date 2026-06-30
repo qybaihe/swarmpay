@@ -5,7 +5,7 @@
 
 import type { CustomSwarmTopology } from "../agents/types.js";
 import { FleetStore } from "../fleets.js";
-import { AuthStore } from "../auth.js";
+import { AuthStore, type AuthUser } from "../auth.js";
 
 const SYSTEM_EMAIL = "system@swarmpay.me";
 
@@ -82,7 +82,7 @@ const OFFICIAL_FLEETS: Array<{ name: string; label: string; topology: CustomSwar
 /** 启动时 seed 官方编队(幂等:已存在则跳过)。返回 seed 数量。 */
 export async function seedOfficialFleets(auth: AuthStore, fleets: FleetStore): Promise<number> {
   // 取或建系统用户
-  let systemUser = auth.findUserByEmail(SYSTEM_EMAIL);
+  let systemUser: AuthUser | null = auth.findUserByEmail(SYSTEM_EMAIL);
   if (!systemUser) {
     try {
       systemUser = auth.createUser({

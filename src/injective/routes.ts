@@ -9,6 +9,7 @@ import { runSwarm } from "../swarm.js";
 import { createChain } from "./index.js";
 import { SplitExecutor } from "./split-executor.js";
 import { payerDecide } from "./payer-agent.js";
+import { refreshOnchainBalance } from "../agents/identity.js";
 import type { OnchainRunRequest, OnchainRunResponse } from "./types.js";
 
 // ── 链上流水 ring-buffer(hackathon:进程内内存,重启丢失)──
@@ -151,6 +152,17 @@ export function createInjectiveRouter(): Router {
         }
       }
 
+      // 1b. 刷新 reviewer 链上余额到 agent identity(非 mock)。
+      // 这样 HARD 任务的悬赏决策用真实余额:reviewer 钱包有币时 bounty-decider 才会真实发悬赏。
+      // mock 模式无链,跳过(余额保持 "0",悬赏链路走规则兜底不发)。
+      if (config.injective.network !== "mock") {
+        try {
+          await refreshOnchainBalance("reviewer", chain);
+        } catch (e) {
+          console.warn("[injective/run] refresh reviewer balance failed:", e instanceof Error ? e.message : e);
+        }
+      }
+
       // 2. 跑蜂群(原内核,零改动)
       const out = await runSwarm({
         tier,
@@ -194,11 +206,12 @@ export function createInjectiveRouter(): Router {
       if (bountyResults) {
         for (const b of bountyResults) {
           if (!b.success) continue;
-          const fromAddr = config.injective.archetypeAddrs[b.bounty.fromArchetype];
-          const toAddr = config.injective.archetypeAddrs[b.bounty.toArchetype];
-          if (fromAddr && toAddr && b.txHash) {
-            pushTx({ txHash: b.txHash, type: "bounty", direction: "out", amount: b.bounty.amountSmallest, denom, counterpartyAddr: toAddr, counterpartyArchetype: b.bounty.toArchetype, memo: `swarmpay:bounty:${b.bounty.fromArchetype}->${b.bounty.toArchetype}`, timestamp: ts });
-            pushTx({ txHash: b.txHash, type: "bounty", direction: "in", amount: b.bounty.amountSmallest, denom, counterpartyAddr: fromAddr, counterpartyArchetype: b.bounty.fromArchetype, memo: `swarmpay:bounty:${b.bounty.fromArchetype}->${b.bounty.toArchetype}`, timestamp: ts });
+          const fromAddr = config.injective.archetypeAddrs[b.bounty.fromArch];
+          const toAddr = config.injective.archetypeAddrs[b.bounty.toArch];
+          const bountyTxHash = b.receipt?.txHash || b.bounty.txHash;
+          if (fromAddr && toAddr && bountyTxHash) {
+            pushTx({ txHash: bountyTxHash, type: "bounty", direction: "out", amount: b.bounty.amountSmallest, denom, counterpartyAddr: toAddr, counterpartyArchetype: b.bounty.toArch, memo: `swarmpay:bounty:${b.bounty.fromArch}->${b.bounty.toArch}`, timestamp: ts });
+            pushTx({ txHash: bountyTxHash, type: "bounty", direction: "in", amount: b.bounty.amountSmallest, denom, counterpartyAddr: fromAddr, counterpartyArchetype: b.bounty.fromArch, memo: `swarmpay:bounty:${b.bounty.fromArch}->${b.bounty.toArch}`, timestamp: ts });
           }
         }
       }
