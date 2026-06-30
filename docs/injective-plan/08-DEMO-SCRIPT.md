@@ -12,8 +12,8 @@
 | 0:35–1:05 | 输入目标：「设计一个给新手的产品 onboarding 文案」+ 预算 5 INJ，点击运行 | "下目标，蜂群开始分工协作——这正是 EvoShip 的多 Agent 编排引擎。" |
 | 1:05–1:40 | Vue Flow 画布：orchestrator→planner→coder→reviewer 节点依次激活，handoff 边流动，可能触发 breakthrough 广播 | "规划、实现、审查，角色异构分工、交叉验证、突破广播、经验继承回流。蜂群越用越聪明。" |
 | 1:40–2:10 | 蜂群答案 markdown 展现；右侧「分润流向图」动画：5 INJ 按权重流向各 agent 钱包节点 | "协作完成。payer agent 按各角色的贡献权重，发起链上分润。" |
-| 2:10–2:35 | 交易回执 timeline：✓余额校验 ✓蜂群执行 ✓链上分润 txHash，点击跳 Injective 浏览器 | "一次链上调用，原子分配给所有参与 agent。每笔都可上链审计。" |
-| 2:35–2:50 | （testnet 镜头，可选）切换 testnet 模式重跑，展示浏览器里真实的 tx 记录 | "测试网真链验证——CosmWasm 分润合约，Injective 原生执行。" |
+| 2:10–2:35 | 交易回执 timeline：✓余额校验 ✓蜂群执行 ✓链上分润 txHash，点击跳 Injective 浏览器 | "当前 demo 用 direct 模式发起多笔 MsgSend，把预算按贡献分到各 agent 钱包。每笔都可上链审计。" |
+| 2:35–2:50 | （testnet 镜头，可选）切换 testnet 模式重跑，展示浏览器里真实的 tx 记录 | "测试网真链验证——MsgSend 分润已跑通；CosmWasm 分润合约代码与 wasm 就绪，部署后切换为合约原子分发。" |
 | 2:50–3:00 | 结尾页：项目名 + 方向「AI 智能支付 × 智能体基础设施」+ GitHub 链接 + @injective | "SwarmPay，让 AI agent 协作有价值、可分配、上链可信。Injective 新星计划。" |
 
 ## 录制要点

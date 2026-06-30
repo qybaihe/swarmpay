@@ -2,12 +2,12 @@
 
 > **产出形式**:先本 Markdown 定稿 → 再用 PPT 技能生成暗色科技风 .pptx → 导出 PDF(≤10MB)。
 > **视觉风格**:暗色科技风,对齐网站设计 token(深空黑 `#04050d` 底 + 青 `#3ae0ff` / 紫 `#8b5cff` / 金 `#ffd23f` 高光)。字体:标题粗黑,正文无衬线,代码与地址用等宽。
-> **页数**:14 页。**口号主线**:"让 AI agent 的协作 —— 有价格、可分配、能流通"。
+> **页数**:15 页。**口号主线**:"让 AI agent 的协作 —— 有价格、可分配、能流通"。
 > **准确性红线**(经代码逐行核实,严防评委追问翻车):
-> - 已做 / 路线图严格分开。`@injectivelabs/sdk-ts` 已集成(真链签名广播);Injective 官方 AI agent 工具链(agent skills / MCP Server)属路线图。
+> - 已做 / 路线图严格分开。当前链层使用 `@injectivelabs/sdk-ts`(真链签名广播);官方页面明确提到 iAgent SDK / Injective Agent SDK / MCP Server,但本项目当前尚未接入,只能作为路线图与生态对齐项表述。
 > - **链上分润当前走 direct 模式(多笔 `MsgSend`)**;CosmWasm 分润合约**代码已写好 + 16 单测全过 + wasm 编译成功,但尚未部署上链**(部署属路线图)。
-> - **真实上链凭证**:tx `9477EC31…` 是 testnet 上一笔**真实 `MsgSend` 转账(0.1 INJ)**,证明签名广播能力已通;分润的链上 tx hash 在 demo 现场跑 `/run` 时实时生成、可审计。
-> - **悬赏链路已实现并接入返工回路**(`bounty-decider` LLM + 规则兜底 + `AgentWallet` 自签),但当前因 reviewer 链上余额未自动刷新(硬编码 0,TODO),真实悬赏需向 reviewer 钱包注资后触发——demo 时注资演示。
+> - **真实上链凭证**:tx `9477EC31…` 是 testnet 上一笔**真实 `MsgSend` 转账(0.1 INJ)**,只证明签名广播能力已通;分润凭证以 demo 现场 `/run` 实时生成的 tx hash 为准。当前已有一次 `/run` 分润 tx `107E7909…` 可作参考,但提交/路演仍建议现场重跑。
+> - **悬赏链路已实现并接入返工回路**(`bounty-decider` LLM + 规则兜底 + `AgentWallet` 自签),`/api/injective/run` 会在跑蜂群前刷新 reviewer 链上余额;真实悬赏仍需 reviewer 钱包有可用 INJ,可在 demo 前注资确保触发。
 > - 口径统一:**5 个协作 agent(orchestrator/planner/coder/reviewer/explorer)+ 1 个 treasurer 协议钱包 = 6 个链上地址**;分润给 4 个产出 agent(planner/coder/reviewer/orchestrator),5% 服务费给 treasurer。
 
 ---
@@ -169,10 +169,10 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
    - `/run` 执行前再过 `payerDecide` 规则微调(breakthrough ×1.2 归一化)
    - **LLM 不可用时回落静态权重**(registry:coder 0.30 最高),分润照常上链不中断
 
-3. **LLM 决策悬赏 + agent 自签**(链路已实现,待注资触发)
+3. **LLM 决策悬赏 + agent 自签**(链路已实现,余额刷新已接入)
    - reviewer 对 coder 主动发悬赏(深度 3),`bounty-decider` LLM 判断:产出质量高 + 任务困难 → 悬赏(余额 10%,上限 0.01 INJ),规则兜底 REJECT+困难信号
    - **用发起方 agent 自己的私钥签名 `MsgSend`**(`AgentWallet.sendTransferAs`),真自主花钱
-   - 状态:链路已接入返工回路;当前 reviewer 余额未自动刷新(硬编码 0,TODO),真实悬赏需 demo 前向 reviewer 钱包注资触发
+   - 状态:链路已接入返工回路;`/api/injective/run` 会刷新 reviewer 链上余额,真实悬赏需 reviewer 钱包有可用 INJ
 
 **底部一行**:
 > 价值在 agent 之间流通:agent A 赚的 INJ → 悬赏 agent B → B 再悬赏 C → 形成 agent 间经济闭环。这是"agent 自主经济"的起点。
@@ -245,8 +245,8 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 
 **时间线**(横向四阶段):
 1. **现在(已实现)** — testnet injective-888 全链路跑通(direct 模式 `MsgSend`);6 链上地址私钥就绪;CosmWasm 合约代码+16 单测+wasm;LLM 分润权重 + 悬赏链路接入
-2. **近期** — CosmWasm 合约部署上链、切换 contract 模式原子分发;reviewer 余额自动刷新打通悬赏真实执行;agent 链上声誉
-3. **中期** — 集成 Injective 官方 AI agent 工具链(agent skills / MCP Server)让 agent 原生持有操作链上账户;agent 自主接单 + 议价;跨链(IBC)分润
+2. **近期** — CosmWasm 合约部署上链、切换 contract 模式原子分发;agent 链上声誉;更完整的悬赏资金池与风控
+3. **中期** — 集成官方 iAgent SDK / Injective Agent SDK 与 MCP Server,让 agent 原生持有并操作链上账户;agent 自主接单 + 议价;跨链(IBC)分润
 4. **远期** — 永续合约交易 agent 分润;agent 经济协议标准化
 
 **底部申请资源条**:
@@ -256,7 +256,20 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 
 ---
 
-## 第 14 页 · 结尾
+## 第 14 页 · Agent 经济价值流全景图
+
+**标题**:`从一次分润,到一张 agent 经济网络`
+
+**画面**:使用 `docs/ppt-deck/images/14-economy-flow.png` 全景图,展示用户预算 → 蜂群协作 → LLM 裁定 → 链上结算 → 6 钱包入账 → 悬赏回流。
+
+**旁白金句**:
+> 今天这是一张 testnet 上的价值流图;明天,它是 agent 经济的基础设施 —— 让每个 AI agent 都能在链上持有、赚取、并自主支配价值。
+
+**视觉**:全页手绘风价值流图 + 右下角短句,作为从技术 demo 到宏大叙事的转场页。
+
+---
+
+## 第 15 页 · 结尾
 
 **大标题**:`让 AI agent 的协作,真正值钱`
 **副标题**:`有价格 · 可分配 · 能流通`
@@ -279,18 +292,18 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 3. **每页统一**:左上角小 logo + 页码右下;标题 32-40pt,正文 14-16pt,代码 11-13pt
 4. **配图**:第 6 页放 OnchainRunView 真实截图;第 7-9 页用简化架构图(从 01-ARCHITECTURE.md 提炼);第 10/11 页表格;其余用图标 + 渐变光效
 5. **导出**:PPT → PDF,确认 ≤10MB(图片压缩到 1080p 内)
-6. **占位待填**:第 1/3 页团队信息、第 6 页截图、第 14 页 demo 视频链接
+6. **占位待填**:第 1/3 页团队信息、第 6 页截图、第 15 页 demo 视频链接
 
 ## 内容来源(事实佐证索引)
 - 链上事实:`src/injective/{chain,split-executor,agent-wallet,bounty-decider,reward-decider,payer-agent,routes}.ts` + `contracts/split-rewards/src/*.rs`(16 个 `#[test]`,wasm 302K)
 - 蜂群内核:`src/orchestration/{orchestrator,pipeline,handoff,breakthrough}.ts`
 - 真实 tx:`9477EC31…`(`scripts/test-real-transfer.ts`,0.1 INJ 真实 `MsgSend` 上链,验证签名广播能力)
-- 准确性边界:`.env` 无 `INJECTIVE_SPLIT_CONTRACT_ADDR`(合约未部署,`/run` 走 direct);`orchestrator.ts:784` reviewer 余额硬编码 0(悬赏链路就绪但需注资触发)
+- 准确性边界:`.env` 无 `INJECTIVE_SPLIT_CONTRACT_ADDR`(合约未部署,`/run` 走 direct);`routes.ts` 在跑蜂群前刷新 reviewer 链上余额,真实悬赏仍取决于 reviewer 钱包是否有可用 INJ
 - 竞品:`docs/competitive-analysis.md`
-- 路线图:`docs/injective-plan/{00-OVERVIEW,10-SUBMISSION-COPY}.md`(注:`00-OVERVIEW.md` 把 iAgent SDK 写在"已集成"是早期残留,以本 Pitch 红线为准——已集成的是 sdk-ts)
+- 路线图:`docs/injective-plan/{00-OVERVIEW,10-SUBMISSION-COPY}.md`;提交文案必须以本 Pitch 红线为准——当前链层是 `@injectivelabs/sdk-ts`;官方 iAgent SDK / Injective Agent SDK / MCP Server 当前未接入,属于路线图
 
 ## Demo 前必做(避免现场翻车)
 1. **给 reviewer 钱包注资**:从代签钱包向 reviewer 地址转 0.1 INJ,打通悬赏真实执行(`bounty-decider` 余额闸)。
-2. **现场 live 跑 `/run`**:用 swarm-evo + HARD 目标,当场拿到真实分润 tx hash,贴到第 6 页与第 14 页。
+2. **现场 live 跑 `/run`**:用 swarm-evo + HARD 目标,当场拿到真实分润 tx hash,贴到第 6 页与第 15 页。
 3. **`curl /api/injective/smoke`**:现场演示一键自检 6 地址余额。
 4. **不要用 `9477EC31` 背书分润**:它只证明"MsgSend 能上链",不证明"分润已上链"。

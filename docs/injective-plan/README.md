@@ -1,7 +1,7 @@
 # EvoShip × Injective 改造方案文档索引
 
 > 本目录是「把 EvoShip 蜂群 Agent 协作引擎改造为 Injective 新星计划参赛项目」的完整方案。
-> 设计原则：**加法式改造，不破坏原服务**；模块化、可多 agent 并行、按接口契约解耦。
+> 设计原则：**加法式改造，不破坏原蜂群能力**；模块化、可多 agent 并行、按接口契约解耦。当前提交事实边界以 [09-PITCH-DECK-OUTLINE](09-PITCH-DECK-OUTLINE.md) 顶部准确性红线为准。
 
 ## 文档清单
 
@@ -16,8 +16,12 @@
 | 06 | [FRONTEND-WALLET](06-FRONTEND-WALLET.md) | Keplr 连接、链上可视化、分润流向图、交易 timeline | M5 |
 | 07 | [DEPLOYMENT](07-DEPLOYMENT.md) | env 配置、三种运行模式、测试网钱包、回归验证 | 运维 |
 | 08 | [DEMO-SCRIPT](08-DEMO-SCRIPT.md) | ≤3 分钟 demo 视频分镜表、录制要点 | 交付物 |
-| 09 | [PITCH-DECK-OUTLINE](09-PITCH-DECK-OUTLINE.md) | 路演简报 14 页大纲（7 维度全覆盖） | 交付物 |
+| 09 | [PITCH-DECK-OUTLINE](09-PITCH-DECK-OUTLINE.md) | 路演简报 15 页大纲（7 维度全覆盖） | 交付物 |
 | 10 | [SUBMISSION-COPY](10-SUBMISSION-COPY.md) | 报名表单 17 项必填文案草稿，可直接粘贴 | 交付物 |
+| 11 | [DEEP-REFINEMENT-PLAN](11-DEEP-REFINEMENT-PLAN.md) | 深度 3 打磨计划：INJ 计费、悬赏、per-archetype 钱包 | 规划 |
+| 12 | [PLAYGROUND-DEEP-FUSION](12-PLAYGROUND-DEEP-FUSION.md) | Playground 与链上经济深度融合方案 | 规划 |
+| 13 | [PARTICLES-AND-LANDING-WEB3](13-PARTICLES-AND-LANDING-WEB3.md) | 视觉、粒子动效与 Web3 首页打磨方案 | 规划 |
+| 14 | [NOVA-SUBMISSION-CHECKLIST](14-NOVA-SUBMISSION-CHECKLIST.md) | 官方 Nova 要求逐项核对、缺口与提交前 checklist | 提交验收 |
 
 ## 并行任务（M1–M6）速查
 
@@ -31,9 +35,9 @@
 | M6 文档 | `docs/injective-plan/` | 否 | — | 本文档集 |
 
 ## 截止倒排（6/30 24:00 报名截止）
-- **P0**：M6 文档（已完成）+ M1 mock + M2 合约编译 → 可拍 demo、可提交
+- **P0**：M6 文档 + M1 mock + M2 合约编译 → 可拍 demo、可提交
 - **P1**：M4 + M3（接 mock）+ M5 → 闭环可演示
-- **P2**：M1 接 testnet 真链 → 加分项
+- **P2**：M1 接 testnet 真链 → 已跑通 direct `MsgSend` 分润；CosmWasm 部署仍属路线图
 
 ## 评分维度对齐（见 00 §8）
 创新性 / 技术实现 / 应用价值 / 产品体验 / 生态契合度 —— 五维均有对应设计。

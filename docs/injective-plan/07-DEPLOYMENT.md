@@ -6,7 +6,7 @@
 # ── Injective 链上通道（新增）──
 INJECTIVE_ENABLED=false              # 默认关，原服务零变化；开 demo 时 true
 INJECTIVE_NETWORK=mock               # mock | testnet | mainnet（demo 用 mock 或 testnet）
-INJECTIVE_CHAIN_ID=dorado-1
+INJECTIVE_CHAIN_ID=injective-888
 INJECTIVE_RPC=https://sentry.lcd.injective.network
 INJECTIVE_REST=https://sentry.lcd.injective.network
 INJECTIVE_DENOM=inj
@@ -41,7 +41,7 @@ npm run build:web && npm run start
 | 模式 | INJECTIVE_NETWORK | 说明 | 适用 |
 |---|---|---|---|
 | **mock** | `mock` | 链层全假，txHash 假，不连网 | 开发、录 demo 兜底、本地演示 |
-| **testnet** | `testnet` | 连 Injective dorado-1 测试网真链 | 加分项、评委验证 |
+| **testnet** | `testnet` | 连 Injective injective-888 测试网真链 | 加分项、评委验证 |
 | **mainnet** | `mainnet` | 真金白银 | 比赛阶段不用 |
 
 > **录 demo 推荐先用 mock** 保证不黑屏，再切 testnet 录一段"真链交易回执"作为亮点补充镜头。
@@ -63,7 +63,7 @@ npm run build:web && npm run start
 
 ```bash
 curl http://localhost:4000/api/injective/status
-# { enabled:true, network:"mock", contractAddr:null, chainId:"dorado-1" }
+# { enabled:true, network:"mock", contractAddr:null, chainId:"injective-888" }
 
 curl "http://localhost:4000/api/injective/balance?addr=inj1test&denom=inj"
 # { amount:"10000000000000000000", denom:"inj" }   （mock 固定 10 INJ）

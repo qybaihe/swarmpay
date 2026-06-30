@@ -1,7 +1,7 @@
 # EvoShip × Injective 改造总纲
 
 > 把 EvoShip 蜂群 Agent 协作引擎改造为 **Injective 新星计划** 参赛项目。
-> 原则：**加法式改造，不破坏原服务**。所有新代码在新模块/新路由下，原 `/v1/chat/completions`、credits、蜂群编排零改动可继续独立运行。
+> 原则：**加法式改造，不破坏原蜂群能力**。所有 Injective 新代码集中在新模块/新路由下；当前实现已将结算从旧 credits 迁移到链上 INJ，同时保留 `/v1/chat/completions` 的 OpenAI 兼容调用体验。
 
 ---
 
@@ -21,10 +21,10 @@
 
 | 模块 | 文件 | 现状 | 改造角色 |
 |---|---|---|---|
-| credits 扣减闭环 | `src/auth.ts` `deductCredits/addCredits/getCredits` + `credit_transactions` 表 | SQLite 原子扣减 + 流水 | **链上支付的对照物，新增 Injective 支付层并行** |
+| credits 扣减闭环 | `src/auth.ts` 历史 credits 字段仅向后兼容 | 旧 SQLite 记账已废弃 | **已迁移为链上 INJ 结算与流水** |
 | 蜂群编排 | `src/swarm.ts` `runSwarm()`、`src/orchestration/*` | 5 角色六阶段协作，返回 `out.trace` 含 `rewardSplit` | **不改内核，在 trace 消费侧加分润** |
 | 角色注册 | `src/agents/registry.ts` `ARCHETYPE_DEFS`、`types.ts` `Archetype` 联合类型 | 5 角色 | **新增 `payer`/`treasurer` 角色** |
-| 核心入口 | `src/server.ts` `/v1/chat/completions` L315-331 | 余额检查→runSwarm→扣分 | **新增 `/api/injective/*` 路由，原路由保留** |
+| 核心入口 | `src/server.ts` `/v1/chat/completions` + `/api/injective/*` | 链上余额检查→runSwarm→链上分润 | **OpenAI 兼容入口 + 链上 demo 入口并存** |
 | A2A 信封 | `src/protocol/envelope.ts` `AgentMessage.payload` | 7 种 intent | **新增 `payment`/`split` intent** |
 | 配置 | `src/config.ts` | env 驱动 | **新增 Injective 配置段** |
 | 前端 | `web/views/PlaygroundView.vue`、`ChatView.vue` | Vue3 + Vue Flow 编排可视化 | **加钱包连接页 + 链上交易回执可视化** |
@@ -38,7 +38,7 @@
 
 ## 2. 改造原则（不破坏原服务）
 
-1. **加法，不替换**：原 credits 体系、原 `/v1/chat/completions`、原蜂群编排 **全部保留**。新增 Injective 支付作为**并行通道**，由配置开关 `INJECTIVE_ENABLED` 控制，默认关 → 原服务行为零变化。
+1. **加法，不破坏蜂群能力**：原 `/v1/chat/completions` 与蜂群编排能力保留；结算层从旧 credits 迁移为链上 INJ,新增 `/api/injective/*` 作为链上 demo、自检、余额与流水入口。
 2. **新代码新目录**：所有 Injective 相关代码进 `src/injective/`、`web/views/injective/`、合约进 `contracts/`，不散落到原文件。
 3. **唯一改动原文件的地方**：`src/agents/types.ts`（`Archetype` 联合类型加成员）、`src/agents/registry.ts`（`ARCHETYPE_DEFS` 加条目）、`src/server.ts`（挂载新路由 `app.use('/api/injective', injectiveRouter)`）、`src/config.ts`（加配置段）。这 4 处为**纯追加**，不删不改原有行。
 4. **可独立验证**：每个并行模块有独立入口和测试，不依赖其他模块即可跑。
@@ -183,7 +183,7 @@ interface DistributeResult {
 | 评分维度 | 本项目如何满足 |
 |---|---|
 | 创新性 | 蜂群协作 + 链上分润，"越用越聪明 × 越用越值钱"，Injective 生态首个 agent 分润协议 |
-| 技术实现 | 集成 Injective 测试网 + CosmWasm 分润合约 + iAgent SDK；AI（蜂群）与链上（分润）深度结合 |
+| 技术实现 | 集成 Injective 测试网 + `@injectivelabs/sdk-ts` + direct `MsgSend` 分润；CosmWasm 分润合约代码/测试/wasm 就绪，待部署后切 contract 模式 |
 | 应用价值 | 解决 AI agent 协作的价值分配问题，可延伸到 agent 市场/外包/众包 |
 | 产品体验 | 原有 Vue Flow 可视化 + 链上交易 timeline，agent 协作与资金流向都可视 |
-| 生态契合度 | 复用 Injective iAgent SDK、CosmWasm、INJ 代币，天然契合 Injective 支付/agent 叙事 |
+| 生态契合度 | 复用 Injective sdk-ts、CosmWasm、INJ 代币；后续对齐官方 iAgent SDK / Injective Agent SDK 与 MCP Server（当前尚未集成） |

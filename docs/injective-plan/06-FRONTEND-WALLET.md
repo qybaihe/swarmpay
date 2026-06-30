@@ -21,8 +21,8 @@ Injective 支持 Keplr 钱包。前端注入：
 ```ts
 // web/stores/injective.ts
 async connect() {
-  await window.keplr.enable("dorado-1");
-  const signer = window.getOfflineSigner("dorado-1");
+  await window.keplr.enable("injective-888");
+  const signer = window.getOfflineSigner("injective-888");
   const accounts = await signer.getAccounts();
   this.address = accounts[0].address;
   this.connected = true;

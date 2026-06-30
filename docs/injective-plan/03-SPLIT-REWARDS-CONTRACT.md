@@ -1,7 +1,7 @@
 # 03 · 链上分润合约设计（CosmWasm）
 
-> Injective 原生支持 CosmWasm（Wasmvm）。合约用 Rust 写，编译成 `.wasm`，部署到 Injective 测试网。
-> 这是本项目"AI 智能支付"方向的核心技术亮点：**一次链上调用，按权重原子分润给多个 agent 钱包**。
+> Injective 原生支持 CosmWasm（Wasmvm）。合约用 Rust 写，编译成 `.wasm`，后续可部署到 Injective 测试网。
+> 这是本项目"AI 智能支付"方向的核心技术亮点：**合约部署后可用单笔合约执行，按权重原子分润给多个 agent 钱包**。当前 demo 已先用 direct `MsgSend` 跑通真实分润。
 
 ## 1. 为什么需要合约（而非多笔直接转账）
 
@@ -119,8 +119,8 @@ cargo build --release --target wasm32-unknown-unknown
 ## 7. 测试网部署（P2，真链加分项）
 
 ```bash
-# Injective 测试网 (dorado-1) 部署
-injectived tx wasm store split_rewards.wasm --from $WALLET --chain-id dorado-1 --gas auto
+# Injective 测试网 (injective-888) 部署
+injectived tx wasm store split_rewards.wasm --from $WALLET --chain-id injective-888 --gas auto
 # 拿到 code_id → 实例化 → 拿 contract_addr → 写入 .env: INJECTIVE_SPLIT_CONTRACT_ADDR
 ```
 

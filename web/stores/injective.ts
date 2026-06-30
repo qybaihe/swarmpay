@@ -35,8 +35,8 @@ interface KeplrWindow extends Window {
   };
 }
 
-// 默认连 Injective 测试网 chainId（dorado-1）。Keplr 没装时这里仅做展示用。
-const DEFAULT_CHAIN_ID = "dorado-1";
+// 默认连 Injective 测试网 chainId（injective-888）。Keplr 没装时这里仅做展示用。
+const DEFAULT_CHAIN_ID = "injective-888";
 
 export const useInjectiveStore = defineStore("injective", () => {
   const connected = ref(false);

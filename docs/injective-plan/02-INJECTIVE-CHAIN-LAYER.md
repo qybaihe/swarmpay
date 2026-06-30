@@ -22,7 +22,7 @@
 injective: {
   enabled: bool(process.env.INJECTIVE_ENABLED, false),   // 默认关 → 原服务零变化
   network: (process.env.INJECTIVE_NETWORK || "testnet") as "testnet" | "mainnet" | "mock",
-  chainId: process.env.INJECTIVE_CHAIN_ID || "dorado-1", // Injective 测试网
+  chainId: process.env.INJECTIVE_CHAIN_ID || "injective-888", // Injective 测试网
   rpc: process.env.INJECTIVE_RPC || "https://sentry.lcd.injective.network",
   rest: process.env.INJECTIVE_REST || "https://sentry.lcd.injective.network",
   denom: process.env.INJECTIVE_DENOM || "inj",
@@ -106,7 +106,7 @@ export function createChain(): IInjectiveChain {
 
 ## 7. 测试网关键参数（Injective）
 
-- 测试网 chain-id：`dorado-1`
+- 测试网 chain-id：`injective-888`
 - 水龙头：https://injective.tools/faucet （领测试 INJ）
 - 浏览器：https://testnet.explorer.injective.network
 - 文档：https://docs.injective.network

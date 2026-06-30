@@ -93,7 +93,7 @@ export const config = {
   injective: {
     enabled: bool(process.env.INJECTIVE_ENABLED, false),
     network: (process.env.INJECTIVE_NETWORK || "mock") as "mock" | "testnet" | "mainnet",
-    chainId: (process.env.INJECTIVE_CHAIN_ID || "dorado-1").trim(),
+    chainId: (process.env.INJECTIVE_CHAIN_ID || "injective-888").trim(),
     rpc: (process.env.INJECTIVE_RPC || "https://sentry.lcd.injective.network").trim(),
     rest: (process.env.INJECTIVE_REST || "https://sentry.lcd.injective.network").trim(),
     denom: (process.env.INJECTIVE_DENOM || "inj").trim(),

@@ -71,7 +71,6 @@ async function goSection(hash: string) {
       <div class="nav-mid">
         <nav class="nav-links">
           <RouterLink to="/endpoints">端点</RouterLink>
-          <a href="#pipeline" @click.prevent="goSection('#pipeline')">原理</a>
           <a href="#roster" @click.prevent="goSection('#roster')">角色</a>
           <a href="#tiers" @click.prevent="goSection('#tiers')">结算模式</a>
           <RouterLink to="/community">社区</RouterLink>
@@ -146,22 +145,25 @@ async function goSection(hash: string) {
   border-bottom: 1px solid var(--panel-line);
 }
 .nav-in {
-  max-width: 1400px;
+  max-width: 1640px;
   margin: 0 auto;
-  padding: 0 6vw;
+  padding: 0 4vw;
   height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
 }
 .nav-mid {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 24px;
 }
 .nav-links {
   display: flex;
-  gap: 34px;
+  gap: 28px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .nav-links a {
   color: var(--muted);
@@ -169,6 +171,7 @@ async function goSection(hash: string) {
   font-size: 14px;
   font-weight: 500;
   transition: 0.2s;
+  white-space: nowrap;
 }
 .nav-links a:hover {
   color: #fff;
