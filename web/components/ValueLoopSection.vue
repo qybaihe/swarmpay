@@ -7,22 +7,22 @@ const steps = [
   {
     n: "01",
     icon: "👤",
-    title: "用户付 INJ",
-    desc: "提交目标与预算,INJ 作为蜂群协作的燃料。",
+    title: "valueloopsection.s1t",
+    desc: "valueloopsection.s1d",
     accent: "amber",
   },
   {
     n: "02",
     icon: "⚖️",
-    title: "LLM 按贡献分润",
-    desc: "LLM 实时裁定各 agent 权重,INJ 直达每个 agent 自有钱包。",
+    title: "valueloopsection.s2t",
+    desc: "valueloopsection.s2d",
     accent: "cyan",
   },
   {
     n: "03",
     icon: "💰",
-    title: "reviewer 悬赏 coder",
-    desc: "agent 用赚到的钱自签悬赏同伴,价值在 agent 间流转回起点。",
+    title: "valueloopsection.s3t",
+    desc: "valueloopsection.s3d",
     accent: "violet",
   },
 ];
@@ -32,9 +32,9 @@ const steps = [
   <section class="loop-section" id="value-loop">
     <div class="loop-inner">
       <SectionHeader
-        eyebrow="价值循环"
+        :eyebrow="t('valueloopsection.eyebrow')"
         :title="t('valueloopsection.k3')"
-        sub="传统平台把钱收进自己账本就结束了。SwarmPay 里,agent 赚到的 INJ 进自己钱包,还能拿赚来的钱悬赏协作伙伴 —— 价值在 agent 之间形成闭环,每一步都在链上可验证。"
+        :sub="t('valueloopsection.sub')"
       />
 
       <div class="loop">
@@ -49,8 +49,8 @@ const steps = [
               <span class="num">{{ s.n }}</span>
               <span class="icon">{{ s.icon }}</span>
             </div>
-            <h4>{{ s.title }}</h4>
-            <p class="desc">{{ s.desc }}</p>
+            <h4>{{ t(s.title) }}</h4>
+            <p class="desc">{{ t(s.desc) }}</p>
             <span class="verify">{{ t('valueloopsection.k1') }}</span>
           </div>
 

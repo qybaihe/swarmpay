@@ -21,7 +21,7 @@ const transformStore = useTransformStore();
 const auth = useAuthStore();
 const router = useRouter();
 
-const goal = ref("用 HTML 写一个登录页面");
+const goal = ref(t("demosection.defaultGoal"));
 const tier = ref("swarm-heavy");
 const apiKey = ref("");
 
@@ -33,8 +33,8 @@ const showResult = ref(false);
 
 const noteText = () =>
   demoStore.demoMode
-    ? "演示模式:直接载入预置编队过程,无需后端、无需等待。"
-    : "真调后端:POST /v1/chat/completions,真实模型约 30-90 秒。后端未启动会自动提示。";
+    ? t("demosection.noteDemo")
+    : t("demosection.noteReal");
 
 // 转换区点「立即试一下」时,把 key 同步过来
 watch(
@@ -54,7 +54,7 @@ function toggleDemoMode() {
 async function dispatch() {
   errMsg.value = "";
   if (!goal.value) {
-    errMsg.value = "请输入目标。可点演示模式直接看预置结果。";
+    errMsg.value = t("demosection.errNoGoal");
     return;
   }
 
@@ -65,14 +65,14 @@ async function dispatch() {
     await new Promise((r) => setTimeout(r, 1500));
     loading.value = false;
     trace.value = mockTrace(goal.value, tier.value);
-    answer.value = "【演示模式 · 预置数据】" + mockAnswer(goal.value);
+    answer.value = t("demosection.demoPrefix") + mockAnswer(goal.value);
     showResult.value = true;
     return;
   }
 
   await auth.ensureLoaded();
   if (!auth.isAuthed) {
-    errMsg.value = "真实后端调用需要先登录。你也可以切换演示模式直接预览。";
+    errMsg.value = t("demosection.errNeedLogin");
     router.push({ path: "/login", query: { redirect: "/#demo" } });
     return;
   }
@@ -89,7 +89,7 @@ async function dispatch() {
     showResult.value = true;
   } catch (e) {
     loading.value = false;
-    errMsg.value = `调用失败:${e instanceof Error ? e.message : e}。可点演示模式直接看预置结果。`;
+    errMsg.value = t("demosection.errFailed", { msg: e instanceof Error ? e.message : String(e) });
   }
 }
 </script>

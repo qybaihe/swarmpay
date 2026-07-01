@@ -4,14 +4,14 @@ import SectionHeader from "./SectionHeader.vue";
 const { t } = useI18n();
 
 const tiers = [
-  { tag: "BASELINE", title: "基线模式", code: "swarm-baseline",
-    desc: "单 agent 直通,基础链上转账结算。对照组。", featured: false },
-  { tag: "LITE", title: "轻量并行", code: "swarm-lite",
-    desc: "少量 agent 并行解题 + 轻量聚合,完成后一次链上分润。", featured: false },
-  { tag: "★ HEAVY · 推荐", title: "异构分工", code: "swarm-heavy",
-    desc: "异构 agent 分工 + 旗舰聚合 + 突破广播 + 返工纠错 + <b style='color:var(--green)'>LLM 动态分润</b>。", featured: true },
-  { tag: "★ EVO · 独家", title: "Agent 经济", code: "swarm-evo",
-    desc: "全链路 + 经验继承 + <b style='color:var(--green)'>LLM 悬赏经济</b>:agent 用赚来的钱悬赏协作伙伴,价值自循环。独家能力。", featured: true },
+  { tag: "BASELINE", title: "tierssection.t1", code: "swarm-baseline",
+    desc: "tierssection.d1", featured: false },
+  { tag: "LITE", title: "tierssection.t2", code: "swarm-lite",
+    desc: "tierssection.d2", featured: false },
+  { tag: "tierssection.tag3", title: "tierssection.t3", code: "swarm-heavy",
+    desc: "tierssection.d3", featured: true },
+  { tag: "tierssection.tag4", title: "tierssection.t4", code: "swarm-evo",
+    desc: "tierssection.d4", featured: true },
 ];
 
 const clients = ["Cursor", "Cline", "Aider", "LangChain", "Continue", "OpenAI SDK"];
@@ -21,13 +21,13 @@ const clients = ["Cursor", "Cline", "Aider", "LangChain", "Continue", "OpenAI SD
   <section class="flat-section" id="tiers">
     <div class="flat-inner">
       <SectionHeader eyebrow="SETTLEMENT MODES" :title="t('tierssection.k1')"
-        sub="客户端选哪个 model,就走哪条蜂群路径 + 链上结算方式。推荐 swarm-evo 体验完整 agent 经济(分润 + 悬赏 + 经验继承)。" />
+        :sub="t('tierssection.sub')" />
       <div class="tier-grid">
-        <div class="tier" :class="{ featured: t.featured }" v-for="t in tiers" :key="t.code">
-          <div class="tag">{{ t.tag }}</div>
-          <h3>{{ t.title }}</h3>
-          <code>{{ t.code }}</code>
-          <p v-html="t.desc"></p>
+        <div class="tier" :class="{ featured: tier.featured }" v-for="tier in tiers" :key="tier.code">
+          <div class="tag">{{ t(tier.tag) }}</div>
+          <h3>{{ t(tier.title) }}</h3>
+          <code>{{ tier.code }}</code>
+          <p v-html="t(tier.desc)"></p>
         </div>
       </div>
       <div class="clients">

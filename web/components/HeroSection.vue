@@ -15,7 +15,7 @@ const { t } = useI18n();
         <div class="hero-badge"><span class="dot"></span>{{ t('herosection.k1') }}</div>
         <h1 class="hero-title">{{ t('herosection.k2') }}<br /><span class="grad">{{ t('herosection.k3') }}</span></h1>
         <p class="hero-sub"
-          >{ t('herosection.k4') }} <b style="color: #fff">{{ t('herosection.k5') }}</b>{{ t('herosection.k6') }}<b style="color: var(--green)">{{ t('herosection.k7') }}</b>,<b style="color: var(--green)">{{ t('herosection.k8') }}</b>{{ t('herosection.k9') }}<b style="color: #fff">{{ t('herosection.k10') }}</b>{{ t('herosection.k11') }}<b style="color: var(--green)">{{ t('herosection.k12') }}</b>{{ t('herosection.k13') }}
+          >{{ t('herosection.k4') }} <b style="color: #fff">{{ t('herosection.k5') }}</b>{{ t('herosection.k6') }}<b style="color: var(--green)">{{ t('herosection.k7') }}</b>,<b style="color: var(--green)">{{ t('herosection.k8') }}</b>{{ t('herosection.k9') }}<b style="color: #fff">{{ t('herosection.k10') }}</b>{{ t('herosection.k11') }}<b style="color: var(--green)">{{ t('herosection.k12') }}</b>{{ t('herosection.k13') }}
         </p>
         <div class="hero-cta">
           <a href="#transform" class="btn btn-primary">{{ t('herosection.k14') }}</a>
