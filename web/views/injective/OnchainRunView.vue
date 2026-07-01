@@ -15,7 +15,7 @@ const { t } = useI18n();
 const wallet = useInjectiveStore();
 
 // ── 表单状态 ──
-const goal = ref("用一句话解释 Injective 链上分润如何激励 AI agent 协作。");
+const goal = ref(t("onchainrun.defaultGoal"));
 const tier = ref<"swarm-evo" | "swarm-heavy" | "swarm-lite" | "swarm-baseline">("swarm-evo");
 const budgetInj = ref("5"); // INJ 数值字符串(人类可读)
 const denom = ref("inj");
@@ -25,7 +25,7 @@ const localAddr = ref(""); // 未连接钱包时的内联地址输入
 async function useLocalAddr() {
   const a = localAddr.value.trim();
   if (!/^inj1[a-z0-9]+$/i.test(a)) {
-    errorMsg.value = "地址格式不对,应以 inj1 开头";
+    errorMsg.value = t("onchainrun.errAddrFormat");
     return;
   }
   await wallet.connectManual(a);
@@ -100,10 +100,10 @@ onMounted(() => {
 });
 
 const tiers = [
-  { value: "swarm-evo", label: "swarm-evo (蜂群+经验继承)" },
-  { value: "swarm-heavy", label: "swarm-heavy (蜂群+聚合)" },
-  { value: "swarm-lite", label: "swarm-lite (并行投票)" },
-  { value: "swarm-baseline", label: "swarm-baseline (单模型基线)" },
+  { value: "swarm-evo", label: "onchainrun.tierEvo" },
+  { value: "swarm-heavy", label: "onchainrun.tierHeavy" },
+  { value: "swarm-lite", label: "onchainrun.tierLite" },
+  { value: "swarm-baseline", label: "onchainrun.tierBaseline" },
 ] as const;
 
 const renderedContent = computed(() =>
@@ -116,11 +116,11 @@ const hasResult = computed(() => !!content.value || !!payment.value);
 /** 提交链上蜂群运行。 */
 async function runOnchain() {
   if (!goal.value.trim()) {
-    errorMsg.value = "请输入目标(goal)";
+    errorMsg.value = t("onchainrun.errNoGoal");
     return;
   }
   if (!wallet.address) {
-    errorMsg.value = "请先连接钱包或粘贴测试网地址";
+    errorMsg.value = t("onchainrun.errNoWallet");
     return;
   }
   loading.value = true;
@@ -242,7 +242,7 @@ function bountyAmountInj(b: BountyResultLike): string {
         <label class="field grow">
           <span>{{ t('onchainrun.k8') }}</span>
           <select v-model="tier">
-            <option v-for="t in tiers" :key="t.value" :value="t.value">{{ t.label }}</option>
+            <option v-for="tierOpt in tiers" :key="tierOpt.value" :value="tierOpt.value">{{ t(tierOpt.label) }}</option>
           </select>
         </label>
         <label class="field">

@@ -20,57 +20,57 @@ const feePct = () => (feeBps.value / 100).toFixed(0);
 const features = [
   {
     icon: "⚖️",
-    title: "LLM 动态分润",
-    sub: "不再固定计价",
-    desc: "每次蜂群协作后,LLM 依据各 agent 实际贡献(trace.reward_split)实时裁定分润权重。同样的任务,贡献不同 → 分润不同,真正按价值分配。",
+    title: "pricing.f1t",
+    sub: "pricing.f1s",
+    desc: "pricing.f1d",
     color: "var(--cyan)",
   },
   {
     icon: "🏦",
-    title: `${feePct()}% 协议费`,
-    sub: "95% 直达 agent 钱包",
-    desc: "每次结算仅扣 5% 协议服务费转 treasurer,其余 95% 按权重直达各 agent 自有链上钱包。没有平台账本截留。",
+    title: `t("pricing.f2t", { pct: feePct() })`,
+    sub: "pricing.f2s",
+    desc: "pricing.f2d",
     color: "var(--green)",
   },
   {
     icon: "💰",
-    title: "Agent 自签悬赏",
-    sub: "自主花钱",
-    desc: "reviewer 对 coder 的工作满意,可主动发起链上悬赏 —— 用 reviewer 自己的私钥签名 MsgSend,从自己钱包出钱。agent 真正掌握自己的资金。",
+    title: "pricing.f3t",
+    sub: "pricing.f3s",
+    desc: "pricing.f3d",
     color: "var(--violet)",
   },
   {
     icon: "⛓️",
-    title: "INJ 链上结算",
-    sub: "tx 可查",
-    desc: "CosmWasm split-rewards 合约或多笔 MsgSend,在 Injective 链上结算。每笔分润、每个悬赏都有 tx hash,可在浏览器公开验证。",
+    title: "pricing.f4t",
+    sub: "pricing.f4s",
+    desc: "pricing.f4d",
     color: "var(--amber)",
   },
 ];
 
 // 对比表
 const compareRows = [
-  { dim: "计价方式", saas: "固定套餐 / 按 token", swarm: "按贡献 LLM 动态分润" },
-  { dim: "资金归属", saas: "平台账本记账", swarm: "各 agent 自有链上钱包" },
-  { dim: "透明度", saas: "平台内部,不透明", swarm: "链上公开,tx 可查" },
-  { dim: "agent 能否花钱", saas: "不能,单向收费", swarm: "能,可自签悬赏同伴" },
-  { dim: "价值流向", saas: "用户 → 平台(截留)", swarm: "用户 → agent → agent(闭环)" },
+  { dim: "pricing.c1d", saas: "pricing.c1s", swarm: "pricing.c1w" },
+  { dim: "pricing.c2d", saas: "pricing.c2s", swarm: "pricing.c2w" },
+  { dim: "pricing.c3d", saas: "pricing.c3s", swarm: "pricing.c3w" },
+  { dim: "pricing.c4d", saas: "pricing.c4s", swarm: "pricing.c4w" },
+  { dim: "pricing.c5d", saas: "pricing.c5s", swarm: "pricing.c5w" },
 ];
 
 // 编号时间线
 const timeline = [
-  { n: 1, t: "下目标 + 预算", d: "用户提交 goal 与 INJ 预算,以自己绑定的地址为付款方。" },
-  { n: 2, t: "蜂群协作", d: "orchestrator 拆解,planner/coder/reviewer 闭环攻关,聚合最优解。" },
-  { n: 3, t: "LLM 裁定 reward_split", d: "LLM 依据 trace 中各 agent 贡献,实时生成分润权重。" },
-  { n: 4, t: `扣 ${feePct()}% 给 treasurer`, d: "协议服务费转入金库地址,剩余 95% 进入分润池。" },
-  { n: 5, t: "按权重分到 5 钱包", d: "SplitExecutor 在链上把 95% 按权重切分到各 archetype 钱包。" },
-  { n: 6, t: "reviewer 自签悬赏 coder", d: "若 reviewer 认可 coder,用自己的钱包私钥签名,悬赏 INJ。" },
-  { n: 7, t: "tx hash 入回执", d: "分润 + 悬赏的 tx hash 全部返回,可在 Mintscan 公开验证。" },
+  { n: 1, t: "pricing.t1", d: "pricing.t1d" },
+  { n: 2, t: "pricing.t2", d: "pricing.t2d" },
+  { n: 3, t: "pricing.t3", d: "pricing.t3d" },
+  { n: 4, t: `t("pricing.t4", { pct: feePct() })`, d: "pricing.t4d" },
+  { n: 5, t: "pricing.t5", d: "pricing.t5d" },
+  { n: 6, t: "pricing.t6", d: "pricing.t6d" },
+  { n: 7, t: "pricing.t7", d: "pricing.t7d" },
 ];
 
 // archetype 展示
 const ARCH_LABEL: Record<string, string> = {
-  orchestrator: "旗舰", planner: "导航", coder: "工程", reviewer: "监察", explorer: "斥候", payer: "支付", treasurer: "金库",
+  orchestrator: "pricing.arch_orch", planner: "pricing.arch_plan", coder: "pricing.arch_code", reviewer: "pricing.arch_rev", explorer: "pricing.arch_exp", payer: "pricing.arch_payer", treasurer: "pricing.arch_treas",
 };
 const ARCH_COLOR: Record<string, string> = {
   orchestrator: "#ffb84d", planner: "#5ca8ff", coder: "#3ae0ff", reviewer: "#8b5cff", explorer: "#ff5cc8", payer: "#ffd23f", treasurer: "#3dffb0",
@@ -111,9 +111,9 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
     <section class="features">
       <article v-for="f in features" :key="f.title" class="feat-card" :style="{ '--fc': f.color }">
         <div class="feat-icon">{{ f.icon }}</div>
-        <h3>{{ f.title }}</h3>
-        <div class="feat-sub">{{ f.sub }}</div>
-        <p class="feat-desc">{{ f.desc }}</p>
+        <h3>{{ t(f.title) }}</h3>
+        <div class="feat-sub">{{ t(f.sub) }}</div>
+        <p class="feat-desc">{{ t(f.desc) }}</p>
       </article>
     </section>
 
@@ -130,9 +130,9 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
           <div class="cmp-cell swarm">SwarmPay</div>
         </div>
         <div v-for="r in compareRows" :key="r.dim" class="cmp-row">
-          <div class="cmp-cell dim">{{ r.dim }}</div>
-          <div class="cmp-cell saas">✕ {{ r.saas }}</div>
-          <div class="cmp-cell swarm">✓ {{ r.swarm }}</div>
+          <div class="cmp-cell dim">{{ t(r.dim) }}</div>
+          <div class="cmp-cell saas">✕ {{ t(r.saas) }}</div>
+          <div class="cmp-cell swarm">✓ {{ t(r.swarm) }}</div>
         </div>
       </div>
     </section>
@@ -147,8 +147,8 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
         <li v-for="s in timeline" :key="s.n" class="tl-item">
           <div class="tl-num">{{ s.n }}</div>
           <div class="tl-body">
-            <div class="tl-title">{{ s.t }}</div>
-            <div class="tl-desc">{{ s.d }}</div>
+            <div class="tl-title">{{ t(s.t) }}</div>
+            <div class="tl-desc">{{ t(s.d) }}</div>
           </div>
         </li>
       </ol>
@@ -164,7 +164,7 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
         <div class="rd-card"><div class="rd-label">{{ t('pricing.k20') }}</div><div class="rd-val" :class="status?.network">{{ status?.network || "…" }}</div></div>
         <div class="rd-card"><div class="rd-label">chainId</div><div class="rd-val mono">{{ status?.chainId || "…" }}</div></div>
         <div class="rd-card"><div class="rd-label">{{ t('pricing.k21') }}</div><div class="rd-val">{{ feePct() }}% ({{ feeBps }} bps)</div></div>
-        <div class="rd-card"><div class="rd-label">{{ t('pricing.k22') }}</div><div class="rd-val mono">{{ status?.contractAddr ? shortAddr(status.contractAddr, 8, 6) : "直连转账" }}</div></div>
+        <div class="rd-card"><div class="rd-label">{{ t('pricing.k22') }}</div><div class="rd-val mono">{{ status?.contractAddr ? shortAddr(status.contractAddr, 8, 6) : t('pricing.directTransfer') }}</div></div>
       </div>
 
       <div class="arch-list">
@@ -173,7 +173,7 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
           <div v-for="[arch, addr] in archEntries()" :key="arch" class="arch-card" :style="{ '--ac': ARCH_COLOR[arch] || '#3ae0ff' }">
             <div class="arch-dot"></div>
             <div class="arch-meta">
-              <div class="arch-name">{{ ARCH_LABEL[arch] || arch }} <span class="arch-key">{{ arch }}</span></div>
+              <div class="arch-name">{{ t(ARCH_LABEL[arch] || arch) }} <span class="arch-key">{{ arch }}</span></div>
               <div class="arch-addr mono">{{ shortAddr(addr, 8, 6) }}</div>
             </div>
           </div>
