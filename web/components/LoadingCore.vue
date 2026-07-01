@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, watch, onUnmounted } from "vue";
 import { STAGES } from "../constants/fleet";
 
+const { t } = useI18n();
 const props = defineProps<{ active: boolean }>();
 const emit = defineEmits<{ tick: [seconds: number] }>();
 

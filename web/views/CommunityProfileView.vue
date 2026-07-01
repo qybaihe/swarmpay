@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, computed } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useToast } from "../composables/useToast";
 import { getPublicProfile, toggleFollow, forkFleet, type PublicUserProfile } from "../api/community";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
@@ -56,11 +58,11 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
   <div class="bg-overlay"></div>
   <div class="top">
     <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
-    <RouterLink to="/community" class="back-home">← 返回社区</RouterLink>
+    <RouterLink to="/community" class="back-home">{{ t('communityprofile.k1') }}</RouterLink>
   </div>
   <div class="stage">
     <div class="container">
-      <div v-if="loading" class="state">加载中…</div>
+      <div v-if="loading" class="state">{{ t('communityprofile.k2') }}</div>
       <div v-else-if="error" class="state err">⚠️ {{ error }}</div>
       <template v-else-if="profile">
         <div class="profile-head">
@@ -76,14 +78,14 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
           <button class="follow-btn" :class="{ on: following }" @click="onFollow">{{ following ? "已关注" : "+ 关注" }}</button>
         </div>
 
-        <h2 class="sec-title">公开编队</h2>
-        <div v-if="!profile.fleets.length" class="empty">还没有公开编队。</div>
+        <h2 class="sec-title">{{ t('communityprofile.k3') }}</h2>
+        <div v-if="!profile.fleets.length" class="empty">{{ t('communityprofile.k4') }}</div>
         <div v-else class="grid">
           <div v-for="f in profile.fleets" :key="f.id" class="card">
             <RouterLink :to="`/community/fleet/${f.id}`" class="card-name">{{ f.name }}</RouterLink>
             <div class="card-meta">{{ f.node_count }}节点 · {{ f.edge_count }}边 · ❤️{{ f.like_count }}</div>
             <div v-if="f.label" class="card-desc">{{ f.label }}</div>
-            <button class="op" @click="doFork(f.id)">复制</button>
+            <button class="op" @click="doFork(f.id)">{{ t('communityprofile.k5') }}</button>
           </div>
         </div>
       </template>

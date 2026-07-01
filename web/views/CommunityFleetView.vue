@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, computed } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useToast } from "../composables/useToast";
 import { getPublicFleet, toggleLike, listComments, addComment, forkFleet, type CommunityFleetDetail, type FleetComment } from "../api/community";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
@@ -108,12 +110,12 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
   <div class="bg-overlay"></div>
   <div class="top">
     <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
-    <RouterLink to="/community" class="back-home">← 返回社区</RouterLink>
+    <RouterLink to="/community" class="back-home">{{ t('communityfleet.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
-      <div v-if="loading" class="state">加载中…</div>
+      <div v-if="loading" class="state">{{ t('communityfleet.k2') }}</div>
       <div v-else-if="error" class="state err">⚠️ {{ error }}</div>
       <template v-else-if="fleet">
         <div class="detail-head">
@@ -134,7 +136,7 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
 
         <!-- 拓扑预览 -->
         <div class="topo-preview">
-          <div class="topo-title">协作拓扑</div>
+          <div class="topo-title">{{ t('communityfleet.k3') }}</div>
           <div class="topo-nodes">
             <div v-for="(n, i) in fleet.topology.nodes" :key="n.id" class="topo-node">
               <div class="node-dot" :style="{ background: roleColors[n.role] || '#888' }"></div>
@@ -149,18 +151,18 @@ onMounted(async () => { await auth.ensureLoaded(); await load(); });
         <div class="model-id-row"><code class="model-id">{{ fleet.model_id }}</code></div>
 
         <div class="actions">
-          <button class="op fork-edit" @click="doFork('playground')">📋 复制并编辑</button>
-          <button class="op fork-try" @click="doFork('chat')">▶ 直接试</button>
+          <button class="op fork-edit" @click="doFork('playground')">{{ t('communityfleet.k4') }}</button>
+          <button class="op fork-try" @click="doFork('chat')">{{ t('communityfleet.k5') }}</button>
         </div>
 
         <!-- 评论 -->
         <div class="comments-section">
           <h3>💬 评论 ({{ comments.length }})</h3>
           <div class="comment-input">
-            <textarea v-model="commentText" rows="2" placeholder="说点什么…" class="cinput"></textarea>
+            <textarea v-model="commentText" rows="2" :placeholder="t('communityfleet.k7')" class="cinput"></textarea>
             <button class="csubmit" @click="onComment" :disabled="!commentText.trim() || posting">{{ posting ? "发送中" : "发送" }}</button>
           </div>
-          <div v-if="!comments.length" class="no-comment">还没有评论,来抢沙发。</div>
+          <div v-if="!comments.length" class="no-comment">{{ t('communityfleet.k6') }}</div>
           <div v-for="c in comments" :key="c.id" class="comment">
             <div class="c-head">
               <RouterLink :to="`/community/user/${c.author.id}`" class="c-author">@{{ c.author.name }}</RouterLink>

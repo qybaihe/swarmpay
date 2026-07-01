@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import SectionHeader from "./SectionHeader.vue";
+const { t } = useI18n();
 
 // 链上协作流:6 步,从用户下目标到 agent 间价值循环
 const steps = [
-  { n: 1, icon: "🎯", t: "下目标 + 链上预算", d: "用户附带 INJ 预算发起任务 —— 钱不是付给平台,是链上锁住等分润。", color: "#ffd23f", chain: "预算上链" },
-  { n: 2, icon: "🧬", t: "蜂群分工协作", d: "旗舰拆解 → 导航规划 → 工程攻关 → 监察纠错,handoff 闭环 + 突破广播全队复用。", color: "#5ca8ff", chain: "产出 trace" },
-  { n: 3, icon: "⚖️", t: "LLM 裁定贡献", d: "LLM 当评审委员会,读协作 trace 里每个 agent 的贡献,实时出分润权重 —— 不写死。", color: "#8b5cff", chain: "reward_split" },
-  { n: 4, icon: "⛓️", t: "INJ 链上结算", d: "扣 5% 协议费给 treasurer,95% 按权重原子分到各 agent 钱包,tx hash 可查。", color: "#3dffb0", chain: "MsgSend 上链" },
-  { n: 5, icon: "💰", t: "agent 钱包入账", d: "每个 agent 持有独立链上钱包,赚的 INJ 直接进自己地址 —— 不是平台记账,是真金白银。", color: "#ffb84d", chain: "余额真实增加" },
-  { n: 6, icon: "🔁", t: "悬赏回流循环", d: "reviewer 拿赚到的钱,用自己私钥自签悬赏 coder —— 价值在 agent 之间流通,形成经济闭环。", color: "#ff5cc8", chain: "agent→agent 自签" },
+  { n: 1, icon: "🎯", t: "pipelinegrid.s1t", d: "pipelinegrid.s1d", color: "#ffd23f", chain: "pipelinegrid.s1c" },
+  { n: 2, icon: "🧬", t: "pipelinegrid.s2t", d: "pipelinegrid.s2d", color: "#5ca8ff", chain: "pipelinegrid.s2c" },
+  { n: 3, icon: "⚖️", t: "pipelinegrid.s3t", d: "pipelinegrid.s3d", color: "#8b5cff", chain: "reward_split" },
+  { n: 4, icon: "⛓️", t: "pipelinegrid.s4t", d: "pipelinegrid.s4d", color: "#3dffb0", chain: "pipelinegrid.s4c" },
+  { n: 5, icon: "💰", t: "pipelinegrid.s5t", d: "pipelinegrid.s5d", color: "#ffb84d", chain: "pipelinegrid.s5c" },
+  { n: 6, icon: "🔁", t: "pipelinegrid.s6t", d: "pipelinegrid.s6d", color: "#ff5cc8", chain: "pipelinegrid.s6c" },
 ];
 </script>
 
@@ -16,9 +18,9 @@ const steps = [
   <section class="flat-section" id="pipeline">
     <div class="flat-inner">
       <SectionHeader
-        eyebrow="链上协作流"
-        title="一条请求,从推理到链上结算"
-        sub="蜂群不只是协作,更是一条链上价值流。每一步都上链、可验证、可追溯 —— 钱不进平台账本,直接流进 agent 自己的钱包,还能在 agent 之间继续流转。"
+        :eyebrow="t('pipelinegrid.eyebrow')"
+        :title="t('pipelinegrid.k11')"
+        :sub="t('pipelinegrid.sub')"
       />
 
       <!-- 链上价值流:6 步竖向时间线,每步带链上标记 -->
@@ -30,11 +32,11 @@ const steps = [
           </div>
           <div class="step-body">
             <div class="step-head">
-              <span class="step-num">第 {{ s.n }} 步</span>
-              <h3 class="step-t">{{ s.t }}</h3>
-              <span class="step-chain">⛓️ {{ s.chain }}</span>
+              <span class="step-num">{{ t('pipelinegrid.stepN', { n: s.n }) }}</span>
+              <h3 class="step-t">{{ t(s.t) }}</h3>
+              <span class="step-chain">⛓️ {{ t(s.chain) }}</span>
             </div>
-            <p class="step-d">{{ s.d }}</p>
+            <p class="step-d">{{ t(s.d) }}</p>
           </div>
         </li>
       </ol>
@@ -44,19 +46,19 @@ const steps = [
         <div class="loop-head">
           <span class="loop-icon">🔁</span>
           <div>
-            <h3>价值在 agent 之间循环,而非停在平台</h3>
-            <p>传统系统:用户付钱给平台,平台付钱给模型,agent 之间没有流动。SwarmPay:agent 赚的 INJ 能再花出去 —— 一次协作的产出,变成下一次协作的燃料。</p>
+            <h3>{{ t('pipelinegrid.k1') }}</h3>
+            <p>{{ t('pipelinegrid.k2') }}</p>
           </div>
         </div>
         <div class="loop-flow">
-          <span class="lp agent">reviewer<br/><small>赚到 INJ</small></span>
-          <span class="lp arrow">自签悬赏 →</span>
-          <span class="lp agent gold">coder<br/><small>收到悬赏</small></span>
-          <span class="lp arrow">再悬赏 →</span>
-          <span class="lp agent">explorer<br/><small>收到悬赏</small></span>
-          <span class="lp arrow back">↻ 回流</span>
+          <span class="lp agent">reviewer<br/><small>{{ t('pipelinegrid.k3') }}</small></span>
+          <span class="lp arrow">{{ t('pipelinegrid.k4') }}</span>
+          <span class="lp agent gold">coder<br/><small>{{ t('pipelinegrid.k5') }}</small></span>
+          <span class="lp arrow">{{ t('pipelinegrid.k6') }}</span>
+          <span class="lp agent">explorer<br/><small>{{ t('pipelinegrid.k5') }}</small></span>
+          <span class="lp arrow back">{{ t('pipelinegrid.k7') }}</span>
         </div>
-        <div class="loop-foot">每笔悬赏都是 agent 用<b>自己私钥签名</b>的链上交易,真自主花钱 —— 这是 AI agent 从「工具」变成「经济主体」的起点。</div>
+        <div class="loop-foot">{{ t('pipelinegrid.k8') }}<b>{{ t('pipelinegrid.k9') }}</b>{{ t('pipelinegrid.k10') }}</div>
       </div>
     </div>
   </section>

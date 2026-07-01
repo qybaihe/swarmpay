@@ -31,7 +31,7 @@
 
 **三个关键词卡**(横排,各一图标):
 - 🧠 `自进蜂群` — 5 协作 agent 分工 + 经验继承,越用越聪明
-- ⛓️ `链上分润` — LLM 裁定权重,INJ 链上结算(MsgSend 已跑通 / CosmWasm 合约就绪),tx 可查
+- ⛓️ `链上分润` — LLM 裁定权重,INJ 链上结算(direct MsgSend 已跑通 / CosmWasm 合约代码就绪),tx 可查
 - 💸 `价值流通` — 6 链上地址(5 agent + treasurer),赚了能花,形成 agent 间经济闭环
 
 **视觉**:中间一条横向"价值流"光带:用户预算 → 蜂群协作 → LLM 分润 → 各 agent 钱包 → 悬赏回流。
@@ -117,7 +117,7 @@
 - **handoff 闭环** — planner→coder→reviewer,reject 带反馈返工(最多 N 轮)
 - **突破广播** — 任一 agent 关键突破即时广播全群,复用而非重复造轮
 - **难度自适应** — SIMPLE/MEDIUM/HARD 三档,LLM 分类 + 规则兜底
-- **经验继承(EvoMap)** — HARD+evo 继承同类经验,成功配方回流沉淀,越用越聪明
+- **经验继承** — 本地记忆沉淀成功配方,越用越聪明;EvoMap 作为可选增强,不是 Injective 分润硬依赖
 
 **底部**:`swarm-baseline / lite / heavy / evo` 四档 tier,客户端选 model 即选路径。
 
@@ -156,7 +156,7 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 ## 第 9 页 · 技术亮点 ③ Agent 资金化(深度 3,核心创新)
 
 **标题**:`agent 不只是工具,是链上经济主体 —— 自己有钱包,自己花钱`
-**一行点睛(切题)**:`这不是给传统 SaaS 贴个钱包,而是 AI agent 第一次在链上自主持有和支配价值 —— 只有上链,agent 才能"拥有"和"行动"。`
+**一行点睛(切题)**:`这不是给传统 SaaS 贴个钱包,而是让 AI agent 开始在链上自主持有和支配价值 —— 只有上链,agent 才能"拥有"和"行动"。`
 
 **三大创新**(竖排大卡,金色高光):
 1. **每个 agent 自有链上钱包**(已配置就绪)
@@ -205,7 +205,7 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 
 ## 第 11 页 · 市场与竞争分析
 
-**标题**:`首个把「经验传播 + 链上分润」作为一等公民的通用蜂群`
+**标题**:`把「经验传播 + 链上分润」作为一等公民的通用蜂群`
 
 **竞品矩阵**(横轴=通用+群体并行,纵轴=经验传播/资金化):
 
@@ -215,9 +215,9 @@ POST /api/injective/run  →  { content, trace, payment:{txHash, splits[], feeDe
 | AutoGen / CrewAI / LangGraph | ✅ | ❌ | ❌ | 仅编排原语 |
 | Voyager | ❌ 单 agent | ⚠️ skill | ❌ | 机制像但单体 |
 | FunSearch / DGM | ❌ 窄域 | ✅ 种群 | ❌ | 限数学/code |
-| **SwarmPay** | ✅ 通用 | ✅ EvoMap | ✅ Injective | **三者合一** |
+| **SwarmPay** | ✅ 通用 | ✅ 经验回流(EvoMap 可选增强) | ✅ Injective | **三者合一** |
 
-**Injective 生态定位**:Injective 生态首个 agent 分润协议。
+**Injective 生态定位**:面向 Injective 生态的 agent 分润与自主支付基础设施。
 
 **视觉**:矩阵图 + SwarmPay 行金色高亮。
 

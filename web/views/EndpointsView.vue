@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import NavBar from "../components/NavBar.vue";
@@ -11,6 +12,7 @@ import { useTransformStore } from "../stores/transform";
 import { useAuthStore } from "../stores/auth";
 import { URL_PRESETS, MODEL_PRESETS } from "../constants/fleet";
 
+const { t } = useI18n();
 const store = useTransformStore();
 const auth = useAuthStore();
 const router = useRouter();
@@ -167,15 +169,15 @@ onMounted(() => {
   <main class="endpoints-page">
     <div class="hero-head">
       <div class="eyebrow">ENDPOINT CONVERTER</div>
-      <h1>更换上游模型</h1>
-      <p class="lede">填入现有的 OpenAI 兼容端点,SwarmPay 会把它保存为你的上游模型。保存后继续使用「我的 API Key」里的同一个 key 调用。</p>
+      <h1>{{ t('endpoints.k1') }}</h1>
+      <p class="lede">{{ t('endpoints.k2') }}</p>
     </div>
 
     <div class="transform-wrap">
       <div class="transform-card">
         <form @submit.prevent="onSubmit" novalidate>
           <div class="field">
-            <label>模型端点 Base URL</label>
+            <label>{{ t('endpoints.k3') }}</label>
             <input v-model="userBaseUrl" list="urlPresets" placeholder="https://api.openai.com/v1" required autocomplete="off" />
             <datalist id="urlPresets">
               <option v-for="u in URL_PRESETS" :key="u" :value="u" />
@@ -183,11 +185,11 @@ onMounted(() => {
           </div>
           <div class="row2">
             <div class="field">
-              <label>API 密钥</label>
+              <label>{{ t('endpoints.k4') }}</label>
               <input v-model="userApiKey" type="password" placeholder="sk-..." required autocomplete="off" />
             </div>
             <div class="field">
-              <label>模型名</label>
+              <label>{{ t('endpoints.k5') }}</label>
               <input v-model="userModel" list="modelPresets" placeholder="gpt-4o-mini" required autocomplete="off" />
               <datalist id="modelPresets">
                 <option v-for="m in MODEL_PRESETS" :key="m" :value="m" />
@@ -195,8 +197,8 @@ onMounted(() => {
             </div>
           </div>
           <div class="field" style="margin-bottom: 8px">
-            <label>备注(可选)</label>
-            <input v-model="label" placeholder="如:我的生产端点" autocomplete="off" />
+            <label>{{ t('endpoints.k6') }}</label>
+            <input v-model="label" :placeholder="t('endpoints.k15')" autocomplete="off" />
           </div>
           <button type="submit" class="submit-btn" :disabled="submitting">
             {{ submitting ? "健康检查中…" : "保存上游模型" }}
@@ -206,8 +208,8 @@ onMounted(() => {
 
         <!-- 结果卡 -->
         <div class="result" :class="{ show: showResult, 'demo-mode': demoMode }">
-          <div class="ok">
-            上游模型已保存,健康检查已通过。继续使用你的 SwarmPay API Key 调用,底层会转发到这个上游模型。
+          <div class="ok"
+            >{ t('endpoints.k7') }}
           </div>
           <template v-if="result">
             <div v-if="result.endpoint" class="endpoint-health">
@@ -222,15 +224,15 @@ onMounted(() => {
               <CopyButton :text="result.base_url" />
             </div>
             <div class="out-item">
-              <span class="k">模型名</span>
+              <span class="k">{{ t('endpoints.k5') }}</span>
               <span class="v">{{ result.model }}</span>
               <CopyButton :text="result.model" />
             </div>
 
             <div v-if="result.models && result.models.length" class="out-models">
               <div class="out-models-head">
-                <span class="k">可用模型</span>
-                <span class="out-models-hint">用你的 API Key 调用时,model 填下面任意一个都能用。带 <code>user:</code> 前缀的是你在 Playground 保存的自定义编队(agent 拓扑)。</span>
+                <span class="k">{{ t('endpoints.k8') }}</span>
+                <span class="out-models-hint">{{ t('endpoints.k9') }} <code>user:</code>{{ t('endpoints.k10') }}</span>
               </div>
               <div class="out-models-chips">
                 <span v-for="m in result.models" :key="m" class="model-chip" :class="{ custom: m.startsWith('user:') }" @click="copyModel(m)">
@@ -242,8 +244,8 @@ onMounted(() => {
             <CodeTabs :python="pythonCode" :curl="curlCode" />
 
             <div class="result-actions">
-              <button class="btn btn-primary" @click="openPlayground">去 Playground 试用</button>
-              <button class="btn btn-primary evo" @click="openPlayground">观察自进化</button>
+              <button class="btn btn-primary" @click="openPlayground">{{ t('endpoints.k11') }}</button>
+              <button class="btn btn-primary evo" @click="openPlayground">{{ t('endpoints.k12') }}</button>
             </div>
           </template>
         </div>
@@ -252,7 +254,7 @@ onMounted(() => {
       <div v-if="auth.isAuthed || endpoints.length" class="endpoint-list">
         <div class="endpoint-list-head">
           <div>
-            <span>已注册端点</span>
+            <span>{{ t('endpoints.k13') }}</span>
             <em>{{ endpoints.length }} endpoints</em>
           </div>
           <button type="button" @click="loadEndpoints" :disabled="loadingEndpoints">
@@ -260,8 +262,8 @@ onMounted(() => {
           </button>
         </div>
         <div v-if="endpointErr" class="endpoint-list-error">{{ endpointErr }}</div>
-        <div v-if="!loadingEndpoints && endpoints.length === 0" class="endpoint-empty">
-          还没有上传上游模型。此时你的 API Key 会使用内置默认 provider。
+        <div v-if="!loadingEndpoints && endpoints.length === 0" class="endpoint-empty"
+          >{ t('endpoints.k14') }}
         </div>
         <div v-for="endpoint in endpoints" :key="endpoint.id" class="endpoint-row" :class="endpoint.status">
           <div class="endpoint-main">

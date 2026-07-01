@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
@@ -8,6 +9,7 @@ import { listEndpoints, type RegisteredEndpoint } from "../api/endpoints";
 import { createApiKey, listApiKeys, rotateApiKey, revokeApiKey, type UserApiKey } from "../api/api-keys";
 import SiteFooter from "../components/SiteFooter.vue";
 
+const { t } = useI18n();
 const auth = useAuthStore();
 const transformStore = useTransformStore();
 const router = useRouter();
@@ -144,25 +146,25 @@ onMounted(async () => {
   <div class="bg-overlay"></div>
   <div class="top">
     <RouterLink to="/" class="logo"><b>SwarmPay</b></RouterLink>
-    <RouterLink to="/playground" class="back-home">返回</RouterLink>
+    <RouterLink to="/playground" class="back-home">{{ t('apikey.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
-      <h1>我的 API Key</h1>
-      <p class="sub">API Key 属于账号本身。创建后立刻可以调用 SwarmPay;上传自己的模型端点后,继续使用同一个 key。</p>
+      <h1>{{ t('apikey.k2') }}</h1>
+      <p class="sub">{{ t('apikey.k3') }}</p>
 
       <div v-if="currentKey" class="current-key-card">
-        <div class="ck-label">当前可复制 Key</div>
+        <div class="ck-label">{{ t('apikey.k4') }}</div>
         <div class="ck-row">
           <code class="ck-value">{{ currentKey }}</code>
-          <button class="ck-copy" @click="copyKey(currentKey)">复制</button>
+          <button class="ck-copy" @click="copyKey(currentKey)">{{ t('apikey.k5') }}</button>
         </div>
         <div class="ck-endpoint">Base URL: <code>{{ baseUrl }}</code></div>
-        <div class="ck-hint">默认 model: <code>{{ defaultModel }}</code>。每次调用按链上计费从你绑定的 Injective 地址扣 INJ(见 /pricing)。</div>
+        <div class="ck-hint">{{ t('apikey.k6') }} <code>{{ defaultModel }}</code>{{ t('apikey.k7') }}</div>
       </div>
-      <div v-else class="notice-card">
-        后端不会保存完整明文 key。若你换设备或清空缓存,请在下方重新生成一个 API Key。
+      <div v-else class="notice-card"
+        >{ t('apikey.k8') }}
       </div>
 
       <div class="toolbar">
@@ -170,9 +172,9 @@ onMounted(async () => {
         <button class="create-btn" @click="createKey" :disabled="creating">{{ creating ? "创建中..." : "创建我的 API Key" }}</button>
       </div>
 
-      <div v-if="loading" class="state">加载中...</div>
+      <div v-if="loading" class="state">{{ t('apikey.k9') }}</div>
       <div v-else-if="!keys.length" class="empty">
-        <p>你的 API Key 还没生成。</p>
+        <p>{{ t('apikey.k10') }}</p>
         <button class="cta" @click="createKey" :disabled="creating">{{ creating ? "创建中..." : "创建我的 API Key" }}</button>
       </div>
       <div v-else class="key-list">
@@ -182,17 +184,17 @@ onMounted(async () => {
             <span class="key-status" :class="key.status">{{ key.status === "active" ? "正常" : "已停用" }}</span>
           </div>
           <div class="key-row">
-            <span class="key-k">Key 预览</span>
+            <span class="key-k">{{ t('apikey.k11') }}</span>
             <code class="key-v">{{ key.api_key_preview }}</code>
             <button class="key-mini" @click="reveal(key)">{{ revealedKeys[key.id] ? "隐藏" : "显示完整" }}</button>
           </div>
           <div v-if="revealedKeys[key.id]" class="key-reveal">
             <code>{{ revealedKeys[key.id] }}</code>
-            <button class="key-mini" @click="copyKey(revealedKeys[key.id])">复制</button>
+            <button class="key-mini" @click="copyKey(revealedKeys[key.id])">{{ t('apikey.k5') }}</button>
           </div>
-          <div class="key-row"><span class="key-k">创建时间</span><span class="key-v">{{ formatTime(key.created_at) }}</span></div>
-          <div class="key-row"><span class="key-k">最近使用</span><span class="key-v">{{ formatTime(key.last_used_at) }}</span></div>
-          <div class="key-row"><span class="key-k">调用统计</span><span class="key-v">{{ key.success_count }} 成功 / {{ key.failure_count }} 失败</span></div>
+          <div class="key-row"><span class="key-k">{{ t('apikey.k12') }}</span><span class="key-v">{{ formatTime(key.created_at) }}</span></div>
+          <div class="key-row"><span class="key-k">{{ t('apikey.k13') }}</span><span class="key-v">{{ formatTime(key.last_used_at) }}</span></div>
+          <div class="key-row"><span class="key-k">{{ t('apikey.k14') }}</span><span class="key-v">{{ key.success_count }} 成功 / {{ key.failure_count }} 失败</span></div>
           <div class="key-actions">
             <button class="key-btn rot" @click="rotate(key)" :disabled="key.status !== 'active' || rotating === key.id || revoking === key.id">
               {{ rotating === key.id ? "生成中..." : "重新生成" }}
@@ -204,19 +206,19 @@ onMounted(async () => {
         </div>
       </div>
 
-      <h2 class="sec-title">当前上游模型</h2>
+      <h2 class="sec-title">{{ t('apikey.k15') }}</h2>
       <div v-if="latestEndpoint" class="upstream-card">
         <div><b>{{ latestEndpoint.label || latestEndpoint.upstream_model }}</b><span :class="['upstream-status', latestEndpoint.status]">{{ latestEndpoint.status === "active" ? "健康" : "异常" }}</span></div>
         <p><code>{{ latestEndpoint.upstream_model }}</code> · {{ latestEndpoint.upstream_base_url }}</p>
-        <RouterLink to="/endpoints" class="docs-link">更换上游模型</RouterLink>
+        <RouterLink to="/endpoints" class="docs-link">{{ t('apikey.k16') }}</RouterLink>
       </div>
       <div v-else class="upstream-card muted">
-        <div><b>内置默认模型</b><span class="upstream-status active">开箱可用</span></div>
-        <p>还没有上传自己的上游模型。你的 API Key 会先使用内置默认 provider。</p>
-        <RouterLink to="/endpoints" class="docs-link">上传自己的模型端点</RouterLink>
+        <div><b>{{ t('apikey.k17') }}</b><span class="upstream-status active">{{ t('apikey.k18') }}</span></div>
+        <p>{{ t('apikey.k19') }}</p>
+        <RouterLink to="/endpoints" class="docs-link">{{ t('apikey.k20') }}</RouterLink>
       </div>
 
-      <h2 class="sec-title">快速调用示例</h2>
+      <h2 class="sec-title">{{ t('apikey.k21') }}</h2>
       <div class="example-card">
         <div class="ex-label">curl</div>
         <pre class="ex-code">curl {{ baseUrl }}/chat/completions \
@@ -229,7 +231,7 @@ onMounted(async () => {
     ]
   }'</pre>
       </div>
-      <RouterLink to="/docs" class="docs-link">查看完整文档</RouterLink>
+      <RouterLink to="/docs" class="docs-link">{{ t('apikey.k22') }}</RouterLink>
     </div>
   </div>
   <SiteFooter />

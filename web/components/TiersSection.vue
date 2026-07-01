@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import SectionHeader from "./SectionHeader.vue";
+const { t } = useI18n();
 
 const tiers = [
   { tag: "BASELINE", title: "基线模式", code: "swarm-baseline",
@@ -18,7 +20,7 @@ const clients = ["Cursor", "Cline", "Aider", "LangChain", "Continue", "OpenAI SD
 <template>
   <section class="flat-section" id="tiers">
     <div class="flat-inner">
-      <SectionHeader eyebrow="SETTLEMENT MODES" title="四级链上结算模式"
+      <SectionHeader eyebrow="SETTLEMENT MODES" :title="t('tierssection.k1')"
         sub="客户端选哪个 model,就走哪条蜂群路径 + 链上结算方式。推荐 swarm-evo 体验完整 agent 经济(分润 + 悬赏 + 经验继承)。" />
       <div class="tier-grid">
         <div class="tier" :class="{ featured: t.featured }" v-for="t in tiers" :key="t.code">

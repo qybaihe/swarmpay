@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 import { usePlaygroundStore } from "../../stores/playground";
 
+const { t } = useI18n();
 const store = usePlaygroundStore();
 const count = computed(() => store.treasury);
 const pulsing = computed(() => store.treasurePulse);
 </script>
 
 <template>
-  <div class="treasure" :class="{ pulse: pulsing, has: count > 0 }" title="EvoMap 经验宝箱:跑完一轮蜂群,成功路径沉淀为经验金币存入这里;下一轮同类目标从这里继承经验">
+  <div class="treasure" :class="{ pulse: pulsing, has: count > 0 }" :title="t('experiencetreasure.k3')">
     <!-- 宝箱主体 -->
     <div class="chest">
       <div class="chest-lid"></div>
@@ -20,7 +22,7 @@ const pulsing = computed(() => store.treasurePulse);
     </div>
     <!-- 库存 -->
     <div class="treasure-meta">
-      <div class="treasure-label">经验宝箱</div>
+      <div class="treasure-label">{{ t('experiencetreasure.k1') }}</div>
       <div class="treasure-count">
         <span class="coin-glyph">🪙</span>
         <span class="count-num" :key="count">{{ count }}</span>
@@ -43,7 +45,7 @@ const pulsing = computed(() => store.treasurePulse);
     </div>
     <!-- 经验提示条 -->
     <Transition name="hint">
-      <div v-if="pulsing" class="treasure-hint">+1 经验入箱</div>
+      <div v-if="pulsing" class="treasure-hint">{{ t('experiencetreasure.k2') }}</div>
     </Transition>
   </div>
 </template>

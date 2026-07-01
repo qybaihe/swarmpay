@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { computed } from "vue";
 import { renderMarkdown } from "../composables/useMarkdown";
 
+const { t } = useI18n();
 const props = defineProps<{ content: string }>();
 const html = computed(() => renderMarkdown(props.content));
 </script>
@@ -11,8 +13,8 @@ const html = computed(() => renderMarkdown(props.content));
     <div class="label">
       <svg viewBox="0 0 24 24" fill="none">
         <path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-      </svg>
-      旗舰聚合最终答案
+      </svg
+      {{ t('answerblock.k1') }}
     </div>
     <div class="content" v-html="html"></div>
   </div>

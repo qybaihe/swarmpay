@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import SectionHeader from "./SectionHeader.vue";
@@ -14,6 +15,7 @@ import { useTransformStore } from "../stores/transform";
 import { useAuthStore } from "../stores/auth";
 import { TIER_OPTIONS } from "../constants/fleet";
 
+const { t } = useI18n();
 const demoStore = useDemoStore();
 const transformStore = useTransformStore();
 const auth = useAuthStore();
@@ -96,25 +98,25 @@ async function dispatch() {
   <section class="screen" id="demo">
     <div class="bg-dim"></div>
     <div class="screen-content">
-      <SectionHeader eyebrow="LIVE DEMO" title="透视编队端点背后"
+      <SectionHeader eyebrow="LIVE DEMO" :title="t('demosection.k8')"
         sub="派出 agent 编队,实时看它们如何分工、突破、交叉验证、聚合出最终答案。真实模型约需 30-90 秒。" />
 
       <div class="demo-card">
         <div class="demo-input-row">
           <div class="field">
-            <label>目标(派编队去解)</label>
+            <label>{{ t('demosection.k1') }}</label>
             <input v-model="goal" autocomplete="off" />
           </div>
           <div class="field">
-            <label>编队型号</label>
+            <label>{{ t('demosection.k2') }}</label>
             <select v-model="tier">
               <option v-for="o in TIER_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option>
             </select>
           </div>
-          <button class="demo-go" @click="dispatch" :disabled="loading">派出蜂群</button>
+          <button class="demo-go" @click="dispatch" :disabled="loading">{{ t('demosection.k3') }}</button>
         </div>
         <div class="demo-options">
-          <span>API Key(留空走全局 demo):</span>
+          <span>{{ t('demosection.k4') }}</span>
           <input v-model="apiKey" type="password" placeholder="sk-swarmpay-..." autocomplete="off" />
           <button class="ghost-btn" :class="{ on: demoStore.demoMode }" @click="toggleDemoMode">
             {{ demoStore.demoMode ? "✅ 演示模式已开" : "演示模式" }}
@@ -131,11 +133,11 @@ async function dispatch() {
           <template v-if="trace">
             <MetricsGrid :trace="trace" />
             <EvoMapPills :trace="trace" />
-            <div class="fleet-chain-label">🛰️ 编队协作节点链(点击展开)</div>
+            <div class="fleet-chain-label">{{ t('demosection.k5') }}</div>
             <FleetChain v-if="trace.bees?.length" :bees="trace.bees" />
-            <div v-else class="empty">本型号未组队协作。</div>
+            <div v-else class="empty">{{ t('demosection.k6') }}</div>
           </template>
-          <div v-else class="empty">此型号未返回编队过程数据。</div>
+          <div v-else class="empty">{{ t('demosection.k7') }}</div>
         </div>
       </div>
     </div>

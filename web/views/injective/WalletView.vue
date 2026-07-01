@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 // 钱包页：Keplr 连接 / 手动粘贴测试网地址 + 余额展示 + 网络状态。
 // 契约：GET /api/injective/balance, GET /api/injective/status。见 05-API-CONTRACT.md §3 §5。
 
@@ -8,6 +9,7 @@ import SiteFooter from "../../components/SiteFooter.vue";
 import { useInjectiveStore, baseUnitsToInj, shortAddr } from "../../stores/injective";
 import { useToast } from "../../composables/useToast";
 
+const { t } = useI18n();
 const wallet = useInjectiveStore();
 const toast = useToast();
 const router = useRouter();
@@ -107,32 +109,32 @@ onMounted(async () => {
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
       <b>SwarmPay</b>
     </RouterLink>
-    <RouterLink to="/onchain" class="back-home">链上蜂群 →</RouterLink>
+    <RouterLink to="/onchain" class="back-home">{{ t('wallet.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
       <div class="head">
         <div>
-          <h1>⛓️ 链上钱包</h1>
-          <p class="sub">连接 Keplr 或粘贴测试网地址。蜂群分润以此地址为付款方上链,赚到的 INJ 进各 agent 自己的钱包。</p>
+          <h1>{{ t('wallet.k2') }}</h1>
+          <p class="sub">{{ t('wallet.k3') }}</p>
         </div>
       </div>
 
       <!-- 网络状态 -->
       <div class="net-card">
         <div class="net-row">
-          <span class="net-label">网络</span>
+          <span class="net-label">{{ t('wallet.k4') }}</span>
           <span class="net-tag" :class="networkTagClass">{{ networkLabel }}</span>
           <span v-if="wallet.status?.chainId" class="net-chain">chainId: {{ wallet.status.chainId }}</span>
         </div>
         <div class="net-row">
-          <span class="net-label">分润合约</span>
+          <span class="net-label">{{ t('wallet.k5') }}</span>
           <code v-if="wallet.status?.contractAddr" class="net-addr">{{ shortAddr(wallet.status.contractAddr, 10, 8) }}</code>
-          <span v-else class="net-none">未配置（mock 或后端未挂载）</span>
+          <span v-else class="net-none">{{ t('wallet.k6') }}</span>
         </div>
         <div class="net-row">
-          <span class="net-label">链上通道</span>
+          <span class="net-label">{{ t('wallet.k7') }}</span>
           <span class="net-state" :class="{ on: wallet.status?.enabled }">
             {{ wallet.status?.enabled ? "已启用 · 真实上链" : "演示通道 · 后端代签" }}
           </span>
@@ -145,13 +147,13 @@ onMounted(async () => {
           <div class="cc-head">
             <span class="cc-icon">🦊</span>
             <div>
-              <div class="cc-title">Keplr 钱包</div>
-              <div class="cc-desc">已安装 Keplr 扩展时一键连接，自动读取测试网地址</div>
+              <div class="cc-title">{{ t('wallet.k8') }}</div>
+              <div class="cc-desc">{{ t('wallet.k9') }}</div>
             </div>
           </div>
           <div class="cc-status">
-            <span v-if="wallet.hasKeplr" class="has-keplr">✓ 检测到 Keplr</span>
-            <span v-else class="no-keplr">未检测到 Keplr 扩展</span>
+            <span v-if="wallet.hasKeplr" class="has-keplr">{{ t('wallet.k10') }}</span>
+            <span v-else class="no-keplr">{{ t('wallet.k11') }}</span>
           </div>
           <button class="cc-btn" :disabled="connecting" @click="onConnectKeplr">
             {{ connecting ? "连接中…" : "连接 Keplr" }}
@@ -162,8 +164,8 @@ onMounted(async () => {
           <div class="cc-head">
             <span class="cc-icon">📋</span>
             <div>
-              <div class="cc-title">手动粘贴地址</div>
-              <div class="cc-desc">无 Keplr 时的降级方案，粘贴 inj1… 测试网地址即可</div>
+              <div class="cc-title">{{ t('wallet.k12') }}</div>
+              <div class="cc-desc">{{ t('wallet.k13') }}</div>
             </div>
           </div>
           <input
@@ -185,26 +187,26 @@ onMounted(async () => {
           <span class="wp-badge" :class="wallet.connectMode">
             {{ wallet.connectMode === "keplr" ? "🦊 Keplr" : "📋 手动地址" }}
           </span>
-          <span class="wp-title">已连接钱包</span>
-          <button class="wp-disconnect" type="button" @click="wallet.disconnect">断开</button>
+          <span class="wp-title">{{ t('wallet.k14') }}</span>
+          <button class="wp-disconnect" type="button" @click="wallet.disconnect">{{ t('wallet.k15') }}</button>
         </div>
         <div class="wp-body">
           <div class="wp-addr-block">
-            <label>钱包地址</label>
+            <label>{{ t('wallet.k16') }}</label>
             <code class="wp-addr">{{ wallet.address }}</code>
           </div>
           <div class="wp-balance-block">
-            <label>INJ 余额</label>
+            <label>{{ t('wallet.k17') }}</label>
             <div class="wp-balance">
               <span class="wp-amt">{{ balanceInj }}</span>
               <span class="wp-denom">INJ</span>
-              <button class="wp-refresh" type="button" @click="onRefreshBalance" title="刷新余额">↻</button>
+              <button class="wp-refresh" type="button" @click="onRefreshBalance" :title="t('wallet.k20')">↻</button>
             </div>
             <div class="wp-base">最小单位：{{ wallet.balance?.amount || "0" }}</div>
           </div>
         </div>
         <div v-if="archetypeEntries.length" class="wp-agents">
-          <div class="wp-agents-head">Agent 蜂群钱包</div>
+          <div class="wp-agents-head">{{ t('wallet.k18') }}</div>
           <div class="wp-agents-list">
             <div v-for="a in archetypeEntries" :key="a.role" class="wp-agent">
               <span class="wp-agent-role">{{ a.role }}</span>
@@ -212,7 +214,7 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <button class="go-onchain-btn" @click="goOnchain">进入链上蜂群运行 →</button>
+        <button class="go-onchain-btn" @click="goOnchain">{{ t('wallet.k19') }}</button>
       </div>
 
       <div v-if="wallet.error" class="err-msg">⚠️ {{ wallet.error }}</div>

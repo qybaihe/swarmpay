@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
+const { t } = useI18n();
 // Hero 全屏:动态视频背景 + 左上文字(SpaceX 式)
 </script>
 
@@ -10,18 +12,18 @@ import { RouterLink } from "vue-router";
     </video>
     <div class="screen-content">
       <div class="hero-content">
-        <div class="hero-badge"><span class="dot"></span> Injective · AI Agent 自主经济 · LLM 分润 + 自签钱包</div>
-        <h1 class="hero-title">让 AI agent 的协作<br /><span class="grad">有价格、可分配、能流通</span></h1>
-        <p class="hero-sub">
-          SwarmPay 是 <b style="color: #fff">Injective 上的 AI agent 经济体</b>。你发一条请求,一支 agent 蜂群自动分工:拆解、并行攻关、互相纠错、聚合最优解。更关键的是 —— 每次协作的<b style="color: var(--green)">贡献与分润由 LLM 实时裁定</b>,<b style="color: var(--green)">INJ 链上结算</b>。每个 agent 持有<b style="color: #fff">自己的链上钱包</b>,赚的钱直接进自己地址,还能拿赚来的钱<b style="color: var(--green)">悬赏别的 agent</b> —— 价值真正在 agent 之间流通。
+        <div class="hero-badge"><span class="dot"></span>{{ t('herosection.k1') }}</div>
+        <h1 class="hero-title">{{ t('herosection.k2') }}<br /><span class="grad">{{ t('herosection.k3') }}</span></h1>
+        <p class="hero-sub"
+          >{ t('herosection.k4') }} <b style="color: #fff">{{ t('herosection.k5') }}</b>{{ t('herosection.k6') }}<b style="color: var(--green)">{{ t('herosection.k7') }}</b>,<b style="color: var(--green)">{{ t('herosection.k8') }}</b>{{ t('herosection.k9') }}<b style="color: #fff">{{ t('herosection.k10') }}</b>{{ t('herosection.k11') }}<b style="color: var(--green)">{{ t('herosection.k12') }}</b>{{ t('herosection.k13') }}
         </p>
         <div class="hero-cta">
-          <a href="#transform" class="btn btn-primary">立即转换你的端点</a>
-          <RouterLink to="/playground" class="btn btn-ghost">打开 Playground →</RouterLink>
+          <a href="#transform" class="btn btn-primary">{{ t('herosection.k14') }}</a>
+          <RouterLink to="/playground" class="btn btn-ghost">{{ t('herosection.k15') }}</RouterLink>
         </div>
       </div>
     </div>
-    <div class="scroll-hint">向下滚动 ↓</div>
+    <div class="scroll-hint">{{ t('herosection.k16') }}</div>
   </section>
 </template>
 

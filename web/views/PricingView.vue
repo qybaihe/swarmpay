@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 // PricingView —— 「链上计费模式」专页。
 // 不卖 SaaS 套餐,讲清 SwarmPay 的链上计费创新:LLM 动态分润 + 5% 协议费 + agent 自签悬赏 + INJ 结算。
 // 真实数据从 GET /api/injective/status 拉(network/chainId/contractAddr/protocolFeeBps/6 archetype 地址)。
@@ -8,6 +9,7 @@ import NavBar from "../components/NavBar.vue";
 import SiteFooter from "../components/SiteFooter.vue";
 import { useInjectiveStore, baseUnitsToInj, shortAddr, type InjectiveStatus } from "../stores/injective";
 
+const { t } = useI18n();
 const inj = useInjectiveStore();
 const status = ref<InjectiveStatus | null>(null);
 
@@ -94,14 +96,14 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
   <main class="pricing-page">
     <!-- Hero -->
     <section class="hero">
-      <div class="eyebrow">链上计费模式</div>
-      <h1>不卖订阅,按贡献在链上分钱</h1>
-      <p class="hero-sub">
-        SwarmPay 没有固定套餐。每次蜂群协作后,<b style="color:var(--green)">LLM 依据各 agent 实际贡献实时裁定分润权重</b>,在 Injective 链上按权重切分 INJ。<b style="color:var(--green)">{{ feePct() }}% 协议服务费</b>,<b style="color:var(--green)">95% 直达 agent 自有钱包</b>。agent 还能拿赚到的钱<b style="color:var(--violet)">悬赏同伴</b> —— 价值在 agent 之间流通,而非停在平台账本。
+      <div class="eyebrow">{{ t('pricing.k1') }}</div>
+      <h1>{{ t('pricing.k2') }}</h1>
+      <p class="hero-sub"
+        >{ t('pricing.k3') }}<b style="color:var(--green)">{{ t('pricing.k4') }}</b>{{ t('pricing.k5') }}<b style="color:var(--green)">{{ feePct() }}% 协议服务费</b>,<b style="color:var(--green)">{{ t('pricing.k6') }}</b>{{ t('pricing.k7') }}<b style="color:var(--violet)">{{ t('pricing.k8') }}</b>{{ t('pricing.k9') }}
       </p>
       <div class="hero-cta">
-        <RouterLink to="/onchain" class="cta primary">打开链上蜂群 Demo →</RouterLink>
-        <RouterLink to="/credits" class="cta ghost">查看 INJ 流水 →</RouterLink>
+        <RouterLink to="/onchain" class="cta primary">{{ t('pricing.k10') }}</RouterLink>
+        <RouterLink to="/credits" class="cta ghost">{{ t('pricing.k11') }}</RouterLink>
       </div>
     </section>
 
@@ -118,13 +120,13 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
     <!-- Section B: 对比表 -->
     <section class="compare">
       <div class="cmp-head">
-        <div class="cmp-eyebrow">为什么这样更好</div>
-        <h2>传统 SaaS 计费 vs SwarmPay 链上计费</h2>
+        <div class="cmp-eyebrow">{{ t('pricing.k12') }}</div>
+        <h2>{{ t('pricing.k13') }}</h2>
       </div>
       <div class="cmp-table">
         <div class="cmp-row cmp-head-row">
-          <div class="cmp-cell dim">维度</div>
-          <div class="cmp-cell saas">传统 SaaS</div>
+          <div class="cmp-cell dim">{{ t('pricing.k14') }}</div>
+          <div class="cmp-cell saas">{{ t('pricing.k15') }}</div>
           <div class="cmp-cell swarm">SwarmPay</div>
         </div>
         <div v-for="r in compareRows" :key="r.dim" class="cmp-row">
@@ -138,8 +140,8 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
     <!-- Section C: 编号时间线 -->
     <section class="timeline-sec">
       <div class="cmp-head">
-        <div class="cmp-eyebrow">一次结算的全过程</div>
-        <h2>从下目标到 tx 入回执</h2>
+        <div class="cmp-eyebrow">{{ t('pricing.k16') }}</div>
+        <h2>{{ t('pricing.k17') }}</h2>
       </div>
       <ol class="tl">
         <li v-for="s in timeline" :key="s.n" class="tl-item">
@@ -155,18 +157,18 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
     <!-- Section D: 真实数据条 -->
     <section class="realdata">
       <div class="cmp-head">
-        <div class="cmp-eyebrow">链上真实配置</div>
-        <h2>当前 Injective 配置</h2>
+        <div class="cmp-eyebrow">{{ t('pricing.k18') }}</div>
+        <h2>{{ t('pricing.k19') }}</h2>
       </div>
       <div class="rd-grid">
-        <div class="rd-card"><div class="rd-label">网络</div><div class="rd-val" :class="status?.network">{{ status?.network || "…" }}</div></div>
+        <div class="rd-card"><div class="rd-label">{{ t('pricing.k20') }}</div><div class="rd-val" :class="status?.network">{{ status?.network || "…" }}</div></div>
         <div class="rd-card"><div class="rd-label">chainId</div><div class="rd-val mono">{{ status?.chainId || "…" }}</div></div>
-        <div class="rd-card"><div class="rd-label">协议费</div><div class="rd-val">{{ feePct() }}% ({{ feeBps }} bps)</div></div>
-        <div class="rd-card"><div class="rd-label">分润合约</div><div class="rd-val mono">{{ status?.contractAddr ? shortAddr(status.contractAddr, 8, 6) : "直连转账" }}</div></div>
+        <div class="rd-card"><div class="rd-label">{{ t('pricing.k21') }}</div><div class="rd-val">{{ feePct() }}% ({{ feeBps }} bps)</div></div>
+        <div class="rd-card"><div class="rd-label">{{ t('pricing.k22') }}</div><div class="rd-val mono">{{ status?.contractAddr ? shortAddr(status.contractAddr, 8, 6) : "直连转账" }}</div></div>
       </div>
 
       <div class="arch-list">
-        <div class="arch-list-title">Agent 蜂群钱包(每个角色独立链上地址)</div>
+        <div class="arch-list-title">{{ t('pricing.k23') }}</div>
         <div class="arch-grid">
           <div v-for="[arch, addr] in archEntries()" :key="arch" class="arch-card" :style="{ '--ac': ARCH_COLOR[arch] || '#3ae0ff' }">
             <div class="arch-dot"></div>
@@ -176,15 +178,15 @@ const mintscanTx = (h: string) => `https://testnet.mintscan.io/injective-testnet
             </div>
           </div>
         </div>
-        <p v-if="!archEntries().length" class="rd-empty">正在加载角色钱包…</p>
+        <p v-if="!archEntries().length" class="rd-empty">{{ t('pricing.k24') }}</p>
       </div>
     </section>
 
     <!-- Section E: CTA -->
     <section class="cta-final">
-      <h2>看一次真实的链上分润</h2>
-      <p>打开链上蜂群 Demo,输入目标与预算,看 LLM 如何在 Injective 上把钱分给 agent。</p>
-      <RouterLink to="/onchain" class="cta primary">🚀 运行链上蜂群</RouterLink>
+      <h2>{{ t('pricing.k25') }}</h2>
+      <p>{{ t('pricing.k26') }}</p>
+      <RouterLink to="/onchain" class="cta primary">{{ t('pricing.k27') }}</RouterLink>
     </section>
   </main>
 

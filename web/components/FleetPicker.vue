@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 /**
  * 舰队选择器 —— 自定义下拉面板(非原生 select)。
  * 数据来源:
@@ -164,7 +166,7 @@ defineExpose({ buildSelected, loadFleetTopology });
       <div v-if="open" class="panel">
         <!-- 我的端点 -->
         <div v-if="endpoints.length" class="group">
-          <div class="group-label">我的端点</div>
+          <div class="group-label">{{ t('fleetpicker.k1') }}</div>
           <button
             v-for="ep in endpoints" :key="`ep-${ep.id}`"
             class="item" :class="{ active: modelValue === `ep-${ep.id}` }"
@@ -183,7 +185,7 @@ defineExpose({ buildSelected, loadFleetTopology });
 
         <!-- 官方编队 -->
         <div v-if="officialFleets.length" class="group">
-          <div class="group-label">官方编队 · 官方搭配</div>
+          <div class="group-label">{{ t('fleetpicker.k2') }}</div>
           <button
             v-for="f in officialFleets" :key="`of-${f.id}`"
             class="item official" :class="{ active: modelValue === `of-${f.id}` }"
@@ -202,11 +204,11 @@ defineExpose({ buildSelected, loadFleetTopology });
 
         <!-- 空态 -->
         <div v-if="!loading && !endpoints.length && !officialFleets.length" class="empty">
-          暂无可用编队。<br />登录后可选「我的端点」;官方编队需后端已灌入。
+          {{ t('fleetpicker.k3') }}<br />{{ t('fleetpicker.k4') }}
         </div>
         <!-- 未登录提示端点 -->
-        <div v-if="!auth.isAuthed && !endpoints.length" class="login-hint">
-          登录后在「端点」页注册,即可选用自己的端点模型。
+        <div v-if="!auth.isAuthed && !endpoints.length" class="login-hint"
+          >{ t('fleetpicker.k5') }}
         </div>
       </div>
     </Transition>

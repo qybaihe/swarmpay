@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import { RouterLink, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { fetchStatus, type StatusInfo } from "../api/status";
 import { useAuthStore } from "../stores/auth";
 import { useInjectiveStore, baseUnitsToInj } from "../stores/injective";
+import { useLocaleStore } from "../stores/locale";
 
+const { t } = useI18n();
 const scrolled = ref(false);
 const status = ref<StatusInfo | null>(null);
 const auth = useAuthStore();
 const inj = useInjectiveStore();
 const router = useRouter();
+const locale = useLocaleStore();
 const userMenuOpen = ref(false);
 let statusTimer = 0;
 
@@ -37,12 +41,12 @@ onUnmounted(() => {
 });
 
 const statusText = () => {
-  if (!status.value) return "检测中…";
-  if (!status.value.online) return "后端未连接(演示模式)";
+  if (!status.value) return t("common.detecting");
+  if (!status.value.online) return t("common.backendOffline");
   const ep = status.value.endpointsRegistered;
   return ep !== null
-    ? `在线 · ${status.value.backend} · ${ep} 端点已注册`
-    : `在线 · ${status.value.backend}`;
+    ? t("common.onlineWithEp", { backend: status.value.backend, ep })
+    : t("common.onlineSuffix", { backend: status.value.backend });
 };
 
 async function logout() {
@@ -70,27 +74,27 @@ async function goSection(hash: string) {
       </RouterLink>
       <div class="nav-mid">
         <nav class="nav-links">
-          <RouterLink to="/endpoints">端点</RouterLink>
-          <a href="#roster" @click.prevent="goSection('#roster')">角色</a>
-          <a href="#tiers" @click.prevent="goSection('#tiers')">结算模式</a>
-          <RouterLink to="/community">社区</RouterLink>
-          <RouterLink to="/docs">文档</RouterLink>
-          <RouterLink v-if="auth.isAuthed" to="/my-fleets">我的编队</RouterLink>
+          <RouterLink to="/endpoints">{{ t('nav.endpoints') }}</RouterLink>
+          <a href="#roster" @click.prevent="goSection('#roster')">{{ t('nav.roster') }}</a>
+          <a href="#tiers" @click.prevent="goSection('#tiers')">{{ t('nav.tiers') }}</a>
+          <RouterLink to="/community">{{ t('nav.community') }}</RouterLink>
+          <RouterLink to="/docs">{{ t('nav.docs') }}</RouterLink>
+          <RouterLink v-if="auth.isAuthed" to="/my-fleets">{{ t('nav.myFleets') }}</RouterLink>
         </nav>
         <span class="status-badge" :class="{ off: status && !status.online }">
           <span class="dot"></span><span>{{ statusText() }}</span>
         </span>
       </div>
       <div class="nav-cta-group">
-        <RouterLink to="/onchain" class="nav-cta onchain-link">⛓️ 链上蜂群</RouterLink>
-        <RouterLink to="/playground" class="nav-cta playground-link">🎮 Playground</RouterLink>
+        <RouterLink to="/onchain" class="nav-cta onchain-link">{{ t('nav.onchainSwarm') }}</RouterLink>
+        <RouterLink to="/playground" class="nav-cta playground-link">{{ t('nav.playground') }}</RouterLink>
         <template v-if="auth.isAuthed">
           <div class="user-menu" @click="userMenuOpen = !userMenuOpen">
             <div class="user-avatar">{{ (auth.user?.name || auth.user?.email || "?").charAt(0).toUpperCase() }}</div>
             <div class="user-info">
               <div class="user-name">{{ auth.user?.name || auth.user?.email }}</div>
               <div class="user-credits" :class="{ low: inj.balance ? Number(inj.balance.amount) < 100000000000000000n : true }">
-                {{ inj.balance ? `🪙 ${baseUnitsToInj(inj.balance.amount)} INJ` : "🪙 未绑钱包" }}
+                {{ inj.balance ? t('common.walletBalance', { amount: baseUnitsToInj(inj.balance.amount) }) : t('common.unboundWallet') }}
               </div>
             </div>
             <Transition name="dropdown">
@@ -103,28 +107,31 @@ async function goSection(hash: string) {
                   </div>
                 </div>
                 <RouterLink to="/wallet" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">🪙</span><span class="dd-text">链上钱包</span><span class="dd-val">{{ inj.balance ? `${baseUnitsToInj(inj.balance.amount)} INJ` : "未绑" }}</span>
+                  <span class="dd-icon">🪙</span><span class="dd-text">{{ t('nav.wallet') }}</span><span class="dd-val">{{ inj.balance ? `${baseUnitsToInj(inj.balance.amount)} INJ` : t('common.notBound') }}</span>
                 </RouterLink>
                 <RouterLink to="/pricing" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">⛓️</span><span class="dd-text">链上计费模式</span>
+                  <span class="dd-icon">⛓️</span><span class="dd-text">{{ t('nav.pricing') }}</span>
                 </RouterLink>
                 <RouterLink to="/api-keys" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">🔑</span><span class="dd-text">API Key 管理</span>
+                  <span class="dd-icon">🔑</span><span class="dd-text">{{ t('nav.apiKeys') }}</span>
                 </RouterLink>
                 <RouterLink to="/my-fleets" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">📂</span><span class="dd-text">我的编队</span>
+                  <span class="dd-icon">📂</span><span class="dd-text">{{ t('nav.myFleetsMenu') }}</span>
                 </RouterLink>
                 <RouterLink to="/community" class="dd-item" @click="userMenuOpen = false">
-                  <span class="dd-icon">🌐</span><span class="dd-text">Agent 社区</span>
+                  <span class="dd-icon">🌐</span><span class="dd-text">{{ t('nav.agentCommunity') }}</span>
                 </RouterLink>
+                <div class="dd-item dd-lang" @click="locale.toggle()">
+                  <span class="dd-icon">🌐</span><span class="dd-text">{{ t('nav.language') }}</span><span class="dd-val">{{ locale.lang === 'zh' ? '中文' : 'English' }}</span>
+                </div>
                 <button class="dd-item dd-logout" type="button" @click="logout">
-                  <span class="dd-icon">🚪</span><span class="dd-text">退出登录</span>
+                  <span class="dd-icon">🚪</span><span class="dd-text">{{ t('nav.logout') }}</span>
                 </button>
               </div>
             </Transition>
           </div>
         </template>
-        <RouterLink v-else to="/login" class="nav-cta">登录</RouterLink>
+        <RouterLink v-else to="/login" class="nav-cta">{{ t('nav.login') }}</RouterLink>
       </div>
     </div>
   </header>

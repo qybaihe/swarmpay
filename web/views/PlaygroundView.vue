@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, markRaw, onMounted, computed, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { VueFlow, useVueFlow } from "@vue-flow/core";
@@ -25,6 +26,7 @@ import { useFlowRunner, type Particle } from "../composables/useFlowRunner";
 import { useToast } from "../composables/useToast";
 import type { PlaygroundTopology, SwarmGraph, SwarmGraphArchetype, SwarmGraphEdge, SwarmGraphEvent, SwarmGraphNode } from "../api/swarm";
 import type { SelectedFleet } from "../types/fleet-picker";
+const { t } = useI18n();
 
 const store = usePlaygroundStore();
 const auth = useAuthStore();
@@ -1442,15 +1444,15 @@ function miniColor(n: { data?: PetNodeData }) {
     <div class="canvas-wrap" :class="{ 'canvas-focus': canvasFocus }" @drop="onDrop" @dragover="onDragOver">
       <!-- 顶栏 -->
       <div class="pg-topbar">
-        <RouterLink to="/" class="back">← 首页</RouterLink>
-        <div class="pg-title">🎮 Playground · Agent 编排画布</div>
+        <RouterLink to="/" class="back">{{ t('playground.k1') }}</RouterLink>
+        <div class="pg-title">{{ t('playground.k2') }}</div>
         <div class="pg-actions">
           <span class="badge" v-if="store.breakthroughSources.size">
             ⚡ 突破源 ×{{ store.breakthroughSources.size }}
           </span>
           <select v-model="store.mode" class="top-select" :disabled="running">
-            <option value="default">默认编队</option>
-            <option value="custom">自定义编队</option>
+            <option value="default">{{ t('playground.k3') }}</option>
+            <option value="custom">{{ t('playground.k4') }}</option>
           </select>
           <FleetPicker
             ref="fleetPickerRef"
@@ -1462,26 +1464,26 @@ function miniColor(n: { data?: PetNodeData }) {
               {{ t.difficulty }} · {{ t.value }} · {{ t.label }}
             </option>
           </select>
-          <button class="btn-default" @click="loadDefaultFleet" :disabled="running">加载默认编队</button>
-          <button class="btn-clear" @click="nodes = []; edges = []; store.resetRunState()" :disabled="running">清空</button>
+          <button class="btn-default" @click="loadDefaultFleet" :disabled="running">{{ t('playground.k5') }}</button>
+          <button class="btn-clear" @click="nodes = []; edges = []; store.resetRunState()" :disabled="running">{{ t('playground.k6') }}</button>
           <button class="btn-fleet" @click="saveAsFleet" :disabled="running || savingFleet || store.mode !== 'custom'">
             {{ savingFleet ? "保存中…" : "💾 保存为编队" }}
           </button>
-          <button class="btn-fleet" @click="toggleFleetList" :disabled="running">📂 我的编队</button>
-          <button class="btn-chat" @click="goChat" :disabled="running">💬 对话测试 →</button>
+          <button class="btn-fleet" @click="toggleFleetList" :disabled="running">{{ t('playground.k7') }}</button>
+          <button class="btn-chat" @click="goChat" :disabled="running">{{ t('playground.k8') }}</button>
         </div>
       </div>
 
       <!-- 我的编队列表面板 -->
       <div v-if="showFleetList" class="fleet-panel">
         <div class="fleet-panel-head">
-          <span>📂 我的编队</span>
+          <span>{ t('playground.k7') }}</span>
           <button class="fleet-close" @click="showFleetList = false">✕</button>
         </div>
-        <div v-if="fleetsStore.loading" class="fleet-empty">加载中…</div>
+        <div v-if="fleetsStore.loading" class="fleet-empty">{{ t('playground.k9') }}</div>
         <div v-else-if="fleetsStore.error" class="fleet-empty">⚠️ {{ fleetsStore.error }}</div>
-        <div v-else-if="!fleetsStore.fleets.length" class="fleet-empty">
-          还没有编队。拖节点搭一套拓扑,点「💾 保存为编队」即可。
+        <div v-else-if="!fleetsStore.fleets.length" class="fleet-empty"
+          >{ t('playground.k10') }}
         </div>
         <div v-else class="fleet-list">
           <div v-for="f in fleetsStore.fleets" :key="f.id" class="fleet-item">
@@ -1494,8 +1496,8 @@ function miniColor(n: { data?: PetNodeData }) {
               <div v-if="f.label" class="fleet-label">{{ f.label }}</div>
             </div>
             <div class="fleet-item-actions">
-              <button class="fleet-btn load" @click="loadFleetToCanvas(f.id)" :disabled="running">加载</button>
-              <button class="fleet-btn del" @click="deleteFleetFromCanvas(f.id, f.name)" :disabled="running">删除</button>
+              <button class="fleet-btn load" @click="loadFleetToCanvas(f.id)" :disabled="running">{{ t('playground.k11') }}</button>
+              <button class="fleet-btn del" @click="deleteFleetFromCanvas(f.id, f.name)" :disabled="running">{{ t('playground.k12') }}</button>
             </div>
           </div>
         </div>
@@ -1536,12 +1538,12 @@ function miniColor(n: { data?: PetNodeData }) {
         <Transition name="fade">
           <div v-if="showSaveActions && lastSavedFleet" class="save-actions">
             <div class="save-actions-card">
-              <div class="save-actions-title">✅ 编队已保存</div>
+              <div class="save-actions-title">{{ t('playground.k13') }}</div>
               <div class="save-actions-sub">{{ lastSavedFleet.model_id }}</div>
               <div class="save-actions-btns">
-                <button class="sa-btn primary" @click="savedGoChat">💬 去对话测试</button>
-                <button class="sa-btn" @click="savedPublish">🌐 发布到社区</button>
-                <button class="sa-btn ghost" @click="savedDismiss">继续编辑</button>
+                <button class="sa-btn primary" @click="savedGoChat">{{ t('playground.k14') }}</button>
+                <button class="sa-btn" @click="savedPublish">{{ t('playground.k15') }}</button>
+                <button class="sa-btn ghost" @click="savedDismiss">{{ t('playground.k16') }}</button>
               </div>
             </div>
           </div>
@@ -1594,8 +1596,8 @@ function miniColor(n: { data?: PetNodeData }) {
         <!-- 空状态 -->
         <div v-if="nodes.length === 0" class="empty-hint">
           <div class="empty-emoji">🐾</div>
-          <p>从左侧拖角色到这里,搭建你的 agent 编队</p>
-          <p class="sub">拖节点右边的圆点拉到另一个节点 = 连线</p>
+          <p>{ t('playground.k17') }}</p>
+          <p class="sub">{{ t('playground.k18') }}</p>
         </div>
       </div>
 
@@ -1626,24 +1628,24 @@ function miniColor(n: { data?: PetNodeData }) {
           <span>{{ endpointLabel }}</span>
           <input v-model="playgroundApiKey" type="password" placeholder="sk-swarmpay-..." :disabled="running" autocomplete="off" />
         </div>
-        <input v-model="goal" class="goal-input" placeholder="输入你的问题..." :disabled="running" />
-        <button v-if="!running" class="demo-btn" @click="runDemo" title="一键演示完整蜂群协作链路,无需 API Key">
-          🎬 Demo 演示
+        <input v-model="goal" class="goal-input" :placeholder="t('playground.k32')" :disabled="running" />
+        <button v-if="!running" class="demo-btn" @click="runDemo" :title="t('playground.k33')"
+          >{ t('playground.k19') }}
         </button>
-        <button v-if="!running" class="run-btn" @click="runDemo" title="当前演示模式下也播放预制 Evo 蜂群">
-          派出真实蜂群
+        <button v-if="!running" class="run-btn" @click="runDemo" :title="t('playground.k34')"
+          >{ t('playground.k20') }}
         </button>
-        <button v-else class="stop-btn" @click="stop">停止</button>
+        <button v-else class="stop-btn" @click="stop">{{ t('playground.k21') }}</button>
       </div>
 
       <div class="answer-panel" v-if="store.finalAnswer || store.errorMsg || store.playbackStatus !== 'idle'">
         <div class="answer-head">
-          <span>蜂群输出</span>
+          <span>{ t('playground.k22') }}</span>
           <span class="answer-state">{{ store.playbackStatus }}</span>
         </div>
         <div v-if="store.errorMsg" class="error-msg">{{ store.errorMsg }}</div>
         <pre v-if="store.finalAnswer" class="answer-body">{{ store.finalAnswer }}</pre>
-        <div v-else-if="running" class="answer-wait">正在加载蜂群 trace,返回后会在画布上重放协作过程。</div>
+        <div v-else-if="running" class="answer-wait">{{ t('playground.k23') }}</div>
         <div v-if="graphMetrics" class="graph-metrics">
           <span>agentRuns {{ graphMetrics.agentRuns }}</span>
           <span>handoffs {{ graphMetrics.handoffs }}</span>
@@ -1654,13 +1656,13 @@ function miniColor(n: { data?: PetNodeData }) {
         <div v-if="auditSteps.length" class="swarm-audit" data-testid="swarm-audit">
           <div class="audit-head">
             <div>
-              <span>默认 Evo 蜂群调用审计</span>
+              <span>{ t('playground.k24') }}</span>
               <em>{{ auditSummary }}</em>
             </div>
             <b>{{ auditSteps.length }} steps</b>
           </div>
           <div class="audit-layout">
-            <div class="audit-rail" role="list" aria-label="蜂群调用步骤">
+            <div class="audit-rail" role="list" :aria-label="t('playground.k35')">
               <button
                 v-for="step in auditSteps"
                 :key="step.id"
@@ -1691,7 +1693,7 @@ function miniColor(n: { data?: PetNodeData }) {
                   <pre>{{ selectedAuditStep.payload }}</pre>
                 </div>
                 <div v-if="selectedAuditStep.receiver" class="dialog-bubble receiver">
-                  <label>接收方回应</label>
+                  <label>{ t('playground.k25') }}</label>
                   <pre>{{ selectedAuditStep.receiverPayload }}</pre>
                 </div>
               </div>
@@ -1699,7 +1701,7 @@ function miniColor(n: { data?: PetNodeData }) {
           </div>
         </div>
         <div v-if="purificationChain.length" class="purification-chain" data-testid="purification-chain">
-          <div class="purification-head">自净化链</div>
+          <div class="purification-head">{{ t('playground.k26') }}</div>
           <div
             v-for="item in purificationChain"
             :key="item.id"
@@ -1714,12 +1716,12 @@ function miniColor(n: { data?: PetNodeData }) {
         <div v-if="evolutionTimeline.length" class="evolution-timeline" data-testid="evolution-timeline">
           <div class="evolution-head">
             <div>
-              <span>自进化时间线</span>
+              <span>{ t('playground.k27') }}</span>
               <em v-if="latestEvolutionRun">
                 latest {{ generationText(latestEvolutionRun) }} · {{ qualityText(latestEvolutionRun) }}
               </em>
             </div>
-            <button type="button" @click="store.clearEvolutionHistory()" :disabled="running">清空历史</button>
+            <button type="button" @click="store.clearEvolutionHistory()" :disabled="running">{{ t('playground.k28') }}</button>
           </div>
           <div class="evolution-rail">
             <div
@@ -1756,7 +1758,7 @@ function miniColor(n: { data?: PetNodeData }) {
         </div>
         <div v-if="experienceBoard" class="experience-board" data-testid="experience-board">
           <div class="experience-head">
-            <span>自进化经验库</span>
+            <span>{ t('playground.k29') }}</span>
             <em>local {{ experienceBoard.localCount }} / EvoMap {{ experienceBoard.evomapCount }}</em>
             <b v-if="experienceBoard.depositedGeneration">G{{ experienceBoard.depositedGeneration }}</b>
             <b v-if="experienceBoard.depositedQuality">q={{ experienceBoard.depositedQuality }}</b>
@@ -1782,7 +1784,7 @@ function miniColor(n: { data?: PetNodeData }) {
           </div>
         </div>
         <div v-if="evoEvidence.length" class="evo-evidence">
-          <div class="evo-evidence-head">EvoMap 自进化证据</div>
+          <div class="evo-evidence-head">{{ t('playground.k30') }}</div>
           <div v-for="item in evoEvidence" :key="item.id" class="evo-evidence-item" :class="item.kind">
             <span>{{ item.kind }}</span>
             <b>{{ item.title }}</b>
@@ -1807,7 +1809,7 @@ function miniColor(n: { data?: PetNodeData }) {
 
       <!-- 对话日志 -->
       <div class="pg-log" v-if="store.log.length">
-        <div class="log-head">💬 编队对话流</div>
+        <div class="log-head">{{ t('playground.k31') }}</div>
         <div class="log-body">
           <div v-for="(l, i) in store.log" :key="i" class="log-line">
             <span class="log-from">{{ l.from }}:</span> {{ l.text }}

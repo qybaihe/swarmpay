@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { SwarmTrace } from "../api/swarm";
 
+const { t } = useI18n();
 const props = defineProps<{ trace: SwarmTrace }>();
 </script>
 
@@ -9,14 +11,14 @@ const props = defineProps<{ trace: SwarmTrace }>();
     <span class="evo-pill" v-if="trace.inherited_recipes?.length">
       🧬 继承 {{ trace.inherited_recipes.length }} 条经验
     </span>
-    <span class="evo-pill published" v-if="trace.evomap_backflow?.status === 'published'">
-      ✅ 已回流进化网络<template v-if="trace.evomap_backflow.title"> · {{ trace.evomap_backflow.title }}</template>
+    <span class="evo-pill published" v-if="trace.evomap_backflow?.status === 'published'"
+      >{ t('evomappills.k1') }}<template v-if="trace.evomap_backflow.title"> · {{ trace.evomap_backflow.title }}</template>
     </span>
-    <span class="evo-pill skipped" v-else-if="trace.evomap_backflow?.status === 'skipped'">
-      ⏭️ 回流跳过
+    <span class="evo-pill skipped" v-else-if="trace.evomap_backflow?.status === 'skipped'"
+      >{ t('evomappills.k2') }}
     </span>
-    <span class="none" v-if="!trace.inherited_recipes?.length && !trace.evomap_backflow">
-      无 EvoMap 联动(非 evo 型号)
+    <span class="none" v-if="!trace.inherited_recipes?.length && !trace.evomap_backflow"
+      >{ t('evomappills.k3') }}
     </span>
   </div>
 </template>

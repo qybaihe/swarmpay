@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 // INJ 钱包流水页：链上 INJ 账本（取代旧的「积分管理」）。
 // 4 个区块：① 我的链上钱包 ② Agent 蜂群钱包总览 ③ 最近流水 ④ 流向说明图。
 // 不依赖登录态，评委可直接访问；若已登录则展示其绑定钱包。
@@ -9,6 +10,7 @@ import NavBar from "../components/NavBar.vue";
 import SiteFooter from "../components/SiteFooter.vue";
 import { useInjectiveStore, baseUnitsToInj, shortAddr } from "../stores/injective";
 
+const { t } = useI18n();
 const inj = useInjectiveStore();
 
 // ── 角色元数据 ──
@@ -240,29 +242,29 @@ onMounted(async () => {
   <div class="stage">
     <div class="container">
       <div class="head">
-        <h1>⛓️ INJ 钱包流水</h1>
-        <p class="sub">SwarmPay 已废弃积分,所有结算均为链上 INJ。这里是你与蜂群角色的链上账本。</p>
+        <h1>{{ t('credits.k1') }}</h1>
+        <p class="sub">{{ t('credits.k2') }}</p>
       </div>
 
       <!-- ── Block 1: 我的链上钱包 ── -->
       <section class="block">
-        <div class="block-title"><span class="bn">01</span> 我的链上钱包</div>
+        <div class="block-title"><span class="bn">01</span>{{ t('credits.k3') }}</div>
         <div v-if="inj.connected" class="wallet-panel">
           <div class="wp-head">
             <span class="wp-badge" :class="inj.connectMode">
               {{ inj.connectMode === "keplr" ? "🦊 Keplr" : "📋 手动地址" }}
             </span>
             <span class="net-tag" :class="networkTagClass">{{ networkLabel }}</span>
-            <span v-if="inj.isMock" class="mock-flag">演示通道</span>
+            <span v-if="inj.isMock" class="mock-flag">{{ t('credits.k4') }}</span>
           </div>
           <div class="wp-body">
             <div class="wp-addr-block">
-              <label>钱包地址</label>
+              <label>{{ t('credits.k5') }}</label>
               <code class="wp-addr">{{ inj.address }}</code>
               <span class="wp-short">{{ shortAddr(inj.address) }}</span>
             </div>
             <div class="wp-balance-block">
-              <label>INJ 余额</label>
+              <label>{{ t('credits.k6') }}</label>
               <div class="wp-balance">
                 <span class="wp-amt">{{ balanceInj }}</span>
                 <span class="wp-denom">INJ</span>
@@ -276,8 +278,8 @@ onMounted(async () => {
           <div class="cc-head">
             <span class="cc-icon">📋</span>
             <div>
-              <div class="cc-title">粘贴测试网地址</div>
-              <div class="cc-desc">未连 Keplr?直接粘贴 inj1… 地址即可查看链上流水。评委可任意填入测试地址。</div>
+              <div class="cc-title">{{ t('credits.k7') }}</div>
+              <div class="cc-desc">{{ t('credits.k8') }}</div>
             </div>
           </div>
           <input
@@ -292,7 +294,7 @@ onMounted(async () => {
             <button class="cc-btn" :disabled="connecting || !manualAddr.trim()" @click="onConnectManual">
               {{ connecting ? "处理中…" : "使用该地址" }}
             </button>
-            <RouterLink to="/wallet" class="cc-link">🦊 用 Keplr 连接 →</RouterLink>
+            <RouterLink to="/wallet" class="cc-link">{{ t('credits.k9') }}</RouterLink>
           </div>
         </div>
 
@@ -302,12 +304,12 @@ onMounted(async () => {
       <!-- ── Block 2: Agent 蜂群钱包总览 ── -->
       <section class="block">
         <div class="block-title">
-          <span class="bn">02</span> Agent 蜂群钱包总览
-          <span class="bt-hint">每个角色 = 一个独立链上钱包</span>
+          <span class="bn">02</span>{{ t('credits.k10') }}
+          <span class="bt-hint">{{ t('credits.k11') }}</span>
         </div>
-        <div v-if="swarmLoading && !archWallets.length" class="state">加载蜂群钱包…</div>
-        <div v-else-if="!archWallets.length" class="state">
-          暂未获取到角色地址。后端 <code>/api/injective/status</code> 可能未返回 archetypeAddrs。
+        <div v-if="swarmLoading && !archWallets.length" class="state">{{ t('credits.k12') }}</div>
+        <div v-else-if="!archWallets.length" class="state"
+          >{ t('credits.k13') }} <code>/api/injective/status</code>{{ t('credits.k14') }}
         </div>
         <div v-else class="arch-grid">
           <div v-for="w in archWallets" :key="w.key" class="arch-card">
@@ -318,8 +320,8 @@ onMounted(async () => {
             </div>
             <code class="arch-addr">{{ shortAddr(w.addr, 10, 8) }}</code>
             <div class="arch-bal">
-              <span v-if="w.loading" class="arch-loading">查询中…</span>
-              <span v-else-if="w.failed" class="arch-failed">查询失败</span>
+              <span v-if="w.loading" class="arch-loading">{{ t('credits.k15') }}</span>
+              <span v-else-if="w.failed" class="arch-failed">{{ t('credits.k16') }}</span>
               <template v-else>
                 <span class="arch-amt">{{ baseUnitsToInj(w.amount) }}</span>
                 <span class="arch-denom">INJ</span>
@@ -332,14 +334,14 @@ onMounted(async () => {
       <!-- ── Block 3: 最近流水 ── -->
       <section class="block">
         <div class="block-title">
-          <span class="bn">03</span> 最近流水
-          <span v-if="txSource === 'local'" class="bt-hint local">来自本地最近一次支付记录</span>
+          <span class="bn">03</span>{{ t('credits.k17') }}
+          <span v-if="txSource === 'local'" class="bt-hint local">{{ t('credits.k18') }}</span>
           <span v-else-if="txSource === 'api' && inj.address" class="bt-hint">{{ shortAddr(inj.address) }}</span>
-          <span v-else-if="txSource === 'api'" class="bt-hint">全网最近</span>
+          <span v-else-if="txSource === 'api'" class="bt-hint">{{ t('credits.k19') }}</span>
         </div>
-        <div v-if="txLoading" class="state">加载流水…</div>
+        <div v-if="txLoading" class="state">{{ t('credits.k20') }}</div>
         <div v-else-if="!transactions.length" class="empty">
-          暂无链上流水。去 <RouterLink to="/onchain" class="lk">/onchain</RouterLink> 跑一次蜂群,分润与悬赏会在此显示。
+          {{ t('credits.k21') }} <RouterLink to="/onchain" class="lk">/onchain</RouterLink>{{ t('credits.k22') }}
         </div>
         <div v-else class="tx-list">
           <div v-for="(t, i) in transactions" :key="t.txHash + '-' + i" class="tx-row" :class="t.direction">
@@ -364,12 +366,12 @@ onMounted(async () => {
 
       <!-- ── Block 4: 流向说明图 ── -->
       <section class="block">
-        <div class="block-title"><span class="bn">04</span> 流向说明图</div>
+        <div class="block-title"><span class="bn">04</span>{{ t('credits.k23') }}</div>
         <div class="flow-diagram">
           <div class="flow-source">
             <div class="flow-node user">
               <span class="fn-icon">👤</span>
-              <span class="fn-label">用户预算</span>
+              <span class="fn-label">{{ t('credits.k24') }}</span>
               <span class="fn-amt">INJ</span>
             </div>
           </div>
@@ -378,19 +380,19 @@ onMounted(async () => {
             <div class="flow-branch treasurer">
               <div class="flow-node mini treasurer">
                 <span class="fn-dot" style="background:#3dffb0"></span>
-                <span class="fn-label">金库舰 treasurer</span>
+                <span class="fn-label">{{ t('credits.k25') }}</span>
                 <span class="fn-amt">5%</span>
               </div>
-              <div class="flow-note">协议费</div>
+              <div class="flow-note">{{ t('credits.k26') }}</div>
             </div>
             <div class="flow-branch agents">
               <div class="flow-node mini agents">
                 <span class="fn-dot" style="background:#3ae0ff"></span>
-                <span class="fn-label">5 个 Agent 蜂群</span>
+                <span class="fn-label">{{ t('credits.k27') }}</span>
                 <span class="fn-amt">95%</span>
               </div>
-              <div class="flow-note">按 LLM 权重分润<br />(旗舰 / 导航舰 / 工程舰 / 监察舰 / 斥候舰)</div>
-              <div class="flow-bounty">+ 监察舰可对工程舰额外悬赏 bounty</div>
+              <div class="flow-note">{{ t('credits.k28') }}<br />{ t('credits.k29') }}</div>
+              <div class="flow-bounty">{{ t('credits.k30') }}</div>
             </div>
           </div>
         </div>

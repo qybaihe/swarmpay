@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 分润流向图：左=用户预算，中=各 agent 节点（按 weight 粗细/大小），右=各钱包地址。
 // 输入是 DistributeResult.splits（见 src/injective/types.ts 的 SplitShare）。
 // 用 SVG 画流动箭头动画，体现"资金按贡献分配"。
@@ -107,14 +109,14 @@ function rowY(i: number): number {
 <template>
   <div class="split-flow">
     <div class="sf-head">
-      <span class="sf-title">链上分润流向</span>
+      <span class="sf-title">{{ t('splitflowgraph.k1') }}</span>
       <span class="sf-total">合计 {{ totalInj }} {{ DENOM }} · {{ rows.length }} 个角色</span>
     </div>
 
     <div v-if="!hasSplits" class="sf-empty">
       <div class="sf-empty-emoji">💸</div>
-      <p>暂无分润数据</p>
-      <p class="sub">提交蜂群运行后，资金将按各 agent 贡献权重分配到对应链上钱包</p>
+      <p>{ t('splitflowgraph.k2') }}</p>
+      <p class="sub">{{ t('splitflowgraph.k3') }}</p>
     </div>
 
     <svg
@@ -123,7 +125,7 @@ function rowY(i: number): number {
       :viewBox="`0 0 ${LAYOUT.svgW} ${svgHeight}`"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="分润流向图"
+      :aria-label="t('splitflowgraph.k8')"
     >
       <defs>
         <!-- 流动渐变：金 → 青 -->
@@ -150,7 +152,7 @@ function rowY(i: number): number {
       <g class="sf-source">
         <circle :cx="LAYOUT.leftX" :cy="svgHeight / 2" r="34" fill="rgba(255,210,63,0.12)" stroke="#ffd23f" stroke-width="2" filter="url(#sf-glow)" />
         <text :x="LAYOUT.leftX" :y="svgHeight / 2 - 2" text-anchor="middle" class="sf-source-emoji">🏦</text>
-        <text :x="LAYOUT.leftX" :y="svgHeight / 2 + 52" text-anchor="middle" class="sf-source-label">用户预算</text>
+        <text :x="LAYOUT.leftX" :y="svgHeight / 2 + 52" text-anchor="middle" class="sf-source-label">{{ t('splitflowgraph.k4') }}</text>
         <text :x="LAYOUT.leftX" :y="svgHeight / 2 + 68" text-anchor="middle" class="sf-source-amt">{{ totalInj }} {{ DENOM }}</text>
       </g>
 
@@ -199,9 +201,9 @@ function rowY(i: number): number {
       </g>
 
       <!-- 列标题 -->
-      <text :x="LAYOUT.leftX" :y="26" text-anchor="middle" class="sf-col-head">预算源</text>
-      <text :x="LAYOUT.midX" :y="26" text-anchor="middle" class="sf-col-head">Agent 贡献</text>
-      <text :x="LAYOUT.rightX + 46" :y="26" text-anchor="middle" class="sf-col-head">链上钱包</text>
+      <text :x="LAYOUT.leftX" :y="26" text-anchor="middle" class="sf-col-head">{{ t('splitflowgraph.k5') }}</text>
+      <text :x="LAYOUT.midX" :y="26" text-anchor="middle" class="sf-col-head">{{ t('splitflowgraph.k6') }}</text>
+      <text :x="LAYOUT.rightX + 46" :y="26" text-anchor="middle" class="sf-col-head">{{ t('splitflowgraph.k7') }}</text>
     </svg>
   </div>
 </template>

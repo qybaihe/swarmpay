@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 // OnchainRunView.vue —— 链上版蜂群运行页(核心 demo 页)。
 // 输入 goal + 预算 → POST /api/injective/run → 渲染 答案 / 协作trace / 分润流向图 / 交易回执。
 // 契约见 docs/injective-plan/05-API-CONTRACT.md §3。
@@ -10,6 +11,7 @@ import { useInjectiveStore, injToBaseUnits, baseUnitsToInj, shortAddr } from "..
 import SplitFlowGraph from "../../components/injective/SplitFlowGraph.vue";
 import TxTimelineCard from "../../components/injective/TxTimelineCard.vue";
 
+const { t } = useI18n();
 const wallet = useInjectiveStore();
 
 // ── 表单状态 ──
@@ -209,15 +211,15 @@ function bountyAmountInj(b: BountyResultLike): string {
 <template>
   <div class="onchain-page">
     <header class="page-head">
-      <h1>⛓️ SwarmPay · 链上蜂群</h1>
-      <p class="sub">下目标 → 蜂群协作 → LLM 按贡献链上分润 → agent 钱包入账 → reviewer 自签悬赏 coder</p>
+      <h1>{{ t('onchainrun.k1') }}</h1>
+      <p class="sub">{{ t('onchainrun.k2') }}</p>
       <div class="wallet-strip">
         <span v-if="wallet.address" class="addr-pill" :title="wallet.address">
           🪪 {{ shortAddr(wallet.address) }}
           <span v-if="wallet.balance" class="bal">· {{ baseUnitsToInj(wallet.balance.amount) }} {{ wallet.balance.denom }}</span>
         </span>
-        <span v-else class="addr-pill warn">未连接钱包</span>
-        <RouterLink to="/wallet" class="link">钱包管理</RouterLink>
+        <span v-else class="addr-pill warn">{{ t('onchainrun.k3') }}</span>
+        <RouterLink to="/wallet" class="link">{{ t('onchainrun.k4') }}</RouterLink>
         <span class="net" :class="wallet.isMock ? 'mock' : 'real'">{{ wallet.status?.network || "?" }}</span>
       </div>
     </header>
@@ -226,25 +228,25 @@ function bountyAmountInj(b: BountyResultLike): string {
     <section class="form-card">
       <!-- 未连接钱包时,内联输入地址(不依赖跨页状态) -->
       <label v-if="!wallet.address" class="field addr-inline">
-        <span>Injective 测试网地址(付款方)</span>
+        <span>{{ t('onchainrun.k5') }}</span>
         <div class="addr-row">
           <input v-model="localAddr" type="text" placeholder="inj1..." />
-          <button class="addr-btn" @click="useLocalAddr">使用该地址</button>
+          <button class="addr-btn" @click="useLocalAddr">{{ t('onchainrun.k6') }}</button>
         </div>
       </label>
       <label class="field">
-        <span>目标 goal</span>
-        <textarea v-model="goal" rows="3" placeholder="让蜂群协作完成什么?" />
+        <span>{{ t('onchainrun.k7') }}</span>
+        <textarea v-model="goal" rows="3" :placeholder="t('onchainrun.k20')" />
       </label>
       <div class="row">
         <label class="field grow">
-          <span>蜂群档位 tier</span>
+          <span>{{ t('onchainrun.k8') }}</span>
           <select v-model="tier">
             <option v-for="t in tiers" :key="t.value" :value="t.value">{{ t.label }}</option>
           </select>
         </label>
         <label class="field">
-          <span>预算 (INJ)</span>
+          <span>{{ t('onchainrun.k9') }}</span>
           <input v-model="budgetInj" type="text" inputmode="decimal" />
           <small class="hint">→ {{ budgetBaseUnits }} 最小单位</small>
           <small class="hint billing">
@@ -267,14 +269,14 @@ function bountyAmountInj(b: BountyResultLike): string {
     <!-- 结果 -->
     <section v-if="hasResult" class="result-grid">
       <div class="cell answer">
-        <h3>🐝 蜂群答案</h3>
+        <h3>{{ t('onchainrun.k10') }}</h3>
         <div v-if="content" class="markdown" v-html="renderedContent" />
-        <p v-else class="muted">(无答案返回)</p>
+        <p v-else class="muted">{{ t('onchainrun.k11') }}</p>
         <small class="meta">耗时 {{ elapsedSec }}s · 突破 {{ breakthroughs }} 次</small>
       </div>
 
       <div class="cell trace">
-        <h3>🧩 协作 trace</h3>
+        <h3>{{ t('onchainrun.k12') }}</h3>
         <ol v-if="timeline.length" class="timeline">
           <li v-for="(s, i) in timeline" :key="i" :class="s.status">
             <span class="ph">{{ s.phase }}</span>
@@ -284,7 +286,7 @@ function bountyAmountInj(b: BountyResultLike): string {
             <span v-if="s.verdict" class="vd" :class="s.verdict.toLowerCase()">{{ s.verdict }}</span>
           </li>
         </ol>
-        <p v-else class="muted">(无 trace 事件)</p>
+        <p v-else class="muted">{{ t('onchainrun.k13') }}</p>
         <details v-if="rewardSplit.length" class="split-raw">
           <summary>reward_split ({{ rewardSplit.length }})</summary>
           <ul>
@@ -296,7 +298,7 @@ function bountyAmountInj(b: BountyResultLike): string {
       </div>
 
       <div class="cell flow">
-        <h3>💸 分润流向</h3>
+        <h3>{{ t('onchainrun.k14') }}</h3>
         <SplitFlowGraph
           v-if="payment?.splits?.length"
           :splits="payment.splits"
@@ -307,20 +309,20 @@ function bountyAmountInj(b: BountyResultLike): string {
       </div>
 
       <div class="cell receipt">
-        <h3>🧾 交易回执</h3>
+        <h3>{{ t('onchainrun.k15') }}</h3>
         <TxTimelineCard v-if="payment" :payment="payment" :denom="denom" />
-        <p v-else class="muted">无链上交易</p>
+        <p v-else class="muted">{{ t('onchainrun.k16') }}</p>
         <a
           v-if="payment?.txHash"
           class="mintscan-link"
           :href="`https://testnet.mintscan.io/injective-testnet/tx/${payment.txHash}`"
           target="_blank"
           rel="noopener noreferrer"
-        >🔍 在 Mintscan 查看 →</a>
+        >{ t('onchainrun.k17') }}</a>
       </div>
 
       <div class="cell bounty-flow">
-        <h3>💸 悬赏流向</h3>
+        <h3>{{ t('onchainrun.k18') }}</h3>
         <ul v-if="bounties.length" class="bounty-list">
           <li v-for="(b, i) in bounties" :key="i" :class="{ ok: b.success, fail: b.success === false }">
             <span class="bf-arch">{{ b.bounty?.fromArch ?? b.fromArch }}</span>
@@ -337,7 +339,7 @@ function bountyAmountInj(b: BountyResultLike): string {
             >tx ↗</a>
           </li>
         </ul>
-        <p v-else class="muted">本次无悬赏(用 swarm-evo + HARD 难度更易触发 reviewer→coder 悬赏)</p>
+        <p v-else class="muted">{{ t('onchainrun.k19') }}</p>
       </div>
     </section>
   </div>

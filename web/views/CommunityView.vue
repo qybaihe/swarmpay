@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, computed } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useCommunityStore } from "../stores/community";
@@ -7,6 +8,7 @@ import { useToast } from "../composables/useToast";
 import { forkFleet } from "../api/community";
 import SiteFooter from "../components/SiteFooter.vue";
 
+const { t } = useI18n();
 const community = useCommunityStore();
 const auth = useAuthStore();
 const router = useRouter();
@@ -96,33 +98,33 @@ onMounted(async () => {
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
       <b>SwarmPay</b>
     </RouterLink>
-    <RouterLink to="/playground" class="back-home">← 去 Playground</RouterLink>
+    <RouterLink to="/playground" class="back-home">{{ t('community.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
       <div class="head">
         <div>
-          <h1>🌐 Agent 社区</h1>
-          <p class="sub">发现、复用社区分享的 agent 编队拓扑。每个编队是一套 agent 协作结构,调用时按链上计费给各 agent 分润。</p>
+          <h1>{{ t('community.k2') }}</h1>
+          <p class="sub">{{ t('community.k3') }}</p>
         </div>
       </div>
 
       <div class="toolbar">
-        <input class="search-box" :value="searchInput" @input="onSearch" placeholder="搜索编队名 / 描述 / 作者…" />
+        <input class="search-box" :value="searchInput" @input="onSearch" :placeholder="t('community.k13')" />
         <div class="sort-group">
-          <button class="sort-btn" :class="{ on: community.sort === 'new' }" @click="community.setSort('new')">最新</button>
-          <button class="sort-btn" :class="{ on: community.sort === 'hot' }" @click="community.setSort('hot')">最热</button>
+          <button class="sort-btn" :class="{ on: community.sort === 'new' }" @click="community.setSort('new')">{{ t('community.k4') }}</button>
+          <button class="sort-btn" :class="{ on: community.sort === 'hot' }" @click="community.setSort('hot')">{{ t('community.k5') }}</button>
         </div>
       </div>
 
-      <div v-if="community.loading" class="state">加载中…</div>
+      <div v-if="community.loading" class="state">{{ t('community.k6') }}</div>
       <div v-else-if="community.error" class="state err">⚠️ {{ community.error }}</div>
       <div v-else-if="!community.fleets.length" class="empty">
         <div class="empty-icon">🛸</div>
-        <p>社区还没有公开编队。</p>
-        <p class="empty-sub">去 Playground 搭一套拓扑,在「我的编队」里点「发布到社区」就能出现在这里。</p>
-        <RouterLink to="/playground" class="cta">前往 Playground</RouterLink>
+        <p>{{ t('community.k7') }}</p>
+        <p class="empty-sub">{{ t('community.k8') }}</p>
+        <RouterLink to="/playground" class="cta">{{ t('community.k9') }}</RouterLink>
       </div>
 
       <div v-else class="grid">
@@ -133,7 +135,7 @@ onMounted(async () => {
           </div>
           <div class="card-author">
             <RouterLink :to="`/community/user/${f.author.id}`" class="author-link">@{{ f.author.name }}</RouterLink>
-            <span v-if="isOfficial(f)" class="official-tag">官方</span>
+            <span v-if="isOfficial(f)" class="official-tag">{{ t('community.k10') }}</span>
             <span class="time">{{ timeAgo(f.created_at) }}</span>
           </div>
           <div v-if="recipeBadge(f)" class="recipe-badge">⛓️ 链上配方:{{ recipeBadge(f) }}</div>
@@ -143,8 +145,8 @@ onMounted(async () => {
             <span>💬 {{ f.comment_count }}</span>
           </div>
           <div class="card-actions">
-            <button class="op fork-edit" @click="doFork(f.id, f.name, 'playground')">复制并编辑</button>
-            <button class="op fork-try" @click="doFork(f.id, f.name, 'chat')">直接试</button>
+            <button class="op fork-edit" @click="doFork(f.id, f.name, 'playground')">{{ t('community.k11') }}</button>
+            <button class="op fork-try" @click="doFork(f.id, f.name, 'chat')">{{ t('community.k12') }}</button>
           </div>
         </div>
       </div>

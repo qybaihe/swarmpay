@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { toRef } from "vue";
 import { useSprite } from "../../composables/useSprite";
 import type { Action } from "../../constants/pets";
 
+const { t } = useI18n();
 const props = withDefaults(
   defineProps<{ sprite: string; action?: Action }>(),
   { action: "Idle" },

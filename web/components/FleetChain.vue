@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref } from "vue";
 import type { SwarmBee } from "../api/swarm";
 import { ROLE } from "../constants/fleet";
 import ShipIcon from "./ShipIcon.vue";
+const { t } = useI18n();
 
 const props = defineProps<{ bees: SwarmBee[] }>();
 

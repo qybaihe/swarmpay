@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 交易回执卡片：txHash（可点击跳 Injective 浏览器）+ 状态 + mode(contract/direct) + gas。
 // 输入是 DistributeResult（见 src/injective/types.ts）。
 // 后端 mock 模式下 txHash 形如 mock_xxx，此时不生成浏览器链接（展示为本地回执）。
@@ -58,52 +60,52 @@ function copyHash() {
         <span class="dot"></span>{{ statusText }}
       </span>
       <span class="tx-mode" :class="payment.mode">{{ modeLabel }}</span>
-      <span v-if="isMock" class="tx-mock-tag">MOCK 回执</span>
+      <span v-if="isMock" class="tx-mock-tag">{{ t('txtimelinecard.k1') }}</span>
     </div>
 
     <div class="tx-row tx-hash-row">
       <label>TxHash</label>
       <div class="tx-hash-val">
         <code :title="payment.txHash">{{ txHashShort }}</code>
-        <button class="tx-mini-btn" type="button" @click="copyHash" title="复制 txHash">复制</button>
+        <button class="tx-mini-btn" type="button" @click="copyHash" :title="t('txtimelinecard.k12')">{{ t('txtimelinecard.k2') }}</button>
         <a
           v-if="explorerUrl"
           class="tx-mini-btn explorer"
           :href="explorerUrl"
           target="_blank"
           rel="noopener noreferrer"
-          title="在 Injective 浏览器查看"
-        >浏览器 ↗</a>
+          :title="t('txtimelinecard.k13')"
+        >{ t('txtimelinecard.k3') }}</a>
       </div>
     </div>
 
     <div class="tx-grid">
       <div class="tx-cell">
-        <label>执行模式</label>
+        <label>{{ t('txtimelinecard.k4') }}</label>
         <b>{{ modeLabel }}</b>
         <em>{{ modeDesc }}</em>
       </div>
       <div class="tx-cell">
-        <label>分润人数</label>
+        <label>{{ t('txtimelinecard.k5') }}</label>
         <b>{{ splitCount }}</b>
-        <em>个链上接收方</em>
+        <em>{{ t('txtimelinecard.k6') }}</em>
       </div>
       <div class="tx-cell">
-        <label>已分发</label>
+        <label>{{ t('txtimelinecard.k7') }}</label>
         <b class="amt">{{ totalInj }} {{ DENOM }}</b>
-        <em>合计到账</em>
+        <em>{{ t('txtimelinecard.k8') }}</em>
       </div>
       <div class="tx-cell">
-        <label>协议服务费</label>
+        <label>{{ t('txtimelinecard.k9') }}</label>
         <b class="fee">{{ feeInj }} {{ DENOM }}</b>
-        <em>从预算扣除</em>
+        <em>{{ t('txtimelinecard.k10') }}</em>
       </div>
     </div>
 
     <div v-if="payment.error" class="tx-error">⚠️ {{ payment.error }}</div>
 
     <div v-if="payment.splits && payment.splits.length" class="tx-splits">
-      <div class="tx-splits-head">到账明细</div>
+      <div class="tx-splits-head">{{ t('txtimelinecard.k11') }}</div>
       <div class="tx-splits-list">
         <div v-for="(s, i) in payment.splits" :key="i" class="tx-split-item">
           <span class="ts-arch">{{ s.archetype }}</span>

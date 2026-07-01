@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 // 链上金钱流动 overlay:从 sender(用户预算源)向各 agent 钱包画金色分润箭头。
 // 输入是 splits[{archetype, addr, amount, weight}] + senderAddr。
 // 复用 SplitFlowGraph 的金色渐变 / animateMotion 粒子 / dash 流动动画。
@@ -131,14 +133,14 @@ function agentToWalletPath(i: number, row: FlowRow): string {
 <template>
   <div class="reward-flow-overlay">
     <div class="rf-head">
-      <span class="rf-title">✨ 链上分润流向</span>
+      <span class="rf-title">{{ t('rewardflowoverlay.k1') }}</span>
       <span v-if="hasSplits" class="rf-total">合计 {{ totalInj }} {{ DENOM }} · {{ rows.length }} 个角色</span>
     </div>
 
     <div v-if="!hasSplits" class="rf-empty">
       <div class="rf-empty-emoji">💸</div>
-      <p>暂无分润数据</p>
-      <p class="sub">提交蜂群运行后,资金将按各 agent 贡献权重分配到对应链上钱包</p>
+      <p>{ t('rewardflowoverlay.k2') }}</p>
+      <p class="sub">{{ t('rewardflowoverlay.k3') }}</p>
     </div>
 
     <svg
@@ -147,7 +149,7 @@ function agentToWalletPath(i: number, row: FlowRow): string {
       :viewBox="`0 0 ${LAYOUT.svgW} ${svgHeight}`"
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label="链上金钱流动 overlay"
+      :aria-label="t('rewardflowoverlay.k7')"
     >
       <defs>
         <!-- 流动渐变:金 → 青(核心金色分润箭头) -->
@@ -178,7 +180,7 @@ function agentToWalletPath(i: number, row: FlowRow): string {
       <g class="rf-source">
         <circle :cx="LAYOUT.leftX" :cy="senderY" r="34" fill="rgba(255,210,63,0.12)" stroke="#ffd23f" stroke-width="2" filter="url(#rf-glow)" />
         <text :x="LAYOUT.leftX" :y="senderY - 2" text-anchor="middle" class="rf-source-emoji">🏦</text>
-        <text :x="LAYOUT.leftX" :y="senderY + 52" text-anchor="middle" class="rf-source-label">预算源</text>
+        <text :x="LAYOUT.leftX" :y="senderY + 52" text-anchor="middle" class="rf-source-label">{{ t('rewardflowoverlay.k4') }}</text>
         <text :x="LAYOUT.leftX" :y="senderY + 68" text-anchor="middle" class="rf-source-amt">{{ senderShort }}</text>
       </g>
 
@@ -229,9 +231,9 @@ function agentToWalletPath(i: number, row: FlowRow): string {
       </g>
 
       <!-- 列标题 -->
-      <text :x="LAYOUT.leftX" :y="26" text-anchor="middle" class="rf-col-head">预算源</text>
-      <text :x="LAYOUT.midX" :y="26" text-anchor="middle" class="rf-col-head">Agent 贡献</text>
-      <text :x="LAYOUT.rightX + 46" :y="26" text-anchor="middle" class="rf-col-head">链上钱包</text>
+      <text :x="LAYOUT.leftX" :y="26" text-anchor="middle" class="rf-col-head">{{ t('rewardflowoverlay.k4') }}</text>
+      <text :x="LAYOUT.midX" :y="26" text-anchor="middle" class="rf-col-head">{{ t('rewardflowoverlay.k5') }}</text>
+      <text :x="LAYOUT.rightX + 46" :y="26" text-anchor="middle" class="rf-col-head">{{ t('rewardflowoverlay.k6') }}</text>
     </svg>
   </div>
 </template>

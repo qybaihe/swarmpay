@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed } from "vue";
 import CopyButton from "./CopyButton.vue";
 
+const { t } = useI18n();
 const props = defineProps<{
   python: string;
   curl: string;
@@ -18,7 +20,7 @@ const current = computed(() => (active.value === "py" ? props.python : props.cur
       <button :class="{ active: active === 'curl' }" @click="active = 'curl'">curl</button>
     </div>
     <div class="code-box">
-      <CopyButton :text="current" label="复制代码" />
+      <CopyButton :text="current" :label="t('codetabs.k1')" />
       <pre>{{ current }}</pre>
     </div>
   </div>

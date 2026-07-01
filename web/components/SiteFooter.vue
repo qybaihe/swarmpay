@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useRouter, RouterLink } from "vue-router";
 import { nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const router = useRouter();
 
 // 锚点导航:非首页时先回首页再滚到对应 section,避免子页点击卡死
@@ -23,48 +25,48 @@ async function goSection(hash: string) {
           <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
           <b>SwarmPay</b>
         </span>
-        <p class="tagline">Injective 上的自进蜂群 × 链上分润 Agent 经济体</p>
+        <p class="tagline">{{ t('footer.tagline') }}</p>
         <p class="powered">
-          <span class="pw-label">链上分润结算基于</span>
+          <span class="pw-label">{{ t('footer.poweredBy') }}</span>
           <a href="https://injective.com" target="_blank" rel="noopener" class="pw-link">
             <span class="pw-logo">Injective</span>
           </a>
-          <span>构建</span>
+          <span>{{ t('footer.builtWith') }}</span>
         </p>
       </div>
 
       <!-- 导航区 -->
       <div class="col">
-        <h4>导航</h4>
-        <a href="#pipeline" @click.prevent="goSection('#pipeline')">链上协作流</a>
-        <RouterLink to="/endpoints">端点</RouterLink>
-        <a href="#roster" @click.prevent="goSection('#roster')">Agent 角色</a>
-        <a href="#tiers" @click.prevent="goSection('#tiers')">结算模式</a>
+        <h4>{{ t('footer.nav') }}</h4>
+        <a href="#pipeline" @click.prevent="goSection('#pipeline')">{{ t('footer.onchainWorkflow') }}</a>
+        <RouterLink to="/endpoints">{{ t('nav.endpoints') }}</RouterLink>
+        <a href="#roster" @click.prevent="goSection('#roster')">{{ t('footer.agentRoles') }}</a>
+        <a href="#tiers" @click.prevent="goSection('#tiers')">{{ t('footer.pricing') }}</a>
       </div>
 
       <!-- 玩法区 -->
       <div class="col">
-        <h4>玩法</h4>
-        <router-link to="/playground">Playground</router-link>
-        <router-link to="/chat">对话测试</router-link>
-        <router-link to="/community">Agent 社区</router-link>
-        <router-link to="/docs">使用文档</router-link>
+        <h4>{{ t('footer.explore') }}</h4>
+        <router-link to="/playground">{{ t('footer.playground') }}</router-link>
+        <router-link to="/chat">{{ t('footer.chatTest') }}</router-link>
+        <router-link to="/community">{{ t('footer.agentCommunity') }}</router-link>
+        <router-link to="/docs">{{ t('footer.docs') }}</router-link>
       </div>
 
       <!-- 联系区 -->
       <div class="col col-contact">
-        <h4>联系</h4>
+        <h4>{{ t('footer.contact') }}</h4>
         <a href="mailto:support@swarmpay.me" class="contact-item">
           <span class="ci-icon">✉️</span>
           <span class="ci-text">
-            <span class="ci-label">支持页面</span>
+            <span class="ci-label">{{ t('footer.supportPage') }}</span>
             <span class="ci-value">support@swarmpay.me</span>
           </span>
         </a>
         <a href="https://business.swarmpay.me" target="_blank" rel="noopener" class="contact-item">
           <span class="ci-icon">🤝</span>
           <span class="ci-text">
-            <span class="ci-label">商务联系</span>
+            <span class="ci-label">{{ t('footer.businessContact') }}</span>
             <span class="ci-value">business.swarmpay.me</span>
           </span>
         </a>
@@ -73,13 +75,13 @@ async function goSection(hash: string) {
 
     <!-- 版权底栏 -->
     <div class="footer-bottom">
-      <span class="copyright">© 2026 @SwarmPay · 自进蜂群 × 链上分润</span>
+      <span class="copyright">{{ t('footer.copyright') }}</span>
       <span class="built-with">
-        链上分润结算基于
+        {{ t('footer.footerPoweredBy') }}
         <a href="https://injective.com" target="_blank" rel="noopener" class="bw-link">
           <span class="bw-logo">Injective</span>
         </a>
-        构建
+        {{ t('footer.footerBuiltWith') }}
       </span>
     </div>
   </footer>

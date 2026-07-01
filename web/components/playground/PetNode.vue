@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { computed, ref } from "vue";
 import { Handle, Position } from "@vue-flow/core";
 import PetSprite from "./PetSprite.vue";
 import { PET_BY_ID, ROLE_INFO, TASK_TYPES, TASK_TYPE_BY_KEY, type Action, type Role } from "../../constants/pets";
 import { usePlaygroundStore } from "../../stores/playground";
 import { shortAddr, baseUnitsToInj } from "../../stores/injective";
+const { t } = useI18n();
 
 export interface PetNodeData {
   petId: string; // 角色 id(claude/doubao...)
@@ -141,7 +143,7 @@ function onCardMouseMove(e: MouseEvent) {
     @mousemove="onCardMouseMove"
   >
     <Handle type="target" :position="Position.Left" />
-    <div v-if="hasCustom" class="custom-badge" title="已定制">✏️</div>
+    <div v-if="hasCustom" class="custom-badge" :title="t('petnode.k9')">✏️</div>
     <div class="sprite-box">
       <PetSprite :sprite="meta?.sprite || 'PetClawd'" :action="action" />
     </div>
@@ -161,18 +163,18 @@ function onCardMouseMove(e: MouseEvent) {
 
     <!-- 操作按钮(悬停显示) -->
     <div class="node-actions">
-      <button class="nbtn" title="切换舰种" @click.stop="cycleRole">🔄 舰种</button>
-      <button class="nbtn" :class="{ on: isBtSource }" title="设为突破源" @click.stop="toggleBreakthroughSource">⚡ 突破</button>
+      <button class="nbtn" :title="t('petnode.k10')" @click.stop="cycleRole">{{ t('petnode.k1') }}</button>
+      <button class="nbtn" :class="{ on: isBtSource }" :title="t('petnode.k11')" @click.stop="toggleBreakthroughSource">{{ t('petnode.k2') }}</button>
     </div>
 
     <!-- 内联定制面板(点击卡片展开) -->
     <div v-if="expanded" class="customize" @click.stop @mousedown.stop>
       <div class="cz-head">
-        <span>🛠️ 定制节点</span>
-        <button class="cz-close" title="收起" @click.stop="expanded = false">✕</button>
+        <span>{{ t('petnode.k3') }}</span>
+        <button class="cz-close" :title="t('petnode.k12')" @click.stop="expanded = false">✕</button>
       </div>
       <div class="cz-field">
-        <label>角色类型</label>
+        <label>{{ t('petnode.k4') }}</label>
         <select class="cz-select" :value="data.role" @change="selectRole(($event.target as HTMLSelectElement).value)">
           <option v-for="r in (['orchestrator','planner','coder','reviewer','explorer'] as Role[])" :key="r" :value="r">
             {{ ROLE_INFO[r].icon }} {{ ROLE_INFO[r].name }}
@@ -180,25 +182,25 @@ function onCardMouseMove(e: MouseEvent) {
         </select>
       </div>
       <div class="cz-field">
-        <label>场景任务</label>
+        <label>{{ t('petnode.k5') }}</label>
         <select class="cz-select" :value="data.customTaskType || ''" @change="selectTask(($event.target as HTMLSelectElement).value)">
-          <option value="">(按角色默认)</option>
+          <option value="">{{ t('petnode.k6') }}</option>
           <option v-for="t in TASK_TYPES" :key="t.key" :value="t.key">
             {{ t.icon }} {{ t.name }} · {{ t.duty }}
           </option>
         </select>
       </div>
       <div class="cz-field">
-        <label>擅长描述</label>
+        <label>{{ t('petnode.k7') }}</label>
         <textarea
           class="cz-textarea"
           rows="2"
-          placeholder="如:专门把后端 API 设计成 RESTful 风格,重视幂等性"
+          :placeholder="t('petnode.k13')"
           :value="data.customSkill || ''"
           @input="onSkillInput"
         ></textarea>
       </div>
-      <div v-if="hasCustom" class="cz-hint">✓ 已定制,保存舰队时 AI 会据此优化人设</div>
+      <div v-if="hasCustom" class="cz-hint">{{ t('petnode.k8') }}</div>
     </div>
 
     <!-- 对话气泡 -->

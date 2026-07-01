@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { onMounted } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { useFleetsStore } from "../stores/fleets";
@@ -7,6 +8,7 @@ import { useToast } from "../composables/useToast";
 import { publishFleet } from "../api/community";
 import SiteFooter from "../components/SiteFooter.vue";
 
+const { t } = useI18n();
 const fleetsStore = useFleetsStore();
 const auth = useAuthStore();
 const router = useRouter();
@@ -87,50 +89,50 @@ onMounted(async () => {
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
       <b>SwarmPay</b>
     </RouterLink>
-    <RouterLink to="/" class="back-home">← 返回首页</RouterLink>
+    <RouterLink to="/" class="back-home">{{ t('myfleets.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
     <div class="container">
       <div class="head">
         <div>
-          <h1>📂 我的编队</h1>
-          <p class="sub">你在 Playground 搭建并保存的自定义蜂群编队。每个编队对应一个模型名 <code>user:&lt;名字&gt;</code>,注册端点后用它测试。每个编队 = 一套 agent 拓扑,调用时各 agent 按链上计费获得分润。</p>
+          <h1>{{ t('myfleets.k2') }}</h1>
+          <p class="sub">{{ t('myfleets.k3') }} <code>{{ t('myfleets.k4') }}</code>{{ t('myfleets.k5') }}</p>
         </div>
-        <RouterLink to="/playground" class="new-btn">+ 去 Playground 新建</RouterLink>
+        <RouterLink to="/playground" class="new-btn">{{ t('myfleets.k6') }}</RouterLink>
       </div>
 
-      <div v-if="fleetsStore.loading" class="state">加载中…</div>
+      <div v-if="fleetsStore.loading" class="state">{{ t('myfleets.k7') }}</div>
       <div v-else-if="fleetsStore.error" class="state err">⚠️ {{ fleetsStore.error }}</div>
       <div v-else-if="!fleetsStore.fleets.length" class="empty">
         <div class="empty-icon">🛸</div>
-        <p>还没有保存任何编队。</p>
-        <p class="empty-hint">去 Playground 拖节点搭一套拓扑,点「💾 保存为编队」即可出现在这里。</p>
-        <RouterLink to="/playground" class="new-btn">前往 Playground</RouterLink>
+        <p>{{ t('myfleets.k8') }}</p>
+        <p class="empty-hint">{{ t('myfleets.k9') }}</p>
+        <RouterLink to="/playground" class="new-btn">{{ t('myfleets.k10') }}</RouterLink>
       </div>
 
       <div v-else class="table">
         <div class="thead">
-          <div class="th th-name">编队名 / 模型名</div>
-          <div class="th th-scale">规模</div>
-          <div class="th th-label">描述</div>
-          <div class="th th-time">创建时间</div>
-          <div class="th th-actions">操作</div>
+          <div class="th th-name">{{ t('myfleets.k11') }}</div>
+          <div class="th th-scale">{{ t('myfleets.k12') }}</div>
+          <div class="th th-label">{{ t('myfleets.k13') }}</div>
+          <div class="th th-time">{{ t('myfleets.k14') }}</div>
+          <div class="th th-actions">{{ t('myfleets.k15') }}</div>
         </div>
         <div v-for="f in fleetsStore.fleets" :key="f.id" class="tr">
           <div class="td td-name">
-            <div class="fname">{{ f.name }} <span v-if="f.is_public" class="public-tag" title="已发布到社区">🌐</span></div>
-            <code class="fmodel" @click="copyModel(f.model_id)" title="点击复制">{{ f.model_id }}</code>
+            <div class="fname">{{ f.name }} <span v-if="f.is_public" class="public-tag" :title="t('myfleets.k18')">🌐</span></div>
+            <code class="fmodel" @click="copyModel(f.model_id)" :title="t('myfleets.k19')">{{ f.model_id }}</code>
           </div>
           <div class="td td-scale">{{ f.node_count }} 节点 · {{ f.edge_count }} 边</div>
           <div class="td td-label">{{ f.label || "—" }}</div>
           <div class="td td-time">{{ formatTime(f.created_at) }}</div>
           <div class="td td-actions">
-            <button class="op load" @click="loadToPlayground(f.id)">加载到画布</button>
+            <button class="op load" @click="loadToPlayground(f.id)">{{ t('myfleets.k16') }}</button>
             <button class="op pub" :class="{ on: f.is_public }" @click="togglePublish(f.id, f.is_public)">
               {{ f.is_public ? "撤回发布" : "发布到社区" }}
             </button>
-            <button class="op del" @click="remove(f.id, f.name)">删除</button>
+            <button class="op del" @click="remove(f.id, f.name)">{{ t('myfleets.k17') }}</button>
           </div>
         </div>
       </div>

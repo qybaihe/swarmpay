@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
 import AuthCard from "../components/AuthCard.vue";
 import SiteFooter from "../components/SiteFooter.vue";
+const { t } = useI18n();
 </script>
 
 <template>
@@ -15,7 +17,7 @@ import SiteFooter from "../components/SiteFooter.vue";
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
       <b>SwarmPay</b>
     </RouterLink>
-    <RouterLink to="/" class="back-home">← 返回首页</RouterLink>
+    <RouterLink to="/" class="back-home">{{ t('login.k1') }}</RouterLink>
   </div>
 
   <div class="stage">

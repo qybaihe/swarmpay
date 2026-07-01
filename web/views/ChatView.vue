@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed, nextTick, onMounted, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
 import { useChatStore, type ChatMessage } from "../stores/chat";
@@ -10,6 +11,7 @@ import { renderMarkdown } from "../composables/useMarkdown";
 import { useToast } from "../composables/useToast";
 import { createApiKey } from "../api/api-keys";
 
+const { t } = useI18n();
 const chatStore = useChatStore();
 const fleetsStore = useFleetsStore();
 const auth = useAuthStore();
@@ -114,7 +116,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
       <span class="mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2 19 20 12 16 5 20z" fill="currentColor" fill-opacity=".25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="11" r="1.7" fill="currentColor"/></svg></span>
       <b>SwarmPay</b>
     </RouterLink>
-    <RouterLink to="/playground" class="back-home">← 返回 Playground</RouterLink>
+    <RouterLink to="/playground" class="back-home">{{ t('chat.k1') }}</RouterLink>
   </div>
 
   <div class="stage">
@@ -122,30 +124,30 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
       <!-- 顶栏:编队选择 + direct 对比开关 -->
       <div class="chat-topbar">
         <div class="fleet-select">
-          <span class="fs-label">🛰️ 编队</span>
+          <span class="fs-label">{{ t('chat.k2') }}</span>
           <select v-model="chatStore.modelId" class="fs-select" @change="chatStore.setModel(chatStore.modelId)">
-            <optgroup v-if="customModels.length" label="我的自定义编队">
+            <optgroup v-if="customModels.length" :label="t('chat.k12')">
               <option v-for="m in customModels" :key="m.id" :value="m.id">{{ m.name }}</option>
             </optgroup>
-            <optgroup label="内置档位">
+            <optgroup :label="t('chat.k13')">
               <option v-for="m in builtinModels" :key="m.id" :value="m.id">{{ m.name }}</option>
             </optgroup>
           </select>
         </div>
         <label class="compare-toggle" :class="{ on: chatStore.compareDirect }">
           <input type="checkbox" :checked="chatStore.compareDirect" @change="chatStore.toggleCompare()" />
-          <span>⚡ 对比 direct 单次</span>
+          <span>{{ t('chat.k3') }}</span>
         </label>
-        <button class="clear-btn" @click="stop(); chatStore.clear()" :disabled="chatStore.running">清空对话</button>
+        <button class="clear-btn" @click="stop(); chatStore.clear()" :disabled="chatStore.running">{{ t('chat.k4') }}</button>
       </div>
       <div v-if="needsKey" class="key-hint">
         <div class="key-hint-row">
-          <span>⚠️ 需要 API Key 才能调用。注册时已自动生成,如丢失可在 API Key 页重新获取。</span>
+          <span>{{ t('chat.k5') }}</span>
         </div>
         <div class="key-hint-actions">
           <button class="key-action-btn primary" @click="createKeyHere" :disabled="creatingKey">{{ creatingKey ? "创建中..." : "创建 API Key" }}</button>
-          <RouterLink to="/api-keys" class="key-action-btn">去 API Key 页</RouterLink>
-          <RouterLink to="/endpoints" class="key-action-btn">上传自己的上游模型</RouterLink>
+          <RouterLink to="/api-keys" class="key-action-btn">{{ t('chat.k6') }}</RouterLink>
+          <RouterLink to="/endpoints" class="key-action-btn">{{ t('chat.k7') }}</RouterLink>
         </div>
       </div>
 
@@ -153,8 +155,8 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
       <div class="msg-list" ref="listRef">
         <div v-if="!chatStore.messages.length" class="empty">
           <div class="empty-icon">💬</div>
-          <p>发一个问题,看蜂群怎么协作回答。</p>
-          <p class="empty-sub">答案下方可展开「蜂群协作过程」日志。开启对比还能同时看 direct 单次的效果。</p>
+          <p>{{ t('chat.k8') }}</p>
+          <p class="empty-sub">{{ t('chat.k9') }}</p>
         </div>
 
         <div v-for="msg in chatStore.messages" :key="msg.id" class="msg" :class="msg.role">
@@ -175,7 +177,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
                 </div>
                 <!-- 答案 -->
                 <div v-if="msg.content" class="answer" v-html="renderHtml(msg.content)"></div>
-                <div v-else class="typing">●●● 蜂群协作中…</div>
+                <div v-else class="typing">{{ t('chat.k10') }}</div>
 
                 <!-- 可展开日志区 -->
                 <div v-if="msg.logs.length" class="log-zone">
@@ -193,7 +195,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
                 <!-- direct 对比 -->
                 <div v-if="msg.direct" class="direct-zone">
                   <div class="direct-head">
-                    <span class="direct-tag">DIRECT · 单次直通</span>
+                    <span class="direct-tag">{{ t('chat.k11') }}</span>
                     <span class="direct-latency">⏱ {{ msg.direct.latencyMs }}ms</span>
                   </div>
                   <div v-if="msg.direct.error" class="ai-error">❌ {{ msg.direct.error }}</div>
@@ -211,7 +213,7 @@ watch(() => chatStore.messages.length, () => scrollToBottom());
           v-model="input"
           class="input-box"
           rows="2"
-          placeholder="问点什么…(Enter 发送,Shift+Enter 换行)"
+          :placeholder="t('chat.k14')"
           :disabled="chatStore.running"
           @keydown="onKeyDown"
         ></textarea>

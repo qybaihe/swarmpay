@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { SwarmTrace } from "../api/swarm";
 
+const { t } = useI18n();
 const props = defineProps<{ trace: SwarmTrace }>();
 
 const items = () => {

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import SectionHeader from "./SectionHeader.vue";
 import ShipIcon from "./ShipIcon.vue";
+const { t } = useI18n();
 
 const roles = [
   { key: "orchestrator", ship: "flagship", name: "旗舰 Orchestrator",
@@ -24,7 +26,7 @@ const roles = [
 <template>
   <section class="flat-section" id="roster">
     <div class="flat-inner">
-      <SectionHeader eyebrow="ON-CHAIN ROLES" title="五个 agent,各持链上钱包,各司其职"
+      <SectionHeader eyebrow="ON-CHAIN ROLES" :title="t('rostersection.k3')"
         sub="每个 agent 不只是一个推理角色,更是一个链上经济主体 —— 拥有独立 INJ 钱包,按贡献获得 LLM 裁定的分润,部分角色还能自主发起悬赏。" />
       <div class="roster">
         <div class="role" :class="'r-' + r.key" v-for="r in roles" :key="r.key">
@@ -33,7 +35,7 @@ const roles = [
           <div class="focus" v-html="r.focus"></div>
           <div class="attrs">
             <span>archetype: <b>{{ r.archetype }}</b></span>
-            <span>温度 <b>{{ r.temp }}</b> · 分润权重 <b>{{ r.reward }}</b></span>
+            <span>{ t('rostersection.k1') }} <b>{{ r.temp }}</b>{{ t('rostersection.k2') }} <b>{{ r.reward }}</b></span>
             <span><b>{{ r.handoff }}</b></span>
           </div>
         </div>

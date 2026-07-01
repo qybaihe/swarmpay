@@ -127,6 +127,9 @@
   .rowline .k{font-family:var(--serif-zh);font-weight:700;font-size:1.7vw}
   .rowline .v{font-family:var(--sans-zh);font-weight:400;font-size:max(14px,1.2vw);opacity:.85;line-height:1.55}
   .rowline .m{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.6;justify-self:end}
+  .compact-table .rowline{padding:1.55vh 0}
+  .compact-table .rowline .v{font-size:max(13px,1.08vw);line-height:1.42}
+  .compact-table .rowline .m{font-size:10px}
 
   /* ============ Pillar（支柱卡片） ============ */
   .pillar{display:flex;flex-direction:column;gap:1.8vh}
@@ -263,6 +266,19 @@
     text-transform:uppercase;
     opacity:.6;
   }
+  .site-link{
+    font-family:var(--mono);
+    font-size:clamp(22px,2.05vw,34px);
+    line-height:1.1;
+    letter-spacing:.08em;
+    text-transform:lowercase;
+    width:max-content;
+    max-width:100%;
+    padding:.9vh 1.2vw;
+    border-left:3px solid currentColor;
+    background:rgba(var(--paper-rgb),.07);
+  }
+  .slide.light .site-link{background:rgba(var(--ink-rgb),.06)}
 
   /* ---------- stat-card（数据大字报用） ---------- */
   .stat-card{
@@ -337,6 +353,7 @@
   }
   .pipeline[data-cols="3"]{grid-template-columns:repeat(3,1fr)}
   .pipeline[data-cols="4"]{grid-template-columns:repeat(4,1fr)}
+  .pipeline[data-cols="4"].roadmap-grid{gap:2vw}
   .pipeline[data-cols="6"]{grid-template-columns:repeat(6,1fr)}
   .step{
     display:flex;
@@ -367,6 +384,8 @@
     line-height:1.45;
     opacity:.72;
   }
+  .roadmap-grid .step-title{font-size:1.38vw}
+  .roadmap-grid .step-desc{font-size:max(13px,.9vw);line-height:1.5}
 
   /* ---------- 网格（layouts.md 所用） ---------- */
   /* 这些类独立挂到任何容器上都能生效，不依赖 .frame 复合选择器 */
@@ -491,6 +510,7 @@
     <p class="lead" style="max-width:62vw" data-anim>
       让 AI agent 的协作 —— 有价格、可分配、能流通。一支在链上自主协作的蜂群，每次任务按贡献实时分润，每个 agent 拿赚到的钱自己悬赏同伴。
     </p>
+    <div class="site-link" data-anim>https://swarmpay.oir.me/</div>
     <div class="meta-row" data-anim style="font-family:var(--mono);font-size:max(11px,.9vw);letter-spacing:.2em;text-transform:uppercase;opacity:.55">
       <span>github.com/qybaihe/swarmpay</span><span>·</span><span>testnet injective-888</span><span>·</span><span>2026.06</span>
     </div>
@@ -517,7 +537,7 @@
       <div class="pillar" data-anim>
         <div class="ic"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div>
         <div class="t">链上分润</div>
-        <div class="d">LLM 裁定权重，INJ 链上结算，MsgSend 已跑通 / 合约就绪，tx 可查</div>
+        <div class="d">LLM 裁定权重，INJ 链上结算，direct MsgSend 已跑通 / 合约代码就绪，tx 可查</div>
       </div>
       <div class="pillar" data-anim>
         <div class="ic"><svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></div>
@@ -532,19 +552,24 @@
 <!-- ===== PAGE 3 · 团队介绍 ===== -->
 <section class="slide dark">
   <div class="chrome"><div>团队 · Who</div><div>03 / 15</div></div>
-  <div class="frame grid-2-7-5" style="padding-top:6vh">
-    <div style="display:flex; flex-direction:column; justify-content:space-between; gap:3vh">
+  <div class="frame grid-2-7-5" style="padding-top:5vh">
+    <div style="display:flex; flex-direction:column; justify-content:space-between; gap:2.4vh">
       <div>
-        <div class="kicker" data-anim>Team · 一人，全栈</div>
-        <h2 class="h-xl" data-anim style="white-space:nowrap;font-size:7vw">一个人，</h2>
-        <h2 class="h-xl" data-anim style="font-size:7vw;margin-top:-1vh">做了整套链上蜂群。</h2>
-        <p class="lead" style="margin-top:3vh;max-width:90%" data-anim>
-          AI × Web3 方向。此前完成 EvoShip 通用蜂群协作引擎（经验继承 + 突破广播），本项目在其基础上做链上资金化改造。
+        <div class="kicker" data-anim>Team · 张少谦 · 白鹤</div>
+        <h2 class="h-xl" data-anim style="font-size:4.7vw;line-height:1.1">张少谦 · 白鹤</h2>
+        <p class="lead" style="margin-top:2vh;max-width:95%;font-size:1.5vw" data-anim>
+          中山大学软件工程 2024 级本科生，黄埔班第九期。长期做 AI Agent、多 Agent 协作、开源工具链与黑客松产品原型。
         </p>
       </div>
-      <div class="callout" data-anim>
-        全栈架构 / 链层 / 蜂群内核，独立完成 9000+ 行 TS、43 个 Vue 组件、CosmWasm 合约与 16 个单测。
-        <div class="callout-src">— github.com/qybaihe/swarmpay · MIT · 10+ commits</div>
+      <div class="col" data-anim style="gap:1.3vh;font-family:var(--sans-zh);font-size:max(12px,1vw);line-height:1.5">
+        <div style="display:flex;gap:1.2vw"><span class="meta" style="min-width:6vw;color:var(--paper);opacity:.7">SYSU-Anything</span><span style="opacity:.82">AI Native 校园操作系统，整合 10+ 校园服务为 Agent 可调用工具，获得学校及网络中心认可</span></div>
+        <div style="display:flex;gap:1.2vw"><span class="meta" style="min-width:6vw;color:var(--paper);opacity:.7">Finance Anything</span><span style="opacity:.82">13 个 Agent 协作的投资/消费决策工作台，是 SwarmPay 多 Agent 经济化的前作</span></div>
+        <div style="display:flex;gap:1.2vw"><span class="meta" style="min-width:6vw;color:var(--paper);opacity:.7">黑客松获奖</span><span style="opacity:.82">抖音创变者一等奖 · AttraX OpenClaw 二等奖 · 智能创新文旅赛道第一</span></div>
+        <div style="display:flex;gap:1.2vw"><span class="meta" style="min-width:6vw;color:var(--paper);opacity:.7">开源贡献</span><span style="opacity:.82">pnpm / open-design / LobeHub 项目贡献者</span></div>
+      </div>
+      <div class="callout" data-anim style="font-size:max(13px,1.05vw)">
+        SwarmPay 是一次从 AI Agent 工程经验到 Web3 价值结算的延伸：把"多个 agent 一起完成任务"推进到"贡献可以被计价、分配和上链验证"。
+        <div class="callout-src">— github.com/qybaihe/swarmpay · MIT</div>
       </div>
     </div>
     <figure class="frame-img r-4x3" data-anim style="max-height:62vh">
@@ -552,7 +577,7 @@
       <figcaption class="img-cap">SwarmPay · 产品首屏</figcaption>
     </figure>
   </div>
-  <div class="foot"><div>Page 03 · 团队介绍</div><div>队名 / 队长信息由用户填入</div></div>
+  <div class="foot"><div>Page 03 · 团队介绍 · 张少谦</div><div>qybaihe@gmail.com</div></div>
 </section>
 
 <!-- ===== PAGE 4 · 痛点（问题页） ===== -->
@@ -587,8 +612,8 @@
       <div class="pipeline">
         <div class="step" data-anim="step">
           <div class="step-nb">01</div>
-          <div class="step-title">下目标 + 链上预算</div>
-          <div class="step-desc">用户附带 INJ 预算发起任务，预算上链</div>
+          <div class="step-title">下目标 + INJ 预算</div>
+          <div class="step-desc">用户设定预算，后端校验付款方余额</div>
         </div>
         <div class="step" data-anim="step">
           <div class="step-nb">02</div>
@@ -617,7 +642,10 @@
   <div class="frame grid-2-8-4" style="padding-top:5vh">
     <div>
       <div class="kicker" data-anim>Live Demo · 核心演示</div>
-      <h2 class="h-xl" style="margin-bottom:2.5vh" data-anim>一次调用，链上分润。</h2>
+      <h2 class="h-xl" style="margin-bottom:2.5vh;font-size:5.1vw;line-height:1.08" data-anim>
+        <span style="display:block">一次调用，</span>
+        <span style="display:block">链上分润。</span>
+      </h2>
       <p class="lead" style="margin-bottom:2.5vh;max-width:95%" data-anim>
         <span class="hi">POST /api/injective/run</span> → 蜂群协作答案 + 协作 trace + 分润流向图 + 真实交易回执。
       </p>
@@ -625,7 +653,7 @@
         <div class="stat" data-anim>
           <div class="m">TX HASH</div>
           <div class="n" style="font-size:2.6vw">107E7909…</div>
-          <div class="l">真实 MsgSend 上链 · Mintscan 可查</div>
+          <div class="l">真实 MsgSend 上链 · 浏览器可查</div>
         </div>
         <div class="stat" data-anim>
           <div class="m">分润</div>
@@ -634,13 +662,13 @@
         </div>
       </div>
       <div class="callout" style="margin-top:2.5vh" data-anim>
-        6 个链上地址已配置并私钥就绪 · 真实 MsgSend 签名广播已验证 · 现场 /run 实时生成分润 tx hash 可审计
+        6 个链上地址已配置 · 后端签名广播链路就绪 · 现场 /run 实时生成分润 tx hash 可审计
         <div class="callout-src">— GET /api/injective/smoke 一键自检 6 地址余额</div>
       </div>
     </div>
-    <figure class="frame-img r-3x4" data-anim style="max-height:66vh">
-      <img src="images/09-onchain.png" alt="OnchainRunView 链上运行页">
-      <figcaption class="img-cap">OnchainRunView · 链上运行</figcaption>
+    <figure class="frame-img r-16x9" data-anim style="max-height:56vh;align-self:center;margin-top:6vh">
+      <img src="images/10-credits.png" alt="INJ 钱包流水与链上余额页">
+      <figcaption class="img-cap">WalletFlowView · 6 地址余额与最近流水</figcaption>
     </figure>
   </div>
   <div class="foot"><div>Page 06 · 现场 live 跑 /run 实时出 tx</div><div>Demo</div></div>
@@ -661,7 +689,7 @@
       <div class="col" data-anim style="gap:1.4vh;font-family:var(--sans-zh);font-size:max(13px,1.05vw);line-height:1.5">
         <div style="display:flex;gap:1.4vw"><span class="meta" style="min-width:7vw;color:var(--ink)">handoff 闭环</span><span style="opacity:.8">reject 带反馈返工，最多 N 轮</span></div>
         <div style="display:flex;gap:1.4vw"><span class="meta" style="min-width:7vw;color:var(--ink)">突破广播</span><span style="opacity:.8">关键突破即时广播全群，复用非重复</span></div>
-        <div style="display:flex;gap:1.4vw"><span class="meta" style="min-width:7vw;color:var(--ink)">经验继承</span><span style="opacity:.8">EvoMap 沉淀成功配方，越用越聪明</span></div>
+        <div style="display:flex;gap:1.4vw"><span class="meta" style="min-width:7vw;color:var(--ink)">经验继承</span><span style="opacity:.8">本地记忆沉淀成功配方，EvoMap 作为可选增强</span></div>
         <div style="display:flex;gap:1.4vw"><span class="meta" style="min-width:7vw;color:var(--ink)">难度自适应</span><span style="opacity:.8">SIMPLE/MEDIUM/HARD 三档 + 规则兜底</span></div>
       </div>
     </div>
@@ -678,7 +706,7 @@
   <div class="chrome"><div>技术 · 链上分润层</div><div>08 / 15</div></div>
   <div class="frame" style="padding-top:5vh">
     <div class="kicker" data-anim>贡献 → 权重 → 上链 · 原子且可审计</div>
-    <h2 class="h-xl" style="margin-bottom:4vh" data-anim>合约就绪，真链已跑通。</h2>
+    <h2 class="h-xl" style="margin-bottom:4vh" data-anim>合约代码就绪，direct 真链已跑通。</h2>
     <div class="grid-2-6-6" style="gap:5vw 4vh">
       <div data-anim="left" style="padding:3vh 2vw;border-left:3px solid currentColor">
         <div class="kicker" style="opacity:.9">CosmWasm 合约 · 代码就绪</div>
@@ -688,7 +716,7 @@
           <li>最后一方吸收舍入误差，零损耗</li>
           <li>5% 协议费给 treasurer，95% 进 agent</li>
           <li>16 个单测全过 · wasm 编译成功(302K)</li>
-          <li>LastDistribution 链上存证可 Query</li>
+          <li>部署后 LastDistribution 可 Query 审计</li>
         </ul>
         <div class="meta" style="margin-top:2vh;opacity:.6">状态：部署上链属路线图</div>
       </div>
@@ -713,7 +741,7 @@
 <section class="slide light">
   <div class="chrome"><div>核心创新 · Agent 资金化</div><div>09 / 15</div></div>
   <div class="frame" style="padding-top:5vh">
-    <div class="kicker" data-anim>Deep 3 · agent 第一次在链上自主持有和支配价值</div>
+    <div class="kicker" data-anim>Deep 3 · agent 开始在链上自主持有和支配价值</div>
     <h2 class="h-xl" data-anim style="font-size:5vw;max-width:85vw">agent 不只是工具，是链上经济主体。</h2>
     <p class="lead" style="margin-top:2vh;max-width:80vw" data-anim>
       这不是给传统 SaaS 贴个钱包 —— 只有上链，agent 才能"拥有"和"行动"。
@@ -736,7 +764,7 @@
         <div class="ic"><svg class="ico-md" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
         <div class="t" style="font-size:2vw">LLM 决策悬赏</div>
         <div class="d">reviewer 对 coder 主动发悬赏，用发起方 agent 自己私钥签名 MsgSend，真自主花钱</div>
-        <div class="meta" style="margin-top:1.5vh;opacity:.55">链路就绪 · 待注资触发</div>
+        <div class="meta" style="margin-top:1.5vh;opacity:.55">链路就绪 · 余额刷新已接入</div>
       </div>
     </div>
     <div class="callout" style="margin-top:3.5vh" data-anim>
@@ -784,11 +812,11 @@
 <!-- ===== PAGE 11 · 市场与竞争（表格） ===== -->
 <section class="slide light">
   <div class="chrome"><div>竞争 · The Landscape</div><div>11 / 15</div></div>
-  <div class="frame" style="padding-top:5vh">
-    <div class="kicker" data-anim>首个把「经验传播 + 链上分润」作为一等公民的通用蜂群</div>
-    <h2 class="h-xl" data-anim style="margin-bottom:4vh">三者合一，别无分号。</h2>
+  <div class="frame" style="padding-top:4vh">
+    <div class="kicker" data-anim>Market · agent 协作正在从工具编排走向价值网络</div>
+    <h2 class="h-xl" data-anim style="margin-bottom:2vh;font-size:4.05vw">先占住 agent 经济的结算层。</h2>
 
-    <div style="display:flex;flex-direction:column">
+    <div class="compact-table" style="display:flex;flex-direction:column">
       <div class="rowline" data-anim style="border-color:rgba(var(--ink-rgb),.2);font-weight:700;opacity:.95">
         <div class="k" style="font-size:1.4vw">项目</div>
         <div class="v" style="opacity:.7">通用群体并行 · 经验传播 · 链上分润</div>
@@ -796,32 +824,32 @@
       </div>
       <div class="rowline" data-anim style="opacity:.6">
         <div class="k" style="font-size:1.4vw">ChatDev / MetaGPT</div>
-        <div class="v">✅ SOP · ⚠️ 静态 · ❌</div>
+        <div class="v">SOP · 静态经验 · 无链上分润</div>
         <div class="m">限固定 SOP</div>
       </div>
       <div class="rowline" data-anim style="opacity:.6">
         <div class="k" style="font-size:1.4vw">AutoGen / CrewAI</div>
-        <div class="v">✅ · ❌ · ❌</div>
+        <div class="v">通用编排 · 无经验回流 · 无链上分润</div>
         <div class="m">仅编排原语</div>
       </div>
       <div class="rowline" data-anim style="opacity:.6">
         <div class="k" style="font-size:1.4vw">Voyager</div>
-        <div class="v">❌ 单 agent · ⚠️ skill · ❌</div>
+        <div class="v">单 agent · skill 记忆 · 无链上分润</div>
         <div class="m">机制像但单体</div>
       </div>
       <div class="rowline" data-anim style="opacity:.6">
         <div class="k" style="font-size:1.4vw">FunSearch / DGM</div>
-        <div class="v">❌ 窄域 · ✅ 种群 · ❌</div>
+        <div class="v">窄域 · 种群演化 · 无链上分润</div>
         <div class="m">限数学 / code</div>
       </div>
       <div class="rowline" data-anim style="background:rgba(var(--ink-rgb),.06)">
         <div class="k" style="font-size:1.5vw;color:var(--ink)">SwarmPay</div>
-        <div class="v" style="font-weight:600">✅ 通用 · ✅ EvoMap · ✅ Injective</div>
+        <div class="v" style="font-weight:600">通用蜂群 · 经验回流 · Injective 分润</div>
         <div class="m" style="font-weight:700">三者合一</div>
       </div>
     </div>
-    <div class="callout" style="margin-top:3vh" data-anim>
-      Injective 生态首个 agent 分润协议 · 通用蜂群 × 经验传播 × 链上分润，三者此前从未在同一项目出现。
+    <div class="callout" style="margin-top:1.8vh;padding:2vh 2vw;font-size:max(13px,1.02vw);line-height:1.45" data-anim>
+      商业潜质来自两端：一端接 OpenAI 兼容工作流和 agent 市场，一端接 Injective 高速结算；收入路径可扩展为 API 调用费、agent 分润协议费和 DeFi agent 激励基础设施。
     </div>
   </div>
   <div class="foot"><div>Page 11 · 竞品矩阵</div><div>Landscape</div></div>
@@ -870,28 +898,28 @@
     <div class="kicker">Roadmap · 从测试网到 agent 自主经济</div>
     <h2 class="h-xl">四个阶段。</h2>
 
-    <div class="pipeline-section" style="margin-top:5vh">
+    <div class="pipeline-section" style="margin-top:4vh">
       <div class="pipeline-label">时间线 · 现在 → 远期</div>
-      <div class="pipeline">
+      <div class="pipeline roadmap-grid" data-cols="4">
         <div class="step" data-anim="step">
           <div class="step-nb">01</div>
           <div class="step-title">现在 · 已实现</div>
-          <div class="step-desc">testnet 全链路跑通 · 6 地址就绪 · 合约+16单测 · LLM 分润+悬赏链路接入</div>
+          <div class="step-desc">Injective testnet · 6 地址 · direct 分润 · 悬赏链路</div>
         </div>
         <div class="step" data-anim="step">
           <div class="step-nb">02</div>
           <div class="step-title">近期</div>
-          <div class="step-desc">CosmWasm 合约部署上链 · 切换 contract 原子分发 · agent 链上声誉 · 悬赏资金池风控</div>
+          <div class="step-desc">部署 CosmWasm · 切 contract 原子分发 · 声誉与风控</div>
         </div>
         <div class="step" data-anim="step">
           <div class="step-nb">03</div>
           <div class="step-title">中期</div>
-          <div class="step-desc">集成官方 iAgent SDK / Agent SDK 与 MCP Server · agent 自主接单议价 · 跨链(IBC)分润</div>
+          <div class="step-desc">对齐官方 iAgent SDK / Agent SDK / MCP · agent 接单议价</div>
         </div>
         <div class="step" data-anim="step">
           <div class="step-nb">04</div>
           <div class="step-title">远期</div>
-          <div class="step-desc">永续合约交易 agent 分润 · agent 经济协议标准化</div>
+          <div class="step-desc">DeFi 交易 agent 分润 · 跨链结算 · 协议标准化</div>
         </div>
       </div>
     </div>
@@ -907,7 +935,10 @@
   <div class="chrome"><div>The Vision · agent 自主经济的全景</div><div>14 / 15</div></div>
   <div class="frame" style="padding-top:4vh">
     <div class="kicker" data-anim>The Vision · 从工具，到经济主体</div>
-    <h2 class="h-xl" data-anim style="font-size:4.2vw;line-height:1.15;max-width:88vw">一次调用，价值在六个链上钱包间流动 —— 然后流回蜂群。</h2>
+    <h2 class="h-xl" data-anim style="font-size:4.05vw;line-height:1.15;max-width:92vw">
+      <span style="display:block">一次调用，价值在六个链上钱包间流动 ——</span>
+      <span style="display:block">然后流回蜂群。</span>
+    </h2>
 
     <figure class="frame-img r-16x9 fit-contain" data-anim style="max-height:54vh;margin-top:2.5vh">
       <img src="images/14-economy-flow.png" alt="Agent 经济价值流全景图">
@@ -916,7 +947,7 @@
 
     <div class="callout" data-anim style="margin-top:2.5vh">
       今天这是一张 testnet 上的价值流图；明天，它是 agent 经济的基础设施 —— 让每个 AI agent 都能在链上持有、赚取、并自主支配价值。
-      <div class="callout-src">— 这不是给传统 SaaS 贴个钱包，而是 AI agent 第一次成为链上经济主体</div>
+      <div class="callout-src">— 这不是给传统 SaaS 贴个钱包，而是让 AI agent 成为可结算的链上经济主体</div>
     </div>
   </div>
   <div class="foot"><div>Page 14 · Agent 经济全景</div><div>The Vision</div></div>
@@ -934,8 +965,9 @@
     <p class="lead" style="max-width:60vw" data-anim>
       AI agent 从工具，变成链上经济主体 —— 这是 agent 自主经济的起点。
     </p>
+    <div class="site-link" data-anim>https://swarmpay.oir.me/</div>
     <div class="meta-row" data-anim style="font-family:var(--mono);font-size:max(11px,.9vw);letter-spacing:.2em;text-transform:uppercase;opacity:.6">
-      <span>🐙 github.com/qybaihe/swarmpay</span><span>·</span><span>⛓️ GET /api/injective/smoke</span><span>·</span><span>现场 /run 实时出 tx</span>
+      <span>github.com/qybaihe/swarmpay</span><span>·</span><span>GET /api/injective/smoke</span><span>·</span><span>现场 /run 实时出 tx</span>
     </div>
     <div class="meta" data-anim style="opacity:.45">Injective 新星计划 · 2026 · 致谢 Injective / Microsoft / Web3Labs</div>
   </div>

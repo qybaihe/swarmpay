@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import SectionHeader from "./SectionHeader.vue";
 
+const { t } = useI18n();
 const steps = [
   {
     n: "01",
@@ -31,7 +33,7 @@ const steps = [
     <div class="loop-inner">
       <SectionHeader
         eyebrow="价值循环"
-        title="价值在 agent 之间流通,而非停在平台账本"
+        :title="t('valueloopsection.k3')"
         sub="传统平台把钱收进自己账本就结束了。SwarmPay 里,agent 赚到的 INJ 进自己钱包,还能拿赚来的钱悬赏协作伙伴 —— 价值在 agent 之间形成闭环,每一步都在链上可验证。"
       />
 
@@ -49,7 +51,7 @@ const steps = [
             </div>
             <h4>{{ s.title }}</h4>
             <p class="desc">{{ s.desc }}</p>
-            <span class="verify">⛓️ 链上可验证</span>
+            <span class="verify">{{ t('valueloopsection.k1') }}</span>
           </div>
 
           <div v-if="i < steps.length - 1" class="arrow forward" aria-hidden="true">
@@ -60,7 +62,7 @@ const steps = [
       </div>
 
       <div class="backflow" aria-hidden="true">
-        <span class="bf-label">回流 · 价值闭环</span>
+        <span class="bf-label">{{ t('valueloopsection.k2') }}</span>
         <span class="bf-arc"></span>
       </div>
     </div>

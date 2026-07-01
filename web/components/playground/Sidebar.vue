@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { PETS, ROLE_INFO } from "../../constants/pets";
 import PetSprite from "./PetSprite.vue";
+const { t } = useI18n();
 
 defineProps<{ compact?: boolean }>();
 
@@ -15,8 +17,8 @@ function onDragStart(e: DragEvent, petId: string) {
 <template>
   <aside class="sidebar" :class="{ compact }">
     <div class="side-head">
-      <div class="side-title">🐾 角色池</div>
-      <div class="side-hint">拖到画布添加节点</div>
+      <div class="side-title">{{ t('sidebar.k1') }}</div>
+      <div class="side-hint">{{ t('sidebar.k2') }}</div>
     </div>
     <div class="pet-list">
       <div
@@ -40,12 +42,12 @@ function onDragStart(e: DragEvent, petId: string) {
     </div>
 
     <div class="side-tips">
-      <div class="tip-title">💡 怎么玩</div>
+      <div class="tip-title">{{ t('sidebar.k3') }}</div>
       <ol>
-        <li>从上面拖角色到画布</li>
-        <li>拖节点边缘的圆点 <b>拉连线</b> 建编队</li>
-        <li>悬停节点可 <b>切换舰种</b> / 标 <b>突破源</b></li>
-        <li>底部输入问题 → 派出舰队看流转</li>
+        <li>{{ t('sidebar.k4') }}</li>
+        <li>{{ t('sidebar.k5') }} <b>{{ t('sidebar.k6') }}</b>{{ t('sidebar.k7') }}</li>
+        <li>{{ t('sidebar.k8') }} <b>{{ t('sidebar.k9') }}</b>{{ t('sidebar.k10') }} <b>{{ t('sidebar.k11') }}</b></li>
+        <li>{{ t('sidebar.k12') }}</li>
       </ol>
     </div>
   </aside>

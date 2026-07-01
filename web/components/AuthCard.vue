@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
@@ -67,25 +69,25 @@ async function onSubmit() {
     <p class="sub">{{ sub }}</p>
 
     <div class="tab-row">
-      <button :class="{ active: mode === 'login' }" type="button" @click="setMode('login')">登录</button>
-      <button :class="{ active: mode === 'register' }" type="button" @click="setMode('register')">注册</button>
+      <button :class="{ active: mode === 'login' }" type="button" @click="setMode('login')">{{ t('authcard.k1') }}</button>
+      <button :class="{ active: mode === 'register' }" type="button" @click="setMode('register')">{{ t('authcard.k2') }}</button>
     </div>
 
     <form @submit.prevent="onSubmit" novalidate>
       <div class="field register-only" v-show="mode === 'register'">
-        <label>称呼(可选)</label>
-        <input v-model="name" type="text" placeholder="你想被怎么称呼" autocomplete="name" />
+        <label>{{ t('authcard.k3') }}</label>
+        <input v-model="name" type="text" :placeholder="t('authcard.k10')" autocomplete="name" />
       </div>
       <div class="field">
-        <label>邮箱</label>
+        <label>{{ t('authcard.k4') }}</label>
         <input v-model="email" type="email" placeholder="you@example.com" required autocomplete="email" />
       </div>
       <div class="field">
-        <label>密码</label>
+        <label>{{ t('authcard.k5') }}</label>
                 <input
                   v-model="password"
                   type="password"
-                  placeholder="至少 6 位"
+                  :placeholder="t('authcard.k11')"
                   required
                   :autocomplete="mode === 'register' ? 'new-password' : 'current-password'"
                 />
@@ -93,7 +95,7 @@ async function onSubmit() {
 
       <div class="agree register-only" v-show="mode === 'register'">
         <input v-model="agree" type="checkbox" id="agree" />
-        <span>我已阅读并同意 <a href="#">服务条款</a> 与 <a href="#">隐私政策</a></span>
+        <span>{{ t('authcard.k6') }} <a href="#">{{ t('authcard.k7') }}</a>{{ t('authcard.k8') }} <a href="#">{{ t('authcard.k9') }}</a></span>
       </div>
 
       <button type="submit" class="submit" :disabled="submitting">
